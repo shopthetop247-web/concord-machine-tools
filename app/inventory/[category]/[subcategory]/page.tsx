@@ -1,5 +1,3 @@
-"use client"; // Optional, only needed if you use hooks
-
 import Link from "next/link";
 import { client } from "@/lib/sanityClient";
 
