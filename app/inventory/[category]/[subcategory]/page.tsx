@@ -13,17 +13,24 @@ interface SubcategoryPageProps {
 
 // Pre-generate all subcategory paths for SSG
 export async function generateStaticParams() {
-  const subcategories: { slug: { current: string }; category: { slug: { current: string } } }[] =
-    await client.fetch(`
-      *[_type=="subcategory"]{
-        slug,
-        category->{slug}
-      }
-    `);
+  const subcategories: {
+    slug: { current: string };
+    category?: { slug?: { current: string } };
+  }[] = await client.fetch(`
+    *[_type=="subcategory" && defined(category._ref) && defined(slug.current)]{
+      slug,
+      category->{slug}
+    }
+  `);
 
-  return subcategories.map((sub) => ({
-    category: sub.category.slug.current,
-    subcategory: sub.slug.current,
+  // Filter out any subcategory without category or slug
+  const validSubcategories = subcategories.filter(
+    (sub) => sub.slug?.current && sub.category?.slug?.current
+  );
+
+  return validSubcategories.map((sub) => ({
+    category: sub.category!.slug!.current,
+    subcategory: sub.slug!.current,
   }));
 }
 
