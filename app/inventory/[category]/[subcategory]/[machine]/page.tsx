@@ -1,0 +1,1 @@
+export default function Machine(){return <div><h1>Machine Name</h1><p><strong>Stock #:</strong> SAMPLE-001</p></div>;}
