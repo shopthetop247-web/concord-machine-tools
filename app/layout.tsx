@@ -1,17 +1,34 @@
+import Link from "next/link";
 
-import './globals.css';
+export const metadata = {
+  title: "Concord Machine Tools",
+  description: "Industrial machinery inventory and sales",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
-        <header style={{padding:'1rem', borderBottom:'1px solid #ddd'}}>
-          <nav>
-            <a href="/">Home</a> | <a href="/inventory">Inventory</a> | <a href="/about">About</a> | <a href="/contact">Contact</a>
+        <header style={{ padding: "16px", borderBottom: "1px solid #ddd" }}>
+          <nav
+            style={{
+              display: "flex",
+              gap: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            <Link href="/">Home</Link>
+            <Link href="/inventory">Inventory</Link>
+            <Link href="/about">About</Link>
+            <Link href="/contact">Contact</Link>
           </nav>
         </header>
-        <main style={{padding:'2rem'}}>{children}</main>
-        <footer style={{padding:'1rem', borderTop:'1px solid #ddd'}}>© Concord Machine Tools</footer>
+
+        <main style={{ padding: "24px" }}>{children}</main>
       </body>
     </html>
   );
