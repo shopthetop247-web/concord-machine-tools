@@ -3,7 +3,7 @@ import { client } from "@/lib/sanityClient";
 
 interface Category {
   _id: string;
-  title: string;
+  name: string; // <-- changed from title
   slug: {
     current: string;
   };
@@ -11,9 +11,9 @@ interface Category {
 
 async function getCategories(): Promise<Category[]> {
   return client.fetch(`
-    *[_type == "category"] | order(title asc) {
+    *[_type == "category"] | order(name asc) {  // <-- changed from title
       _id,
-      title,
+      name,   // <-- changed from title
       slug
     }
   `);
@@ -37,7 +37,7 @@ export default async function InventoryPage() {
               href={`/inventory/${category.slug.current}`}
               style={{ fontSize: "18px", fontWeight: "bold" }}
             >
-              {category.title}
+              {category.name} {/* <-- changed from title */}
             </Link>
           </li>
         ))}
@@ -45,3 +45,4 @@ export default async function InventoryPage() {
     </main>
   );
 }
+
