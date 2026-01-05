@@ -1,60 +1,65 @@
 import Link from "next/link";
 import { client } from "@/lib/sanityClient";
 
-interface Subcategory {
+interface Machine {
   _id: string;
   name: string;
-  slug: {
-    current: string;
-  };
+  slug: { current: string };
 }
 
-interface CategoryPageProps {
-  params: { category: string };
+interface SubcategoryPageProps {
+  params: { category: string; subcategory: string };
 }
 
-// Optional: generate static paths so Next.js pre-renders each category
+// Pre-generate all subcategory paths for SSG
 export async function generateStaticParams() {
-  const categories: { slug: { current: string } }[] = await client.fetch(`
-    *[_type == "category"]{
-      slug
-    }
-  `);
+  const subcategories: { slug: { current: string }; category: { slug: { current: string } } }[] =
+    await client.fetch(`
+      *[_type=="subcategory"]{
+        slug,
+        category->{slug}
+      }
+    `);
 
-  return categories.map((cat) => ({
-    category: cat.slug.current,
+  return subcategories.map((sub) => ({
+    category: sub.category.slug.current,
+    subcategory: sub.slug.current,
   }));
 }
 
-async function getSubcategories(categorySlug: string): Promise<Subcategory[]> {
+// Fetch machines for this subcategory
+async function getMachines(categorySlug: string, subcategorySlug: string): Promise<Machine[]> {
   return client.fetch(
     `
-    *[_type=="subcategory" && references(*[_type=="category" && slug.current==$categorySlug]._id)]{
+    *[_type=="machine" && references(*[_type=="subcategory" && slug.current==$subcategorySlug]._id)]{
       _id,
       name,
       slug
     } | order(name asc)
-  `,
-    { categorySlug }
+    `,
+    { subcategorySlug }
   );
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = params;
-  const subcategories = await getSubcategories(category);
+export default async function SubcategoryPage({ params }: SubcategoryPageProps) {
+  const { category, subcategory } = params;
+  const machines = await getMachines(category, subcategory);
 
-  if (!subcategories || subcategories.length === 0) {
-    return <p>No subcategories found for this category.</p>;
+  if (!machines || machines.length === 0) {
+    return <p>No machines found in this subcategory.</p>;
   }
 
   return (
     <main style={{ padding: "24px" }}>
-      <h1>Subcategories in {category.replace(/-/g, " ")}</h1>
+      <h1>
+        Machines in {subcategory.replace(/-/g, " ")} ({category.replace(/-/g, " ")})
+      </h1>
+
       <ul style={{ marginTop: "16px" }}>
-        {subcategories.map((subcat) => (
-          <li key={subcat._id} style={{ marginBottom: "12px" }}>
-            <Link href={`/inventory/${category}/${subcat.slug.current}`}>
-              {subcat.name}
+        {machines.map((machine) => (
+          <li key={machine._id} style={{ marginBottom: "12px" }}>
+            <Link href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}>
+              {machine.name}
             </Link>
           </li>
         ))}
