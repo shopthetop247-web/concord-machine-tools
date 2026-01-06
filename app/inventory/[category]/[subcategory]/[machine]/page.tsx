@@ -10,6 +10,7 @@ interface Machine {
   yearOfMfg?: string;
   specifications?: string;
   images?: { asset: { _ref: string } }[];
+  videos?: string[];
   stockNumber: string;
 }
 
