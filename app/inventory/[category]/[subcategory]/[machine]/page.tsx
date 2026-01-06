@@ -1,75 +1,85 @@
-'use client'; // Needed for React state/hooks (RequestQuoteModal)
+'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
-import { PortableText } from '@portabletext/react';
+import Image from 'next/image';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
-
-interface MachinePageProps {
-  params: {
-    category: string;
-    subcategory: string;
-    machine: string;
-  };
-}
+import imageUrlBuilder from '@sanity/image-url';
 
 interface Machine {
   _id: string;
   name: string;
-  slug: { current: string };
-  specifications?: any; // PortableText content
   yearOfMfg?: string;
-  stockNumber?: string;
+  specifications?: string;
   images?: { asset: { _ref: string } }[];
+  stockNumber: string;
 }
 
-async function getMachine(slug: string): Promise<Machine | null> {
-  const query = `
-    *[_type == "machine" && slug.current == $slug][0]{
-      _id,
-      name,
-      slug,
-      specifications,
-      yearOfMfg,
-      stockNumber,
-      images
-    }
-  `;
-  return client.fetch(query, { slug });
+interface PageProps {
+  params: { category: string; subcategory: string; machine: string };
 }
 
-export default async function MachinePage({ params }: MachinePageProps) {
-  const { machine } = params;
-  const machineData = await getMachine(machine);
+// Setup Sanity image builder
+const builder = imageUrlBuilder(client);
+function urlFor(source: any) {
+  return builder.image(source);
+}
+
+export default async function MachinePage({ params }: PageProps) {
+  const { category, subcategory, machine } = params;
+
+  // Fetch machine data from Sanity
+  const query = `*[_type == "machine" && slug.current == $slug][0]{
+    _id,
+    name,
+    yearOfMfg,
+    specifications,
+    images,
+    stockNumber
+  }`;
+  const machineData: Machine = await client.fetch(query, { slug: machine });
 
   if (!machineData) {
-    return <p>Machine not found.</p>;
+    return <p>Machine not found</p>;
   }
+
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <main style={{ padding: '24px' }}>
       <h1>{machineData.name}</h1>
 
-      {machineData.yearOfMfg && <p><strong>Year of Mfg:</strong> {machineData.yearOfMfg}</p>}
-      {machineData.stockNumber && <p><strong>Stock #:</strong> {machineData.stockNumber}</p>}
+      {machineData.yearOfMfg && (
+        <p>
+          <strong>Year of Mfg:</strong> {machineData.yearOfMfg}
+        </p>
+      )}
 
       {machineData.specifications && (
-        <div>
-          <h2>Specifications</h2>
-          <PortableText value={machineData.specifications} />
-        </div>
+        <p>
+          <strong>Specifications:</strong> {machineData.specifications}
+        </p>
       )}
 
-     {machineData.images.map((img, index) => {
-  const url = `https://cdn.sanity.io/images/iwodjd3n/production/${img.asset._ref.split('-')[1]}.${img.asset._ref.split('-')[2]}`;
-  return <img key={index} src={url} alt={machineData.name} style={{ maxWidth: '300px', borderRadius: '8px' }} />;
-})}
-        </div>
+      <button onClick={() => setShowModal(true)}>Request Quote</button>
+      {showModal && (
+        <RequestQuoteModal
+          stockNumber={machineData.stockNumber}
+          onClose={() => setShowModal(false)}
+        />
       )}
 
-      {machineData.stockNumber && (
-        <div style={{ marginTop: '24px' }}>
-          <RequestQuoteModal stockNumber={machineData.stockNumber} />
+      {machineData.images && machineData.images.length > 0 && (
+        <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
+          {machineData.images.map((img, index) => (
+            <Image
+              key={index}
+              src={urlFor(img).url()}
+              alt={machineData.name}
+              width={400}
+              height={300}
+            />
+          ))}
         </div>
       )}
     </main>
