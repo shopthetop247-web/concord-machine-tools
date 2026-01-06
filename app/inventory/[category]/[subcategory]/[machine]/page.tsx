@@ -1,9 +1,6 @@
-'use client';
-
-import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import MachineImages from '@/components/MachineImages';
-import RequestQuoteModal from '@/components/RequestQuoteModal';
+import RequestQuoteSection from '@/components/RequestQuoteSection';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
 
@@ -48,10 +45,8 @@ export default async function MachinePage({ params }: PageProps) {
   const imageUrls =
     machineData.images?.map((img) => urlFor(img)) ?? [];
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
-    <main className="max-w-6xl mx-auto px-6 py-8 font-sans">
+    <main className="max-w-6xl mx-auto px-6 py-8">
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/inventory" className="text-blue-500 hover:underline">
@@ -98,7 +93,7 @@ export default async function MachinePage({ params }: PageProps) {
         <MachineImages images={imageUrls} />
       )}
 
-      {/* Specifications */}
+      {/* Specs */}
       {machineData.specifications && (
         <section className="mt-8">
           <h2 className="text-lg font-medium mb-2">
@@ -110,24 +105,11 @@ export default async function MachinePage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Request Quote */}
+      {/* Quote CTA (client component) */}
       <section className="mt-8">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-brandBlue text-white font-semibold px-6 py-3 rounded shadow-md
-                     hover:bg-blue-400 hover:shadow-lg transform hover:scale-105
-                     transition duration-300 ease-in-out"
-        >
-          Request Quote
-        </button>
-
-        {isModalOpen && (
-          <RequestQuoteModal
-            stockNumber={machineData.stockNumber}
-            onClose={() => setIsModalOpen(false)}
-          />
-        )}
+        <RequestQuoteSection stockNumber={machineData.stockNumber} />
       </section>
     </main>
   );
 }
+
