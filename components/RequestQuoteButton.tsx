@@ -1,39 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
-import RequestQuoteModal from './RequestQuoteModal';
+import React from 'react';
 
-interface RequestQuoteButtonProps {
+interface Props {
   stockNumber: string;
 }
 
-export default function RequestQuoteButton({ stockNumber }: RequestQuoteButtonProps) {
-  const [showModal, setShowModal] = useState(false);
+export default function RequestQuoteButton({ stockNumber }: Props) {
+  const mailto = `mailto:youremail@example.com?subject=Quote Request for Stock# ${stockNumber}`;
 
   return (
-    <>
-      <button
-        style={{
-          padding: '8px 16px',
-          backgroundColor: '#1f2937',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginTop: '12px'
-        }}
-        onClick={() => setShowModal(true)}
-      >
-        Request Quote
-      </button>
-
-      {showModal && (
-        <RequestQuoteModal
-          stockNumber={stockNumber}
-          onClose={() => setShowModal(false)}
-        />
-      )}
-    </>
+    <a
+      href={mailto}
+      style={{
+        display: 'inline-block',
+        padding: '12px 24px',
+        backgroundColor: '#1e40af', // original button color
+        color: 'white',
+        borderRadius: '8px',
+        textDecoration: 'none',
+        transition: 'background-color 0.3s',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#5795f2')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1e40af')}
+    >
+      Request Quote
+    </a>
   );
 }
-
