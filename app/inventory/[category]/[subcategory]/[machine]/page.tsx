@@ -1,6 +1,3 @@
-'use client';
-
-import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -22,7 +19,7 @@ interface PageProps {
 // Setup Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source).auto('format').url(); // ensures proper Sanity URL
+  return builder.image(source).auto('format').url();
 }
 
 export default async function MachinePage({ params }: PageProps) {
@@ -72,7 +69,7 @@ export default async function MachinePage({ params }: PageProps) {
         <strong>Stock#:</strong> {machineData.stockNumber}
       </p>
 
-      {/* Request Quote Button */}
+      {/* Request Quote Button (Client Component) */}
       <RequestQuoteButton stockNumber={machineData.stockNumber} />
 
       {/* Machine Images */}
