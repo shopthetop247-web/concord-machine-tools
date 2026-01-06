@@ -3,25 +3,26 @@
 import React, { useState } from 'react';
 import RequestQuoteModal from './RequestQuoteModal';
 
-interface Props {
+interface RequestQuoteButtonProps {
   stockNumber: string;
 }
 
-export default function RequestQuoteButton({ stockNumber }: Props) {
+export default function RequestQuoteButton({ stockNumber }: RequestQuoteButtonProps) {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div style={{ marginTop: '16px' }}>
+    <>
       <button
-        onClick={() => setShowModal(true)}
         style={{
           padding: '8px 16px',
-          backgroundColor: '#0070f3',
-          color: '#fff',
+          backgroundColor: '#1f2937',
+          color: 'white',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',
+          marginTop: '12px'
         }}
+        onClick={() => setShowModal(true)}
       >
         Request Quote
       </button>
@@ -32,6 +33,7 @@ export default function RequestQuoteButton({ stockNumber }: Props) {
           onClose={() => setShowModal(false)}
         />
       )}
-    </div>
+    </>
   );
 }
+
