@@ -1,116 +1,96 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 
 interface RequestQuoteModalProps {
   stockNumber: string;
+  onClose: () => void; // <-- add this line
 }
 
-const RequestQuoteModal: React.FC<RequestQuoteModalProps> = ({ stockNumber }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    company: ''
-  });
+export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuoteModalProps) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [company, setCompany] = useState('');
   const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Build email content
-    const subject = `RFQ Stock# ${stockNumber}`;
-    const body = `Stock#: ${stockNumber}\nName: ${form.name}\nEmail: ${form.email}\nCompany: ${form.company}`;
-
-    // Open user's email client
-    window.location.href = `mailto:sales@concordmt.com?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-
+    // Here you would integrate your email sending / form submission logic
+    console.log({ name, email, company, stockNumber });
     setSubmitted(true);
   };
 
   return (
-    <>
-      {/* Request Quote button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          padding: '24px',
+          borderRadius: '8px',
+          minWidth: '300px',
+        }}
       >
-        Request Quote
-      </button>
+        <button
+          style={{ float: 'right', marginBottom: '8px' }}
+          onClick={onClose}
+        >
+          Close
+        </button>
 
-      {/* Modal overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md relative">
-            {/* Close button */}
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-            >
-              ✕
+        {submitted ? (
+          <p>Thank you! Your request has been submitted.</p>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <h2>Request Quote - Stock #{stockNumber}</h2>
+            <label>
+              Name:
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </label>
+            <br />
+            <label>
+              Email:
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </label>
+            <br />
+            <label>
+              Company:
+              <input
+                type="text"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                required
+              />
+            </label>
+            <br />
+            <button type="submit" style={{ marginTop: '12px' }}>
+              Submit
             </button>
-
-            {!submitted ? (
-              <>
-                <h2 className="text-xl font-semibold mb-4">Request Quote</h2>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full border px-2 py-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full border px-2 py-1 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Company</label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={form.company}
-                      onChange={handleChange}
-                      required
-                      className="w-full border px-2 py-1 rounded"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Send Request
-                  </button>
-                </form>
-              </>
-            ) : (
-              <p className="text-green-600 font-medium">
-                Your request has been prepared in your email client!
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-    </>
+          </form>
+        )}
+      </div>
+    </div>
   );
-};
+}
 
-export default RequestQuoteModal;
