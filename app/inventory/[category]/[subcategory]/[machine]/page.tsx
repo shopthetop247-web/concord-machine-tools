@@ -1,3 +1,4 @@
+// app/inventory/[category]/[subcategory]/[machine]/page.tsx
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -19,7 +20,7 @@ interface PageProps {
 // Setup Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source).auto('format').url();
+  return builder.image(source).auto('format').url(); // return the actual URL string
 }
 
 export default async function MachinePage({ params }: PageProps) {
@@ -75,16 +76,19 @@ export default async function MachinePage({ params }: PageProps) {
       {/* Machine Images */}
       {machineData.images && machineData.images.length > 0 && (
         <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
-          {machineData.images.map((img, index) => (
-            <Image
-              key={index}
-              src={urlFor(img)}
-              alt={machineData.name}
-              width={400}
-              height={300}
-              style={{ objectFit: 'contain' }}
-            />
-          ))}
+          {machineData.images.map((img, index) => {
+            const imgUrl = urlFor(img); // <-- this now returns a proper URL string
+            return (
+              <Image
+                key={index}
+                src={imgUrl}
+                alt={machineData.name}
+                width={400}
+                height={300}
+                style={{ objectFit: 'contain' }}
+              />
+            );
+          })}
         </div>
       )}
     </main>
