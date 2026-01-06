@@ -1,11 +1,10 @@
-'use client';
-
 import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
 import imageUrlBuilder from '@sanity/image-url';
 
+// ----- TYPES -----
 interface Machine {
   _id: string;
   name: string;
@@ -19,39 +18,62 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Setup Sanity image builder
+// ----- SANITY IMAGE BUILDER -----
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
   return builder.image(source).url();
 }
 
-export default function MachinePage({ params }: PageProps) {
-  const { category, subcategory, machine } = params;
-
-  const [machineData, setMachineData] = useState<Machine | null>(null);
-  const [loading, setLoading] = useState(true);
+// ----- CLIENT-SIDE MODAL WRAPPER -----
+'use client';
+function RequestQuoteButton({ stockNumber }: { stockNumber: string }) {
   const [showModal, setShowModal] = useState(false);
 
-  // Fetch machine data once component mounts
-  React.useEffect(() => {
-    async function fetchData() {
-      const query = `*[_type=="machine" && slug.current==$slug][0]{
-        _id,
-        name,
-        yearOfMfg,
-        specifications,
-        images,
-        stockNumber
-      }`;
-      const data: Machine = await client.fetch(query, { slug: machine });
-      setMachineData(data || null);
-      setLoading(false);
-    }
-    fetchData();
-  }, [machine]);
+  return (
+    <div style={{ marginTop: '16px' }}>
+      <button
+        onClick={() => setShowModal(true)}
+        style={{
+          padding: '8px 16px',
+          backgroundColor: '#0070f3',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        Request Quote
+      </button>
 
-  if (loading) return <p>Loading machine data...</p>;
-  if (!machineData) return <p>Machine not found.</p>;
+      {showModal && (
+        <RequestQuoteModal
+          stockNumber={stockNumber}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ----- SERVER COMPONENT PAGE -----
+export default async function MachinePage({ params }: PageProps) {
+  const { category, subcategory, machine } = params;
+
+  // Fetch machine data from Sanity
+  const query = `*[_type=="machine" && slug.current==$slug][0]{
+    _id,
+    name,
+    yearOfMfg,
+    specifications,
+    images,
+    stockNumber
+  }`;
+
+  const machineData: Machine | null = await client.fetch(query, { slug: machine });
+
+  if (!machineData) {
+    return <p>Machine not found.</p>;
+  }
 
   return (
     <main style={{ padding: '24px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -74,28 +96,10 @@ export default function MachinePage({ params }: PageProps) {
         </div>
       )}
 
-      <button
-        onClick={() => setShowModal(true)}
-        style={{
-          marginTop: '16px',
-          padding: '10px 20px',
-          backgroundColor: '#0070f3',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        Request Quote
-      </button>
+      {/* Request Quote Button & Modal */}
+      <RequestQuoteButton stockNumber={machineData.stockNumber} />
 
-      {showModal && (
-        <RequestQuoteModal
-          stockNumber={machineData.stockNumber}
-          onClose={() => setShowModal(false)}
-        />
-      )}
-
+      {/* Images */}
       {machineData.images && machineData.images.length > 0 && (
         <div
           style={{
