@@ -34,6 +34,7 @@ export default async function MachinePage({ params }: PageProps) {
       yearOfMfg,
       specifications,
       images,
+      videos,
       stockNumber
     }`,
     { slug: params.machine }
