@@ -74,23 +74,23 @@ export default async function MachinePage({ params }: PageProps) {
       <RequestQuoteButton stockNumber={machineData.stockNumber} />
 
       {/* Machine Images */}
-      {machineData.images && machineData.images.length > 0 && (
-        <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
-          {machineData.images.map((img, index) => {
-            const imgUrl = urlFor(img);
-            return (
-              <Image
-                key={index}
-                src={imgUrl}
-                alt={machineData.name}
-                width={400}
-                height={300}
-                style={{ objectFit: 'contain' }}
-              />
-            );
-          })}
-        </div>
-      )}
+{machineData.images && machineData.images.length > 0 && (
+  <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+    {machineData.images.map((img, index) => {
+      const imgUrl = urlFor(img).url(); // <-- call .url() here
+      return (
+        <Image
+          key={index}
+          src={imgUrl}
+          alt={machineData.name}
+          width={400}
+          height={300}
+          style={{ objectFit: 'contain' }}
+        />
+      );
+    })}
+  </div>
+)}
     </main>
   );
 }
