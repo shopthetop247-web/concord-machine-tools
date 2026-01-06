@@ -1,4 +1,6 @@
-// app/inventory/[category]/[subcategory]/[machine]/page.tsx
+'use client';
+
+import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -17,16 +19,16 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Sanity image builder
+// Setup Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source).auto('format').url();
+  return builder.image(source).auto('format').url(); // ensures proper Sanity URL
 }
 
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
-  // Fetch machine data
+  // Fetch machine data from Sanity
   const query = `*[_type == "machine" && slug.current == $slug][0]{
     _id,
     name,
@@ -41,7 +43,7 @@ export default async function MachinePage({ params }: PageProps) {
   if (!machineData) {
     return (
       <main style={{ padding: '24px' }}>
-        <p>Machine not found.</p>
+        <p>Machine not found</p>
       </main>
     );
   }
@@ -57,7 +59,7 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {machineData.specifications && (
-        <div style={{ marginTop: '8px' }}>
+        <div>
           <strong>Specifications:</strong>
           <pre style={{ whiteSpace: 'pre-wrap', marginTop: '4px' }}>
             {machineData.specifications}
@@ -66,25 +68,16 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {/* Stock Number */}
-      <p style={{ marginTop: '8px' }}>
+      <p>
         <strong>Stock#:</strong> {machineData.stockNumber}
       </p>
 
       {/* Request Quote Button */}
-      <div style={{ marginTop: '16px' }}>
-        <RequestQuoteButton stockNumber={machineData.stockNumber} />
-      </div>
+      <RequestQuoteButton stockNumber={machineData.stockNumber} />
 
       {/* Machine Images */}
       {machineData.images && machineData.images.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '16px',
-            marginTop: '16px',
-            flexWrap: 'wrap',
-          }}
-        >
+        <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
           {machineData.images.map((img, index) => (
             <Image
               key={index}
