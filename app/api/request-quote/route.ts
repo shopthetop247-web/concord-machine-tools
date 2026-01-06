@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+// app/api/request-quote/route.ts
 import nodemailer from 'nodemailer';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.json();
-    const { name, email, phone, message, stockNumber } = data;
+    const { name, email, phone, message, stockNumber } = await req.json();
 
     if (!name || !email || !stockNumber) {
       return NextResponse.json(
@@ -13,34 +13,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create Nodemailer transporter using Gmail
+    // Create Nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER, // from .env.local
-        pass: process.env.EMAIL_PASS, // from .env.local
+        user: process.env.EMAIL_USER, // sales@concordmt.com
+        pass: process.env.EMAIL_PASS, // your password
       },
     });
 
     // Email content
     const mailOptions = {
-      from: `"Concord Machine Tools" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER, // send to yourself
+      from: `"${name}" <${email}>`,
+      to: process.env.EMAIL_USER,
       subject: `Quote Request for Stock# ${stockNumber}`,
-      html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
-        <p><strong>Stock#:</strong> ${stockNumber}</p>
-        <p><strong>Message:</strong><br/>${message || 'N/A'}</p>
+      text: `
+        Name: ${name}
+        Email: ${email}
+        Phone: ${phone || 'N/A'}
+        Stock#: ${stockNumber}
+        Message: ${message || 'N/A'}
       `,
     };
 
+    // Send email
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error sending email:', error);
+    return NextResponse.json({ message: 'Quote request sent successfully!' });
+  } catch (err: any) {
+    console.error('Error sending quote request:', err);
     return NextResponse.json(
       { error: 'Failed to send email. Please try again later.' },
       { status: 500 }
