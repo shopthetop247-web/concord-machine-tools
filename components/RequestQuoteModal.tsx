@@ -6,6 +6,7 @@ import RequestQuoteForm from './RequestQuoteForm';
 
 interface RequestQuoteModalProps {
   stockNumber: string;
+   onClose: () => void;
 }
 
 export default function RequestQuoteModal({ stockNumber }: RequestQuoteModalProps) {
