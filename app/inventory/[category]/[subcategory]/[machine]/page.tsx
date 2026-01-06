@@ -42,8 +42,17 @@ export default async function MachinePage({ params }: PageProps) {
     return <p className="p-6">Machine not found</p>;
   }
 
-  const imageUrls =
-    machineData.images?.map((img) => urlFor(img)) ?? [];
+  const galleryItems = [
+  ...(machineData.images?.map((img) => ({
+    type: 'image' as const,
+    src: urlFor(img),
+  })) ?? []),
+  ...(machineData.videos?.map((url: string) => ({
+    type: 'video' as const,
+    src: url.split('v=')[1]?.split('&')[0] || url.split('/').pop(),
+  })) ?? []),
+];
+
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
