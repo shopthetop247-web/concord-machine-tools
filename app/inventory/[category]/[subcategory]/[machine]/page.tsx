@@ -51,25 +51,28 @@ export default async function MachinePage({ params }: PageProps) {
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont',
       }}
     >
-      {/* ----- Breadcrumbs ----- */}
-      <nav
-        style={{
-          marginBottom: '16px',
-          fontSize: '0.9rem',
-          color: '#6b7280',
-        }}
-      >
-        <Link href="/inventory" style={{ color: '#3b82f6' }}>Inventory</Link> &gt;{' '}
-        <Link href={`/inventory/${params.category}`} style={{ color: '#3b82f6' }}>
+      {/* ----- Chevron Breadcrumbs ----- */}
+      <nav style={{ marginBottom: '24px', fontSize: '0.9rem', color: '#6b7280' }}>
+        <Link href="/inventory" style={{ color: '#3b82f6', textDecoration: 'none' }}>Inventory</Link>
+        <span style={{ margin: '0 6px' }}>›</span>
+        <Link
+          href={`/inventory/${params.category}`}
+          style={{ color: '#3b82f6', textDecoration: 'none' }}
+        >
           {params.category.replace(/-/g, ' ')}
-        </Link> &gt;{' '}
-        <Link href={`/inventory/${params.category}/${params.subcategory}`} style={{ color: '#3b82f6' }}>
+        </Link>
+        <span style={{ margin: '0 6px' }}>›</span>
+        <Link
+          href={`/inventory/${params.category}/${params.subcategory}`}
+          style={{ color: '#3b82f6', textDecoration: 'none' }}
+        >
           {params.subcategory.replace(/-/g, ' ')}
-        </Link> &gt;{' '}
-        <span style={{ color: '#111827' }}>{machineData.name}</span>
+        </Link>
+        <span style={{ margin: '0 6px', color: '#374151' }}>›</span>
+        <span style={{ color: '#111827', fontWeight: 500 }}>{machineData.name}</span>
       </nav>
 
-      {/* TITLE */}
+      {/* ----- Machine Title ----- */}
       <h1
         style={{
           fontSize: '2.2rem',
@@ -80,13 +83,8 @@ export default async function MachinePage({ params }: PageProps) {
         {machineData.name}
       </h1>
 
-      {/* META */}
-      <div
-        style={{
-          color: '#374151',
-          marginBottom: '24px',
-        }}
-      >
+      {/* ----- Year & Stock# ----- */}
+      <div style={{ color: '#374151', marginBottom: '24px' }}>
         {machineData.yearOfMfg && (
           <span>
             <strong>Year:</strong> {machineData.yearOfMfg} &nbsp;|&nbsp;
@@ -95,20 +93,13 @@ export default async function MachinePage({ params }: PageProps) {
         <strong>Stock #:</strong> {machineData.stockNumber}
       </div>
 
-      {/* IMAGES */}
+      {/* ----- Machine Images ----- */}
       {imageUrls.length > 0 && <MachineImages images={imageUrls} />}
 
-      {/* SPECIFICATIONS */}
+      {/* ----- Specifications ----- */}
       {machineData.specifications && (
         <section style={{ marginTop: '32px' }}>
-          <h2
-            style={{
-              fontSize: '1.4rem',
-              marginBottom: '8px',
-            }}
-          >
-            Specifications
-          </h2>
+          <h2 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>Specifications</h2>
           <pre
             style={{
               whiteSpace: 'pre-wrap',
@@ -124,7 +115,7 @@ export default async function MachinePage({ params }: PageProps) {
         </section>
       )}
 
-      {/* CTA */}
+      {/* ----- Request Quote Button ----- */}
       <section style={{ marginTop: '32px' }}>
         <RequestQuoteButton stockNumber={machineData.stockNumber} />
       </section>
