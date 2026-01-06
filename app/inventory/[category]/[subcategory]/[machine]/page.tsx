@@ -16,12 +16,13 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Setup Sanity image builder
+// ----- SANITY IMAGE BUILDER -----
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source);
+  return builder.image(source).auto('format').url();
 }
 
+// ----- MACHINE PAGE COMPONENT -----
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
@@ -75,16 +76,19 @@ export default async function MachinePage({ params }: PageProps) {
       {/* Machine Images */}
       {machineData.images && machineData.images.length > 0 && (
         <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
-          {machineData.images.map((img, index) => (
-            <Image
-              key={index}
-              src={urlFor(img).url()}
-              alt={machineData.name}
-              width={400}
-              height={300}
-              style={{ objectFit: 'contain' }}
-            />
-          ))}
+          {machineData.images.map((img, index) => {
+            const imgUrl = urlFor(img);
+            return (
+              <Image
+                key={index}
+                src={imgUrl}
+                alt={machineData.name}
+                width={400}
+                height={300}
+                style={{ objectFit: 'contain' }}
+              />
+            );
+          })}
         </div>
       )}
     </main>
