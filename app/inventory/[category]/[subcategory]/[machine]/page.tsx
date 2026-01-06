@@ -1,6 +1,9 @@
+'use client';
+
+import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
-import RequestQuoteButton from '@/components/RequestQuoteButton';
 import MachineImages from '@/components/MachineImages';
+import RequestQuoteModal from '@/components/RequestQuoteModal';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
 
@@ -36,55 +39,44 @@ export default async function MachinePage({ params }: PageProps) {
   );
 
   if (!machineData) {
-    return <p style={{ padding: '24px' }}>Machine not found</p>;
+    return <p className="p-6">Machine not found</p>;
   }
 
-  const imageUrls =
-    machineData.images?.map((img) => urlFor(img)) ?? [];
+  const imageUrls = machineData.images?.map((img) => urlFor(img)) ?? [];
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <main
-      style={{
-        padding: '32px 24px',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont',
-      }}
-    >
+    <main className="p-8 max-w-[1200px] mx-auto font-sans">
       {/* ----- Chevron Breadcrumbs ----- */}
-      <nav style={{ marginBottom: '24px', fontSize: '0.9rem', color: '#6b7280' }}>
-        <Link href="/inventory" style={{ color: '#3b82f6', textDecoration: 'none' }}>Inventory</Link>
-        <span style={{ margin: '0 6px' }}>›</span>
+      <nav className="mb-6 text-sm text-gray-500">
+        <Link href="/inventory" className="text-blue-500 hover:underline">
+          Inventory
+        </Link>
+        <span className="mx-1">›</span>
         <Link
           href={`/inventory/${params.category}`}
-          style={{ color: '#3b82f6', textDecoration: 'none' }}
+          className="text-blue-500 hover:underline"
         >
           {params.category.replace(/-/g, ' ')}
         </Link>
-        <span style={{ margin: '0 6px' }}>›</span>
+        <span className="mx-1">›</span>
         <Link
           href={`/inventory/${params.category}/${params.subcategory}`}
-          style={{ color: '#3b82f6', textDecoration: 'none' }}
+          className="text-blue-500 hover:underline"
         >
           {params.subcategory.replace(/-/g, ' ')}
         </Link>
-        <span style={{ margin: '0 6px', color: '#374151' }}>›</span>
-        <span style={{ color: '#111827', fontWeight: 500 }}>{machineData.name}</span>
+        <span className="mx-1 text-gray-700">›</span>
+        <span className="text-gray-900 font-medium">{machineData.name}</span>
       </nav>
 
       {/* ----- Machine Title ----- */}
-      <h1
-        style={{
-          fontSize: '2.2rem',
-          fontWeight: 600,
-          marginBottom: '8px',
-        }}
-      >
-        {machineData.name}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-2">{machineData.name}</h1>
 
       {/* ----- Year & Stock# ----- */}
-      <div style={{ color: '#374151', marginBottom: '24px' }}>
+      <div className="text-gray-700 mb-6">
         {machineData.yearOfMfg && (
           <span>
             <strong>Year:</strong> {machineData.yearOfMfg} &nbsp;|&nbsp;
@@ -98,26 +90,29 @@ export default async function MachinePage({ params }: PageProps) {
 
       {/* ----- Specifications ----- */}
       {machineData.specifications && (
-        <section style={{ marginTop: '32px' }}>
-          <h2 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>Specifications</h2>
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              background: '#f9fafb',
-              padding: '16px',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-              fontSize: '0.95rem',
-            }}
-          >
+        <section className="mt-8">
+          <h2 className="text-lg font-medium mb-2">Specifications</h2>
+          <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded border border-gray-200 text-sm">
             {machineData.specifications}
           </pre>
         </section>
       )}
 
-      {/* ----- Request Quote Button ----- */}
-      <section style={{ marginTop: '32px' }}>
-        <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      {/* ----- Request Quote Button & Modal ----- */}
+      <section className="mt-8">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-brandBlue text-white font-semibold px-6 py-3 rounded shadow-md hover:bg-blue-400 hover:shadow-lg transform hover:scale-105 transition duration-300 ease-in-out"
+        >
+          Request Quote
+        </button>
+
+        {isModalOpen && (
+          <RequestQuoteModal
+            stockNumber={machineData.stockNumber}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
       </section>
     </main>
   );
