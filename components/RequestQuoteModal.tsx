@@ -1,124 +1,49 @@
+// components/RequestQuoteModal.tsx
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import RequestQuoteForm from './RequestQuoteForm';
 
 interface RequestQuoteModalProps {
   stockNumber: string;
-  onClose: () => void;
 }
 
-export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuoteModalProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-
-  const handleSend = () => {
-    const subject = `Quote Request for Stock# ${stockNumber}`;
-    const body = encodeURIComponent(
-      `Name: ${name}\n` +
-      `Email: ${email}\n` +
-      `Phone: ${phone}\n` +
-      `Message: ${message}`
-    );
-
-    const mailtoUrl = `mailto:sales@concordmt.com?subject=${encodeURIComponent(subject)}&body=${body}`;
-
-    window.location.href = mailtoUrl;
-    onClose();
-  };
+export default function RequestQuoteModal({ stockNumber }: RequestQuoteModalProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '24px',
-          borderRadius: '8px',
-          width: '90%',
-          maxWidth: '400px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px'
-        }}
+    <>
+      {/* Trigger button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="bg-brandBlue text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-400 transition transform hover:scale-105 duration-300"
       >
-        <h2>Request Quote - Stock# {stockNumber}</h2>
+        Request Quote
+      </button>
 
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-        />
+      {/* Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+          <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-lg relative">
+            {/* Close button */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            >
+              &times;
+            </button>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-        />
+            {/* Modal title */}
+            <h2 className="text-xl font-semibold mb-4">Request a Quote - Stock# {stockNumber}</h2>
 
-        <input
-          type="tel"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-        />
-
-        <textarea
-          placeholder="Message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
-          rows={4}
-        />
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#e5e7eb',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleSend}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#1f2937',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Send Request
-          </button>
+            {/* Form */}
+            <RequestQuoteForm
+              stockNumber={stockNumber}
+              onSuccess={() => setIsOpen(false)}
+            />
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
