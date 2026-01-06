@@ -10,19 +10,22 @@ interface RequestQuoteModalProps {
 export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuoteModalProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [company, setCompany] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = () => {
+    const subject = `Quote Request for Stock# ${stockNumber}`;
+    const body = encodeURIComponent(
+      `Name: ${name}\n` +
+      `Email: ${email}\n` +
+      `Phone: ${phone}\n` +
+      `Message: ${message}`
+    );
 
-    // Construct mailto link
-    const subject = `RFQ Stock# ${stockNumber}`;
-    const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0ACompany: ${company}%0D%0AStock#: ${stockNumber}`;
+    const mailtoUrl = `mailto:sales@yourdomain.com?subject=${encodeURIComponent(subject)}&body=${body}`;
 
-    window.location.href = `mailto:sales@concordmt.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    setSubmitted(true);
+    window.location.href = mailtoUrl;
+    onClose();
   };
 
   return (
@@ -33,11 +36,11 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
         left: 0,
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.6)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 9999,
+        zIndex: 1000
       }}
     >
       <div
@@ -45,93 +48,77 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
           backgroundColor: 'white',
           padding: '24px',
           borderRadius: '8px',
-          width: '100%',
+          width: '90%',
           maxWidth: '400px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
         }}
       >
-        <button
-          onClick={onClose}
-          style={{
-            float: 'right',
-            fontWeight: 'bold',
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            fontSize: '16px',
-          }}
-        >
-          ×
-        </button>
+        <h2>Request Quote - Stock# {stockNumber}</h2>
 
-        <h2 style={{ marginBottom: '16px' }}>Request Quote</h2>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
 
-        {submitted ? (
-          <p>Thank you! Your email client should open shortly.</p>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '12px' }}>
-              <label>
-                Name:
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-                />
-              </label>
-            </div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
 
-            <div style={{ marginBottom: '12px' }}>
-              <label>
-                Email:
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-                />
-              </label>
-            </div>
+        <input
+          type="tel"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
 
-            <div style={{ marginBottom: '12px' }}>
-              <label>
-                Company:
-                <input
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
-                />
-              </label>
-            </div>
+        <textarea
+          placeholder="Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', resize: 'vertical' }}
+          rows={4}
+        />
 
-            <p>
-              <strong>Stock#:</strong> {stockNumber}
-            </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px' }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#e5e7eb',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
 
-            <button
-              type="submit"
-              style={{
-                marginTop: '12px',
-                padding: '10px 20px',
-                backgroundColor: '#0070f3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                width: '100%',
-              }}
-            >
-              Send Request
-            </button>
-          </form>
-        )}
+          <button
+            onClick={handleSend}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#1f2937',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Send Request
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
