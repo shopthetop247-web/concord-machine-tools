@@ -1,67 +1,73 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
+import Image from 'next/image';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/lib/sanityClient';
 
-interface ImageAsset {
+interface MachineImage {
   asset: { _ref: string };
+  alt?: string;
 }
 
 interface MachineImagesProps {
-  images: ImageAsset[];
-  alt: string;
+  images: MachineImage[];
 }
 
-// Sanity image builder
+// Setup Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
   return builder.image(source).auto('format').url();
 }
 
-export default function MachineImages({ images, alt }: MachineImagesProps) {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-
-  if (!images || images.length === 0) return null;
+export default function MachineImages({ images }: MachineImagesProps) {
+  const [index, setIndex] = useState(-1);
 
   return (
     <>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '16px',
-          marginTop: '2rem',
+          marginTop: '16px',
         }}
       >
-        {images.map((img, index) => (
+        {images.map((img, i) => (
           <div
-            key={index}
-            style={{ cursor: 'pointer', overflow: 'hidden', borderRadius: '8px', border: '1px solid #ddd' }}
-            onClick={() => setLightboxIndex(index)}
+            key={i}
+            style={{
+              cursor: 'pointer',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              padding: '4px',
+              backgroundColor: '#f9f9f9',
+            }}
+            onClick={() => setIndex(i)}
           >
             <Image
               src={urlFor(img)}
-              alt={alt}
+              alt={img.alt || 'Machine image'}
               width={400}
               height={300}
-              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+              style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
             />
           </div>
         ))}
       </div>
 
-      {lightboxIndex !== null && (
+      {index >= 0 && (
         <Lightbox
+          open={index >= 0}
+          index={index}
           slides={images.map((img) => ({ src: urlFor(img) }))}
-          open={lightboxIndex !== null}
-          index={lightboxIndex}
-          close={() => setLightboxIndex(null)}
+          close={() => setIndex(-1)}
         />
       )}
     </>
   );
 }
+
