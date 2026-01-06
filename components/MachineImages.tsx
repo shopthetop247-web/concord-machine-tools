@@ -5,62 +5,94 @@ import Image from 'next/image';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
-interface MachineImagesProps {
-  images: string[];
-  alt: string;
+interface SanityImage {
+  asset: {
+    _ref: string;
+  };
 }
 
-export default function MachineImages({ images, alt }: MachineImagesProps) {
-  const [index, setIndex] = useState<number | null>(null);
+interface Props {
+  images: string[];
+}
+
+export default function MachineImages({ images }: Props) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [open, setOpen] = useState(false);
+
+  if (!images || images.length === 0) return null;
 
   return (
-    <>
-      {/* Image Grid */}
+    <section style={{ marginTop: '24px' }}>
+      {/* HERO IMAGE */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: '16px',
-          marginTop: '24px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '8px',
+          marginBottom: '12px',
+          cursor: 'pointer',
+        }}
+        onClick={() => setOpen(true)}
+      >
+        <Image
+          src={images[selectedIndex]}
+          alt="Machine image"
+          width={900}
+          height={600}
+          style={{
+            width: '100%',
+            height: 'auto',
+            objectFit: 'contain',
+          }}
+          priority
+        />
+      </div>
+
+      {/* THUMBNAILS */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          flexWrap: 'wrap',
         }}
       >
-        {images.map((src, i) => (
+        {images.map((img, index) => (
           <button
-            key={i}
-            onClick={() => setIndex(i)}
+            key={index}
+            onClick={() => setSelectedIndex(index)}
             style={{
-              border: 'none',
-              background: 'none',
-              padding: 0,
+              border:
+                index === selectedIndex
+                  ? '2px solid #2563eb'
+                  : '1px solid #e5e7eb',
+              borderRadius: '6px',
+              padding: '2px',
+              background: 'white',
               cursor: 'pointer',
             }}
           >
             <Image
-              src={src}
-              alt={alt}
-              width={400}
-              height={300}
+              src={img}
+              alt={`Thumbnail ${index + 1}`}
+              width={120}
+              height={90}
               style={{
-                width: '100%',
-                height: 'auto',
-                borderRadius: '8px',
                 objectFit: 'contain',
-                background: '#f5f5f5',
+                display: 'block',
               }}
             />
           </button>
         ))}
       </div>
 
-      {/* Lightbox */}
-      {index !== null && (
-        <Lightbox
-          open
-          index={index}
-          close={() => setIndex(null)}
-          slides={images.map((src) => ({ src }))}
-        />
-      )}
-    </>
+      {/* LIGHTBOX */}
+      <Lightbox
+        open={open}
+        close={() => setOpen(false)}
+        slides={images.map((src) => ({ src }))}
+        index={selectedIndex}
+      />
+    </section>
   );
 }
+
