@@ -2,90 +2,80 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Lightbox from 'yet-another-react-lightbox';
+import Lightbox, { Slide } from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
-interface GalleryItem {
-  type: 'image' | 'video';
-  src: string; // image URL or YouTube ID
-}
-
 interface Props {
-  items: GalleryItem[];
+  images: string[];
+  videos?: string[];
 }
 
-export default function MachineImages({ items }: Props) {
+export default function MachineImages({ images, videos }: Props) {
   const [index, setIndex] = useState<number | null>(null);
-
-  if (!items.length) return null;
-
-  const hero = items[0];
+  const [slides, setSlides] = useState<Slide[]>(() => {
+    const imageSlides = images.map((src) => ({ type: 'image' as const, src }));
+    const videoSlides = videos?.map((url) => {
+      const videoId = url.includes('youtube.com')
+        ? url.split('v=')[1]?.split('&')[0]
+        : url.split('/').pop();
+      return {
+        type: 'video' as const,
+        src: `https://www.youtube.com/embed/${videoId}`,
+      };
+    }) ?? [];
+    return [...imageSlides, ...videoSlides];
+  });
 
   return (
     <section className="mt-6">
-      {/* HERO */}
-      <div className="max-w-[700px] mb-4 border border-gray-200 rounded-lg p-3 bg-gray-50">
-        {hero.type === 'image' ? (
+      {/* HERO IMAGE */}
+      <div className="max-w-2xl mb-4 border border-gray-200 rounded p-2 bg-gray-50">
+        {slides[0] && slides[0].type === 'image' ? (
           <Image
-            src={hero.src}
+            src={slides[0].src as string}
             alt="Machine image"
             width={700}
             height={450}
-            className="w-full h-auto object-contain cursor-pointer"
+            className="object-contain w-full h-auto cursor-pointer rounded"
             onClick={() => setIndex(0)}
           />
         ) : (
           <div
-            className="relative w-full aspect-video cursor-pointer"
+            className="w-full aspect-video bg-black flex items-center justify-center cursor-pointer rounded"
             onClick={() => setIndex(0)}
           >
-            <Image
-              src={`https://img.youtube.com/vi/${hero.src}/hqdefault.jpg`}
-              alt="Machine video"
-              fill
-              className="object-cover rounded-md"
+            <iframe
+              src={slides[0].src as string}
+              title="Machine Video"
+              className="w-full h-full"
+              frameBorder="0"
+              allowFullScreen
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-black/60 rounded-full p-4">
-                ▶
-              </div>
-            </div>
           </div>
         )}
       </div>
 
       {/* THUMBNAILS */}
-      {items.length > 1 && (
-        <div className="flex gap-3 flex-wrap">
-          {items.map((item, i) => (
+      {slides.length > 1 && (
+        <div className="flex gap-2 flex-wrap">
+          {slides.map((slide, i) => (
             <div
               key={i}
-              className="relative cursor-pointer border border-gray-300 rounded-md p-1 bg-white"
+              className="border border-gray-300 rounded p-1 cursor-pointer bg-white"
               onClick={() => setIndex(i)}
             >
-              {item.type === 'image' ? (
+              {slide.type === 'image' ? (
                 <Image
-                  src={item.src}
+                  src={slide.src as string}
                   alt={`Thumbnail ${i + 1}`}
                   width={120}
                   height={90}
-                  className="object-contain"
+                  className="object-contain w-24 h-20"
                 />
               ) : (
-                <>
-                  <Image
-                    src={`https://img.youtube.com/vi/${item.src}/hqdefault.jpg`}
-                    alt="Video thumbnail"
-                    width={120}
-                    height={90}
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-black/60 rounded-full px-2 py-1 text-white text-sm">
-                      ▶
-                    </div>
-                  </div>
-                </>
+                <div className="w-24 h-20 bg-black flex items-center justify-center text-white text-xs">
+                  Video
+                </div>
               )}
             </div>
           ))}
@@ -96,15 +86,8 @@ export default function MachineImages({ items }: Props) {
       <Lightbox
         open={index !== null}
         close={() => setIndex(null)}
+        slides={slides}
         index={index ?? 0}
-        slides={items.map((item) =>
-          item.type === 'image'
-            ? { src: item.src }
-            : {
-                type: 'iframe',
-                src: `https://www.youtube.com/embed/${item.src}?autoplay=1`,
-              }
-        )}
       />
     </section>
   );
