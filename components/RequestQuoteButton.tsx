@@ -1,28 +1,15 @@
-'use client';
-
+// components/RequestQuoteButton.tsx
 import React from 'react';
 
-interface Props {
+interface RequestQuoteButtonProps {
   stockNumber: string;
 }
 
-export default function RequestQuoteButton({ stockNumber }: Props) {
-  const mailto = `mailto:youremail@example.com?subject=Quote Request for Stock# ${stockNumber}`;
-
+export default function RequestQuoteButton({ stockNumber }: RequestQuoteButtonProps) {
   return (
     <a
-      href={mailto}
-      style={{
-        display: 'inline-block',
-        padding: '12px 24px',
-        backgroundColor: '#1e40af', // original button color
-        color: 'white',
-        borderRadius: '8px',
-        textDecoration: 'none',
-        transition: 'background-color 0.3s',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#5795f2')}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1e40af')}
+      href={`mailto:sales@yourcompany.com?subject=Request for Stock# ${stockNumber}`}
+      className="inline-block bg-brandBlue text-white font-semibold px-6 py-3 mt-4 rounded hover:bg-blue-400 transition-colors duration-300"
     >
       Request Quote
     </a>
