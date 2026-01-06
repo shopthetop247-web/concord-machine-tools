@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 
 interface RequestQuoteModalProps {
   stockNumber: string;
-  onClose: () => void; // <-- add this line
+  onClose: () => void;
 }
 
 export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuoteModalProps) {
@@ -15,8 +15,13 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would integrate your email sending / form submission logic
-    console.log({ name, email, company, stockNumber });
+
+    // Construct mailto link
+    const subject = `RFQ Stock# ${stockNumber}`;
+    const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0ACompany: ${company}%0D%0AStock#: ${stockNumber}`;
+
+    window.location.href = `mailto:sales@concordmt.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     setSubmitted(true);
   };
 
@@ -32,6 +37,7 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 9999,
       }}
     >
       <div
@@ -39,53 +45,88 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
           backgroundColor: 'white',
           padding: '24px',
           borderRadius: '8px',
-          minWidth: '300px',
+          width: '100%',
+          maxWidth: '400px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
         }}
       >
         <button
-          style={{ float: 'right', marginBottom: '8px' }}
           onClick={onClose}
+          style={{
+            float: 'right',
+            fontWeight: 'bold',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+          }}
         >
-          Close
+          ×
         </button>
 
+        <h2 style={{ marginBottom: '16px' }}>Request Quote</h2>
+
         {submitted ? (
-          <p>Thank you! Your request has been submitted.</p>
+          <p>Thank you! Your email client should open shortly.</p>
         ) : (
           <form onSubmit={handleSubmit}>
-            <h2>Request Quote - Stock #{stockNumber}</h2>
-            <label>
-              Name:
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </label>
-            <br />
-            <label>
-              Email:
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </label>
-            <br />
-            <label>
-              Company:
-              <input
-                type="text"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                required
-              />
-            </label>
-            <br />
-            <button type="submit" style={{ marginTop: '12px' }}>
-              Submit
+            <div style={{ marginBottom: '12px' }}>
+              <label>
+                Name:
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+                />
+              </label>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label>
+                Email:
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+                />
+              </label>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label>
+                Company:
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '8px', marginTop: '4px' }}
+                />
+              </label>
+            </div>
+
+            <p>
+              <strong>Stock#:</strong> {stockNumber}
+            </p>
+
+            <button
+              type="submit"
+              style={{
+                marginTop: '12px',
+                padding: '10px 20px',
+                backgroundColor: '#0070f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%',
+              }}
+            >
+              Send Request
             </button>
           </form>
         )}
