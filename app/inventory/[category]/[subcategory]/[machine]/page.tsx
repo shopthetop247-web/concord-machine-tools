@@ -1,3 +1,7 @@
+// app/inventory/[category]/[subcategory]/[machine]/page.tsx
+'use client';
+
+import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -16,13 +20,12 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// ----- SANITY IMAGE BUILDER -----
+// Setup Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source).auto('format').url();
+  return builder.image(source).auto('format'); // `.url()` will be called when rendering
 }
 
-// ----- MACHINE PAGE COMPONENT -----
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
@@ -74,23 +77,30 @@ export default async function MachinePage({ params }: PageProps) {
       <RequestQuoteButton stockNumber={machineData.stockNumber} />
 
       {/* Machine Images */}
-{machineData.images && machineData.images.length > 0 && (
-  <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
-    {machineData.images.map((img, index) => {
-      const imgUrl = urlFor(img).url(); // <-- call .url() here
-      return (
-        <Image
-          key={index}
-          src={imgUrl}
-          alt={machineData.name}
-          width={400}
-          height={300}
-          style={{ objectFit: 'contain' }}
-        />
-      );
-    })}
-  </div>
-)}
+      {machineData.images && machineData.images.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            marginTop: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {machineData.images.map((img, index) => {
+            const imgUrl = urlFor(img).url(); // <-- important: generate the actual URL
+            return (
+              <Image
+                key={index}
+                src={imgUrl}
+                alt={machineData.name}
+                width={400}
+                height={300}
+                style={{ objectFit: 'contain' }}
+              />
+            );
+          })}
+        </div>
+      )}
     </main>
   );
 }
