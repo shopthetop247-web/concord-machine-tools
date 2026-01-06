@@ -1,7 +1,4 @@
 // app/inventory/[category]/[subcategory]/[machine]/page.tsx
-'use client';
-
-import React, { useState } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -20,16 +17,16 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Setup Sanity image builder
+// Sanity image builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
-  return builder.image(source).auto('format'); // `.url()` will be called when rendering
+  return builder.image(source).auto('format').url();
 }
 
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
-  // Fetch machine data from Sanity
+  // Fetch machine data
   const query = `*[_type == "machine" && slug.current == $slug][0]{
     _id,
     name,
@@ -44,7 +41,7 @@ export default async function MachinePage({ params }: PageProps) {
   if (!machineData) {
     return (
       <main style={{ padding: '24px' }}>
-        <p>Machine not found</p>
+        <p>Machine not found.</p>
       </main>
     );
   }
@@ -60,7 +57,7 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {machineData.specifications && (
-        <div>
+        <div style={{ marginTop: '8px' }}>
           <strong>Specifications:</strong>
           <pre style={{ whiteSpace: 'pre-wrap', marginTop: '4px' }}>
             {machineData.specifications}
@@ -69,12 +66,14 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {/* Stock Number */}
-      <p>
+      <p style={{ marginTop: '8px' }}>
         <strong>Stock#:</strong> {machineData.stockNumber}
       </p>
 
       {/* Request Quote Button */}
-      <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      <div style={{ marginTop: '16px' }}>
+        <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      </div>
 
       {/* Machine Images */}
       {machineData.images && machineData.images.length > 0 && (
@@ -86,19 +85,16 @@ export default async function MachinePage({ params }: PageProps) {
             flexWrap: 'wrap',
           }}
         >
-          {machineData.images.map((img, index) => {
-            const imgUrl = urlFor(img).url(); // <-- important: generate the actual URL
-            return (
-              <Image
-                key={index}
-                src={imgUrl}
-                alt={machineData.name}
-                width={400}
-                height={300}
-                style={{ objectFit: 'contain' }}
-              />
-            );
-          })}
+          {machineData.images.map((img, index) => (
+            <Image
+              key={index}
+              src={urlFor(img)}
+              alt={machineData.name}
+              width={400}
+              height={300}
+              style={{ objectFit: 'contain' }}
+            />
+          ))}
         </div>
       )}
     </main>
