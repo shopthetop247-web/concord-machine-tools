@@ -2,6 +2,7 @@ import { client } from '@/lib/sanityClient';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
 import MachineImages from '@/components/MachineImages';
 import imageUrlBuilder from '@sanity/image-url';
+import Link from 'next/link';
 
 interface Machine {
   _id: string;
@@ -50,6 +51,24 @@ export default async function MachinePage({ params }: PageProps) {
         fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont',
       }}
     >
+      {/* ----- Breadcrumbs ----- */}
+      <nav
+        style={{
+          marginBottom: '16px',
+          fontSize: '0.9rem',
+          color: '#6b7280',
+        }}
+      >
+        <Link href="/inventory" style={{ color: '#3b82f6' }}>Inventory</Link> &gt;{' '}
+        <Link href={`/inventory/${params.category}`} style={{ color: '#3b82f6' }}>
+          {params.category.replace(/-/g, ' ')}
+        </Link> &gt;{' '}
+        <Link href={`/inventory/${params.category}/${params.subcategory}`} style={{ color: '#3b82f6' }}>
+          {params.subcategory.replace(/-/g, ' ')}
+        </Link> &gt;{' '}
+        <span style={{ color: '#111827' }}>{machineData.name}</span>
+      </nav>
+
       {/* TITLE */}
       <h1
         style={{
@@ -77,9 +96,7 @@ export default async function MachinePage({ params }: PageProps) {
       </div>
 
       {/* IMAGES */}
-      {imageUrls.length > 0 && (
-        <MachineImages images={imageUrls} />
-      )}
+      {imageUrls.length > 0 && <MachineImages images={imageUrls} />}
 
       {/* SPECIFICATIONS */}
       {machineData.specifications && (
@@ -114,3 +131,4 @@ export default async function MachinePage({ params }: PageProps) {
     </main>
   );
 }
+
