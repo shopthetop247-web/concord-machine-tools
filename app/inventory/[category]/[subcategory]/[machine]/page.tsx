@@ -1,4 +1,5 @@
 // app/inventory/[category]/[subcategory]/[machine]/page.tsx
+
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
@@ -17,10 +18,11 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Setup Sanity image builder
+// Initialize Sanity image builder
 const builder = imageUrlBuilder(client);
-function urlFor(source: any) {
-  return builder.image(source).auto('format').url(); // return the actual URL string
+function urlFor(source: { asset: { _ref: string } }) {
+  if (!source || !source.asset?._ref) return '';
+  return builder.image(source).auto('format').url();
 }
 
 export default async function MachinePage({ params }: PageProps) {
@@ -57,7 +59,7 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {machineData.specifications && (
-        <div>
+        <div style={{ marginTop: '8px' }}>
           <strong>Specifications:</strong>
           <pre style={{ whiteSpace: 'pre-wrap', marginTop: '4px' }}>
             {machineData.specifications}
@@ -65,20 +67,28 @@ export default async function MachinePage({ params }: PageProps) {
         </div>
       )}
 
-      {/* Stock Number */}
-      <p>
+      <p style={{ marginTop: '8px' }}>
         <strong>Stock#:</strong> {machineData.stockNumber}
       </p>
 
-      {/* Request Quote Button (Client Component) */}
-      <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      {/* Request Quote Button */}
+      <div style={{ marginTop: '12px' }}>
+        <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      </div>
 
       {/* Machine Images */}
       {machineData.images && machineData.images.length > 0 && (
-        <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            marginTop: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
           {machineData.images.map((img, index) => {
-            const imgUrl = urlFor(img); // <-- this now returns a proper URL string
-            return (
+            const imgUrl = urlFor(img);
+            return imgUrl ? (
               <Image
                 key={index}
                 src={imgUrl}
@@ -87,7 +97,7 @@ export default async function MachinePage({ params }: PageProps) {
                 height={300}
                 style={{ objectFit: 'contain' }}
               />
-            );
+            ) : null; // skip broken images
           })}
         </div>
       )}
