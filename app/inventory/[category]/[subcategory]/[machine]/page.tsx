@@ -16,75 +16,99 @@ interface PageProps {
   params: { category: string; subcategory: string; machine: string };
 }
 
-// Sanity image URL builder
 const builder = imageUrlBuilder(client);
 function urlFor(source: any) {
   return builder.image(source).auto('format').url();
 }
 
 export default async function MachinePage({ params }: PageProps) {
-  const { machine } = params;
-
-  const query = `*[_type == "machine" && slug.current == $slug][0]{
-    _id,
-    name,
-    yearOfMfg,
-    specifications,
-    images,
-    stockNumber
-  }`;
-
-  const machineData: Machine | null = await client.fetch(query, {
-    slug: machine,
-  });
+  const machineData: Machine | null = await client.fetch(
+    `*[_type == "machine" && slug.current == $slug][0]{
+      _id,
+      name,
+      yearOfMfg,
+      specifications,
+      images,
+      stockNumber
+    }`,
+    { slug: params.machine }
+  );
 
   if (!machineData) {
-    return (
-      <main style={{ padding: '24px' }}>
-        <p>Machine not found</p>
-      </main>
-    );
+    return <p style={{ padding: '24px' }}>Machine not found</p>;
   }
 
   const imageUrls =
     machineData.images?.map((img) => urlFor(img)) ?? [];
 
   return (
-    <main style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '12px' }}>
+    <main
+      style={{
+        padding: '32px 24px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont',
+      }}
+    >
+      {/* TITLE */}
+      <h1
+        style={{
+          fontSize: '2.2rem',
+          fontWeight: 600,
+          marginBottom: '8px',
+        }}
+      >
         {machineData.name}
       </h1>
+
+      {/* META */}
+      <div
+        style={{
+          color: '#374151',
+          marginBottom: '24px',
+        }}
+      >
+        {machineData.yearOfMfg && (
+          <span>
+            <strong>Year:</strong> {machineData.yearOfMfg} &nbsp;|&nbsp;
+          </span>
+        )}
+        <strong>Stock #:</strong> {machineData.stockNumber}
+      </div>
 
       {/* IMAGES */}
       {imageUrls.length > 0 && (
         <MachineImages images={imageUrls} />
       )}
 
-      {/* DETAILS */}
-      <section style={{ marginTop: '24px' }}>
-        {machineData.yearOfMfg && (
-          <p>
-            <strong>Year of Mfg:</strong> {machineData.yearOfMfg}
-          </p>
-        )}
-
-        <p>
-          <strong>Stock #:</strong> {machineData.stockNumber}
-        </p>
-      </section>
-
       {/* SPECIFICATIONS */}
       {machineData.specifications && (
-        <section style={{ marginTop: '16px' }}>
-          <h3>Specifications</h3>
-          <pre style={{ whiteSpace: 'pre-wrap' }}>
+        <section style={{ marginTop: '32px' }}>
+          <h2
+            style={{
+              fontSize: '1.4rem',
+              marginBottom: '8px',
+            }}
+          >
+            Specifications
+          </h2>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              background: '#f9fafb',
+              padding: '16px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              fontSize: '0.95rem',
+            }}
+          >
             {machineData.specifications}
           </pre>
         </section>
       )}
 
-      {/* REQUEST QUOTE */}
-      <section style={{ marginTop: '24px' }}>
+      {/* CTA */}
+      <section style={{ marginTop: '32px' }}>
         <RequestQuoteButton stockNumber={machineData.stockNumber} />
       </section>
     </main>
