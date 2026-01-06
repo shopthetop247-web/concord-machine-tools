@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { client } from '@/lib/sanityClient';
 import Image from 'next/image';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
@@ -25,25 +25,39 @@ function urlFor(source: any) {
   return builder.image(source);
 }
 
-export default async function MachinePage({ params }: PageProps) {
-  const { category, subcategory, machine } = params;
+export default function MachinePage({ params }: PageProps) {
+  const { machine } = params;
 
-  // Fetch machine data from Sanity
-  const query = `*[_type == "machine" && slug.current == $slug][0]{
-    _id,
-    name,
-    yearOfMfg,
-    specifications,
-    images,
-    stockNumber
-  }`;
-  const machineData: Machine = await client.fetch(query, { slug: machine });
-
-  if (!machineData) {
-    return <p>Machine not found</p>;
-  }
-
+  const [machineData, setMachineData] = useState<Machine | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+
+  // Fetch machine data on client-side
+  useEffect(() => {
+    const fetchMachine = async () => {
+      try {
+        const query = `*[_type == "machine" && slug.current == $slug][0]{
+          _id,
+          name,
+          yearOfMfg,
+          specifications,
+          images,
+          stockNumber
+        }`;
+        const data: Machine = await client.fetch(query, { slug: machine });
+        setMachineData(data);
+      } catch (error) {
+        console.error('Error fetching machine:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMachine();
+  }, [machine]);
+
+  if (loading) return <p>Loading machine...</p>;
+  if (!machineData) return <p>Machine not found</p>;
 
   return (
     <main style={{ padding: '24px' }}>
@@ -61,7 +75,13 @@ export default async function MachinePage({ params }: PageProps) {
         </p>
       )}
 
-      <button onClick={() => setShowModal(true)}>Request Quote</button>
+      <button
+        style={{ marginTop: '24px', padding: '12px 24px', fontSize: '16px' }}
+        onClick={() => setShowModal(true)}
+      >
+        Request Quote
+      </button>
+
       {showModal && (
         <RequestQuoteModal
           stockNumber={machineData.stockNumber}
@@ -70,15 +90,16 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {machineData.images && machineData.images.length > 0 && (
-        <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
+        <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
           {machineData.images.map((img, index) => (
-            <Image
-              key={index}
-              src={urlFor(img).url()}
-              alt={machineData.name}
-              width={400}
-              height={300}
-            />
+            <div key={index} style={{ width: '400px', height: '300px', position: 'relative' }}>
+              <Image
+                src={urlFor(img).url()}
+                alt={machineData.name}
+                fill
+                style={{ objectFit: 'cover', borderRadius: '8px' }}
+              />
+            </div>
           ))}
         </div>
       )}
