@@ -2,37 +2,44 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Lightbox, { Slide } from 'yet-another-react-lightbox';
+import Lightbox from 'yet-another-react-lightbox';
+import Video from 'yet-another-react-lightbox/plugins/video';
 import 'yet-another-react-lightbox/styles.css';
+import 'yet-another-react-lightbox/plugins/video.css';
 
 interface Props {
   images: string[];
   videos?: string[];
 }
 
+interface Slide {
+  type: 'image' | 'video';
+  src: string;
+}
+
 export default function MachineImages({ images, videos }: Props) {
   const [index, setIndex] = useState<number | null>(null);
-  const [slides, setSlides] = useState<Slide[]>(() => {
-    const imageSlides = images.map((src) => ({ type: 'image' as const, src }));
-    const videoSlides = videos?.map((url) => {
+
+  const slides: Slide[] = [
+    ...images.map((src) => ({ type: 'image', src })),
+    ...(videos?.map((url) => {
       const videoId = url.includes('youtube.com')
         ? url.split('v=')[1]?.split('&')[0]
         : url.split('/').pop();
       return {
-        type: 'video' as const,
+        type: 'video',
         src: `https://www.youtube.com/embed/${videoId}`,
       };
-    }) ?? [];
-    return [...imageSlides, ...videoSlides];
-  });
+    }) ?? []),
+  ];
 
   return (
     <section className="mt-6">
-      {/* HERO IMAGE */}
+      {/* HERO IMAGE / VIDEO */}
       <div className="max-w-2xl mb-4 border border-gray-200 rounded p-2 bg-gray-50">
         {slides[0] && slides[0].type === 'image' ? (
           <Image
-            src={slides[0].src as string}
+            src={slides[0].src}
             alt="Machine image"
             width={700}
             height={450}
@@ -45,7 +52,7 @@ export default function MachineImages({ images, videos }: Props) {
             onClick={() => setIndex(0)}
           >
             <iframe
-              src={slides[0].src as string}
+              src={slides[0].src}
               title="Machine Video"
               className="w-full h-full"
               frameBorder="0"
@@ -66,7 +73,7 @@ export default function MachineImages({ images, videos }: Props) {
             >
               {slide.type === 'image' ? (
                 <Image
-                  src={slide.src as string}
+                  src={slide.src}
                   alt={`Thumbnail ${i + 1}`}
                   width={120}
                   height={90}
@@ -86,8 +93,13 @@ export default function MachineImages({ images, videos }: Props) {
       <Lightbox
         open={index !== null}
         close={() => setIndex(null)}
-        slides={slides}
+        slides={slides.map((s) =>
+          s.type === 'image'
+            ? { type: 'image', src: s.src }
+            : { type: 'video', src: s.src }
+        )}
         index={index ?? 0}
+        plugins={[Video]}
       />
     </section>
   );
