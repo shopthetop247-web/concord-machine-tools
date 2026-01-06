@@ -1,7 +1,7 @@
 import { client } from '@/lib/sanityClient';
-import imageUrlBuilder from '@sanity/image-url';
 import RequestQuoteButton from '@/components/RequestQuoteButton';
 import MachineImages from '@/components/MachineImages';
+import imageUrlBuilder from '@sanity/image-url';
 
 interface Machine {
   _id: string;
@@ -13,25 +13,15 @@ interface Machine {
 }
 
 interface PageProps {
-  params: {
-    category: string;
-    subcategory: string;
-    machine: string;
-  };
+  params: { category: string; subcategory: string; machine: string };
 }
 
-/* ------------------------------
-   Sanity Image URL Builder
--------------------------------- */
+// Sanity image URL builder
 const builder = imageUrlBuilder(client);
-
-function urlFor(source: any): string {
-  return builder.image(source).auto('format').fit('max').url();
+function urlFor(source: any) {
+  return builder.image(source).auto('format').url();
 }
 
-/* ------------------------------
-   Page Component (SERVER)
--------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
@@ -50,59 +40,53 @@ export default async function MachinePage({ params }: PageProps) {
 
   if (!machineData) {
     return (
-      <main className="p-6">
+      <main style={{ padding: '24px' }}>
         <p>Machine not found</p>
       </main>
     );
   }
 
-  /* ------------------------------
-     BUILD IMAGE URLS (IMPORTANT)
-     This is the FIX
-  -------------------------------- */
-  const imageUrls: string[] =
+  const imageUrls =
     machineData.images?.map((img) => urlFor(img)) ?? [];
 
   return (
-    <main className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-4">
+    <main style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '2rem', marginBottom: '12px' }}>
         {machineData.name}
       </h1>
 
-      {machineData.yearOfMfg && (
-        <p className="mb-2">
-          <strong>Year of Mfg:</strong> {machineData.yearOfMfg}
-        </p>
-      )}
-
-      <p className="mb-4">
-        <strong>Stock #:</strong> {machineData.stockNumber}
-      </p>
-
-      {/* Images (Client Component) */}
+      {/* IMAGES */}
       {imageUrls.length > 0 && (
-        <MachineImages
-          images={imageUrls}
-          alt={machineData.name}
-        />
+        <MachineImages images={imageUrls} />
       )}
 
-      {/* Specifications */}
+      {/* DETAILS */}
+      <section style={{ marginTop: '24px' }}>
+        {machineData.yearOfMfg && (
+          <p>
+            <strong>Year of Mfg:</strong> {machineData.yearOfMfg}
+          </p>
+        )}
+
+        <p>
+          <strong>Stock #:</strong> {machineData.stockNumber}
+        </p>
+      </section>
+
+      {/* SPECIFICATIONS */}
       {machineData.specifications && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">
-            Specifications
-          </h2>
-          <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded">
+        <section style={{ marginTop: '16px' }}>
+          <h3>Specifications</h3>
+          <pre style={{ whiteSpace: 'pre-wrap' }}>
             {machineData.specifications}
           </pre>
-        </div>
+        </section>
       )}
 
-      {/* Request Quote */}
-      <div className="mt-6">
+      {/* REQUEST QUOTE */}
+      <section style={{ marginTop: '24px' }}>
         <RequestQuoteButton stockNumber={machineData.stockNumber} />
-      </div>
+      </section>
     </main>
   );
 }
