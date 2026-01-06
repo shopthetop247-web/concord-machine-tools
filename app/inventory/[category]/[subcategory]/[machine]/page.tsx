@@ -60,12 +60,10 @@ export default async function MachinePage({ params }: MachinePageProps) {
         </div>
       )}
 
-      {machineData.images && machineData.images.length > 0 && (
-        <div style={{ display: 'flex', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
-          {machineData.images.map((img, index) => {
-            const url = `https://cdn.sanity.io/images/YOUR_PROJECT_ID/YOUR_DATASET/${img.asset._ref.split('-')[1]}.${img.asset._ref.split('-')[2]}`;
-            return <img key={index} src={url} alt={machineData.name} style={{ maxWidth: '300px', borderRadius: '8px' }} />;
-          })}
+     {machineData.images.map((img, index) => {
+  const url = `https://cdn.sanity.io/images/iwodjd3n/production/${img.asset._ref.split('-')[1]}.${img.asset._ref.split('-')[2]}`;
+  return <img key={index} src={url} alt={machineData.name} style={{ maxWidth: '300px', borderRadius: '8px' }} />;
+})}
         </div>
       )}
 
