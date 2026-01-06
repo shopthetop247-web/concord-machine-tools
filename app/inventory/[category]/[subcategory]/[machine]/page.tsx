@@ -7,6 +7,7 @@ import Link from 'next/link';
 interface Machine {
   _id: string;
   name: string;
+  brand?: string; // optional field for future search
   yearOfMfg?: string;
   specifications?: string;
   images?: { asset: { _ref: string } }[];
@@ -23,14 +24,14 @@ interface PageProps {
 }
 
 const builder = imageUrlBuilder(client);
-const urlFor = (source: any) =>
-  builder.image(source).auto('format').url();
+const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 export default async function MachinePage({ params }: PageProps) {
   const machineData: Machine | null = await client.fetch(
     `*[_type == "machine" && slug.current == $slug][0]{
       _id,
       name,
+      brand,
       yearOfMfg,
       specifications,
       images,
@@ -44,17 +45,19 @@ export default async function MachinePage({ params }: PageProps) {
     return <p className="p-6">Machine not found</p>;
   }
 
-  const galleryItems = [
-  ...(machineData.images?.map((img) => ({
-    type: 'image' as const,
-    src: urlFor(img),
-  })) ?? []),
-  ...(machineData.videos?.map((url: string) => ({
-    type: 'video' as const,
-    src: url.split('v=')[1]?.split('&')[0] || url.split('/').pop(),
-  })) ?? []),
-];
+  // ----- separate images for MachineImages component -----
+  const imageUrls = machineData.images?.map((img) => urlFor(img)) ?? [];
 
+  // ----- combine images + videos for potential lightbox -----
+  const galleryItems = [
+    ...imageUrls.map((src) => ({ type: 'image' as const, src })),
+    ...(machineData.videos?.map((url: string) => ({
+      type: 'video' as const,
+      src: url.includes('youtube.com')
+        ? url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
+        : url,
+    })) ?? []),
+  ];
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -84,43 +87,35 @@ export default async function MachinePage({ params }: PageProps) {
       </nav>
 
       {/* Title */}
-      <h1 className="text-3xl font-semibold mb-2">
-        {machineData.name}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-2">{machineData.name}</h1>
 
       {/* Meta */}
       <div className="text-gray-700 mb-6">
         {machineData.yearOfMfg && (
           <>
-            <strong>Year:</strong> {machineData.yearOfMfg}
-            &nbsp;|&nbsp;
+            <strong>Year:</strong> {machineData.yearOfMfg} &nbsp;|&nbsp;
           </>
         )}
         <strong>Stock #:</strong> {machineData.stockNumber}
       </div>
 
       {/* Images */}
-      {imageUrls.length > 0 && (
-        <MachineImages images={imageUrls} />
-      )}
+      {imageUrls.length > 0 && <MachineImages images={imageUrls} />}
 
       {/* Specs */}
       {machineData.specifications && (
         <section className="mt-8">
-          <h2 className="text-lg font-medium mb-2">
-            Specifications
-          </h2>
+          <h2 className="text-lg font-medium mb-2">Specifications</h2>
           <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded border border-gray-200 text-sm">
             {machineData.specifications}
           </pre>
         </section>
       )}
 
-      {/* Quote CTA (client component) */}
+      {/* Quote CTA */}
       <section className="mt-8">
         <RequestQuoteSection stockNumber={machineData.stockNumber} />
       </section>
     </main>
   );
 }
-
