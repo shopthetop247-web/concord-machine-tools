@@ -11,7 +11,6 @@ interface SubcategoryPageProps {
   params: { category: string; subcategory: string };
 }
 
-// Pre-generate all subcategory paths for SSG
 export async function generateStaticParams() {
   const subcategories: {
     slug: { current: string };
@@ -23,7 +22,6 @@ export async function generateStaticParams() {
     }
   `);
 
-  // Filter out invalid subcategories
   return subcategories
     .filter((sub) => sub.slug?.current && sub.category?.slug?.current)
     .map((sub) => ({
@@ -32,11 +30,10 @@ export async function generateStaticParams() {
     }));
 }
 
-// Fetch machines for this subcategory
 async function getMachines(subcategorySlug: string): Promise<Machine[]> {
   return client.fetch(
     `
-    *[_type=="machine" && references(*[_type=="subcategory" && slug.current==$subcategorySlug]._id)]{
+    *[_type == "machine" && defined(subcategory) && subcategory->slug.current == $subcategorySlug]{
       _id,
       name,
       slug
@@ -47,6 +44,8 @@ async function getMachines(subcategorySlug: string): Promise<Machine[]> {
 }
 
 export default async function SubcategoryPage({ params }: SubcategoryPageProps) {
+  const category = params.category ?? "unknown";
+
   if (!params || !params.subcategory) {
     return <p>Invalid subcategory</p>;
   }
@@ -56,7 +55,7 @@ export default async function SubcategoryPage({ params }: SubcategoryPageProps) 
   return (
     <main style={{ padding: "24px" }}>
       <h1>
-        Machines in {params.subcategory.replace(/-/g, " ")} ({params.category.replace(/-/g, " ")})
+        Machines in {params.subcategory.replace(/-/g, " ")} ({category.replace(/-/g, " ")})
       </h1>
 
       {machines.length === 0 ? (
@@ -65,7 +64,9 @@ export default async function SubcategoryPage({ params }: SubcategoryPageProps) 
         <ul style={{ marginTop: "16px" }}>
           {machines.map((machine) => (
             <li key={machine._id} style={{ marginBottom: "12px" }}>
-              <Link href={`/inventory/${params.category}/${params.subcategory}/${machine.slug.current}`}>
+              <Link
+                href={`/inventory/${category}/${params.subcategory}/${machine.slug.current}`}
+              >
                 {machine.name}
               </Link>
             </li>
