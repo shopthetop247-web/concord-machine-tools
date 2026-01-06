@@ -7,7 +7,7 @@ import Link from 'next/link';
 interface Machine {
   _id: string;
   name: string;
-  brand?: string; // optional field for future search
+  brand?: string; // optional for future search
   yearOfMfg?: string;
   specifications?: string;
   images?: { asset: { _ref: string } }[];
@@ -45,19 +45,8 @@ export default async function MachinePage({ params }: PageProps) {
     return <p className="p-6">Machine not found</p>;
   }
 
-  // ----- separate images for MachineImages component -----
-  const imageUrls = machineData.images?.map((img) => urlFor(img)) ?? [];
-
-  // ----- combine images + videos for potential lightbox -----
-  const galleryItems = [
-    ...imageUrls.map((src) => ({ type: 'image' as const, src })),
-    ...(machineData.videos?.map((url: string) => ({
-      type: 'video' as const,
-      src: url.includes('youtube.com')
-        ? url.split('v=')[1]?.split('&')[0] || url.split('/').pop()
-        : url,
-    })) ?? []),
-  ];
+  // Map images to URLs
+  const images = machineData.images?.map(urlFor) ?? [];
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -81,9 +70,7 @@ export default async function MachinePage({ params }: PageProps) {
           {params.subcategory.replace(/-/g, ' ')}
         </Link>
         <span className="mx-1 text-gray-700">›</span>
-        <span className="font-medium text-gray-900">
-          {machineData.name}
-        </span>
+        <span className="font-medium text-gray-900">{machineData.name}</span>
       </nav>
 
       {/* Title */}
@@ -99,8 +86,8 @@ export default async function MachinePage({ params }: PageProps) {
         <strong>Stock #:</strong> {machineData.stockNumber}
       </div>
 
-      {/* Images */}
-      {imageUrls.length > 0 && <MachineImages images={imageUrls} />}
+      {/* Images + Videos */}
+      <MachineImages images={images} videos={machineData.videos} />
 
       {/* Specs */}
       {machineData.specifications && (
