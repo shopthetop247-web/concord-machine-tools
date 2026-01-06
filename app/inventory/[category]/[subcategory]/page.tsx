@@ -23,19 +23,17 @@ export async function generateStaticParams() {
     }
   `);
 
-  // Filter out any subcategory without category or slug
-  const validSubcategories = subcategories.filter(
-    (sub) => sub.slug?.current && sub.category?.slug?.current
-  );
-
-  return validSubcategories.map((sub) => ({
-    category: sub.category!.slug!.current,
-    subcategory: sub.slug!.current,
-  }));
+  // Filter out invalid subcategories
+  return subcategories
+    .filter((sub) => sub.slug?.current && sub.category?.slug?.current)
+    .map((sub) => ({
+      category: sub.category!.slug!.current,
+      subcategory: sub.slug!.current,
+    }));
 }
 
 // Fetch machines for this subcategory
-async function getMachines(categorySlug: string, subcategorySlug: string): Promise<Machine[]> {
+async function getMachines(subcategorySlug: string): Promise<Machine[]> {
   return client.fetch(
     `
     *[_type=="machine" && references(*[_type=="subcategory" && slug.current==$subcategorySlug]._id)]{
@@ -49,28 +47,31 @@ async function getMachines(categorySlug: string, subcategorySlug: string): Promi
 }
 
 export default async function SubcategoryPage({ params }: SubcategoryPageProps) {
-  const { category, subcategory } = params;
-  const machines = await getMachines(category, subcategory);
-
-  if (!machines || machines.length === 0) {
-    return <p>No machines found in this subcategory.</p>;
+  if (!params || !params.subcategory) {
+    return <p>Invalid subcategory</p>;
   }
+
+  const machines = await getMachines(params.subcategory);
 
   return (
     <main style={{ padding: "24px" }}>
       <h1>
-        Machines in {subcategory.replace(/-/g, " ")} ({category.replace(/-/g, " ")})
+        Machines in {params.subcategory.replace(/-/g, " ")} ({params.category.replace(/-/g, " ")})
       </h1>
 
-      <ul style={{ marginTop: "16px" }}>
-        {machines.map((machine) => (
-          <li key={machine._id} style={{ marginBottom: "12px" }}>
-            <Link href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}>
-              {machine.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {machines.length === 0 ? (
+        <p>No machines found in this subcategory.</p>
+      ) : (
+        <ul style={{ marginTop: "16px" }}>
+          {machines.map((machine) => (
+            <li key={machine._id} style={{ marginBottom: "12px" }}>
+              <Link href={`/inventory/${params.category}/${params.subcategory}/${machine.slug.current}`}>
+                {machine.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }
