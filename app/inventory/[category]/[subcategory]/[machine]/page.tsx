@@ -18,6 +18,7 @@ interface PageProps {
 export default async function MachinePage({ params }: PageProps) {
   const { machine } = params;
 
+  // Fetch machine data from Sanity
   const query = `*[_type == "machine" && slug.current == $slug][0]{
     _id,
     name,
@@ -31,31 +32,57 @@ export default async function MachinePage({ params }: PageProps) {
 
   if (!machineData) {
     return (
-      <main style={{ padding: '2rem', fontFamily: 'Inter, sans-serif' }}>
+      <main style={{ padding: '24px' }}>
         <p>Machine not found</p>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'Inter, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1rem' }}>{machineData.name}</h1>
+    <main
+      style={{
+        padding: '24px',
+        maxWidth: '1000px',
+        margin: '0 auto',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: '2rem', marginBottom: '16px' }}>{machineData.name}</h1>
 
-      <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <p><strong>Stock#:</strong> {machineData.stockNumber}</p>
-        {machineData.yearOfMfg && <p><strong>Year of Mfg:</strong> {machineData.yearOfMfg}</p>}
-      </div>
+      {machineData.yearOfMfg && (
+        <p style={{ marginBottom: '8px' }}>
+          <strong>Year of Mfg:</strong> {machineData.yearOfMfg}
+        </p>
+      )}
 
       {machineData.specifications && (
-        <div style={{ marginBottom: '1.5rem', backgroundColor: '#f9f9f9', padding: '1rem', borderRadius: '6px' }}>
-          <strong style={{ display: 'block', marginBottom: '0.5rem' }}>Specifications:</strong>
-          <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{machineData.specifications}</pre>
+        <div style={{ marginBottom: '12px' }}>
+          <strong>Specifications:</strong>
+          <pre
+            style={{
+              whiteSpace: 'pre-wrap',
+              marginTop: '4px',
+              padding: '8px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '6px',
+            }}
+          >
+            {machineData.specifications}
+          </pre>
         </div>
       )}
 
-      <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      <p style={{ marginBottom: '12px' }}>
+        <strong>Stock#:</strong> {machineData.stockNumber}
+      </p>
 
-      <MachineImages images={machineData.images || []} alt={machineData.name} />
+      <div style={{ marginBottom: '24px' }}>
+        <RequestQuoteButton stockNumber={machineData.stockNumber} />
+      </div>
+
+      {machineData.images && machineData.images.length > 0 && (
+        <MachineImages images={machineData.images} />
+      )}
     </main>
   );
 }
