@@ -1,50 +1,89 @@
-// components/RequestQuoteModal.tsx
 'use client';
 
 import { useState } from 'react';
-import RequestQuoteForm from './RequestQuoteForm';
 
-interface RequestQuoteModalProps {
+interface Props {
   stockNumber: string;
-   onClose: () => void;
+  onClose: () => void;
 }
 
-export default function RequestQuoteModal({ stockNumber }: RequestQuoteModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+
+    const res = await fetch('/api/request-quote', {
+      method: 'POST',
+      body: JSON.stringify(Object.fromEntries(formData)),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+      setError('Failed to send request. Please try again.');
+      setLoading(false);
+      return;
+    }
+
+    onClose();
+  }
 
   return (
-    <>
-      {/* Trigger button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="bg-brandBlue text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-400 transition transform hover:scale-105 duration-300"
-      >
-        Request Quote
-      </button>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
 
-      {/* Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
-          <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-lg relative">
-            {/* Close button */}
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
-            >
-              &times;
-            </button>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          Request a Quote
+        </h2>
 
-            {/* Modal title */}
-            <h2 className="text-xl font-semibold mb-4">Request a Quote - Stock# {stockNumber}</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="hidden" name="stockNumber" value={stockNumber} />
 
-            {/* Form */}
-            <RequestQuoteForm
-              stockNumber={stockNumber}
-              onSuccess={() => setIsOpen(false)}
-            />
-          </div>
-        </div>
-      )}
-    </>
+          <input
+            name="name"
+            placeholder="Your Name"
+            required
+            className="w-full border rounded px-4 py-2"
+          />
+
+          <input
+            name="email"
+            type="email"
+            placeholder="Your Email"
+            required
+            className="w-full border rounded px-4 py-2"
+          />
+
+          <textarea
+            name="message"
+            placeholder="Message"
+            rows={4}
+            className="w-full border rounded px-4 py-2"
+          />
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg
+                       hover:bg-blue-500 transition font-semibold"
+          >
+            {loading ? 'Sending...' : 'Submit Request'}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
