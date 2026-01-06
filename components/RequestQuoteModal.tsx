@@ -22,7 +22,7 @@ export default function RequestQuoteModal({ stockNumber, onClose }: RequestQuote
       `Message: ${message}`
     );
 
-    const mailtoUrl = `mailto:sales@yourdomain.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+    const mailtoUrl = `mailto:sales@concordmt.com?subject=${encodeURIComponent(subject)}&body=${body}`;
 
     window.location.href = mailtoUrl;
     onClose();
