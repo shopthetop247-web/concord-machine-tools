@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -7,7 +8,13 @@ export default function Footer() {
         {/* Logo & About */}
         <div>
           <Link href="/">
-            <img src="/logo.svg" alt="Concord Machine Tools" className="h-10 mb-4" />
+            <Image
+              src="/logo.png"
+              alt="Concord Machine Tools"
+              width={150}
+              height={40}
+              className="mb-4 object-contain"
+            />
           </Link>
           <p className="text-sm">
             Concord Machine Tools is your trusted source for high-quality used CNC and
@@ -15,14 +22,35 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Links */}
+        {/* Quick Links */}
         <div>
           <h3 className="font-semibold mb-2">Quick Links</h3>
           <ul className="space-y-1 text-sm">
-            <li><Link href="/inventory" className="hover:text-white">Inventory</Link></li>
-            <li><Link href="/about" className="hover:text-white">About</Link></li>
-            <li><Link href="/sell" className="hover:text-white">Sell Your Machine</Link></li>
-            <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+            <li>
+              <Link href="/inventory" className="hover:text-white transition-colors duration-200">
+                Inventory
+              </Link>
+            </li>
+            <li>
+              <Link href="/about" className="hover:text-white transition-colors duration-200">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link href="/sell" className="hover:text-white transition-colors duration-200">
+                Sell Your Machine
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-white transition-colors duration-200">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-white transition-colors duration-200">
+                Terms
+              </Link>
+            </li>
           </ul>
         </div>
 
