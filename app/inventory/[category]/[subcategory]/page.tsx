@@ -1,5 +1,5 @@
 // app/inventory/[category]/[subcategory]/page.tsx
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
