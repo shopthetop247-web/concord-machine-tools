@@ -55,7 +55,9 @@ export default async function SubcategoryPage({ params }: PageProps) {
   const { category, subcategory } = params;
 
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine" && subcategory._ref in *[_type=="subcategory" && slug.current == $slug]._id]{
+    `*[_type == "machine" && subcategory._ref in *[_type=="subcategory" && slug.current == $slug]._id
+    ]
+    | order(yearOfMfg desc, brand asc){
       _id,
       name,
       brand,
