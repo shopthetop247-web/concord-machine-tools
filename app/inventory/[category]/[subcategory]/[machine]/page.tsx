@@ -165,7 +165,6 @@ export default async function MachinePage({ params }: PageProps) {
 
       {/* Title */}
       <h1 className="text-3xl font-semibold mb-2">
-        {machineData.brand && `${machineData.brand} `}
         {machineData.name}
       </h1>
 
