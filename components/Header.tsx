@@ -7,7 +7,7 @@ import Image from 'next/image';
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Main categories (replace with Sanity data later if desired)
+  // Main categories
   const categories = ['CNC Machines', 'Lathes', 'Milling Machines'];
 
   return (
@@ -31,7 +31,7 @@ export default function Header() {
             <span className="cursor-pointer hover:text-blue-400">
               Inventory ▼
             </span>
-            <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+            <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-hover:visible invisible">
               {categories.map((cat) => (
                 <Link
                   key={cat}
@@ -71,7 +71,6 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-slate-800 text-white">
           <ul className="flex flex-col space-y-2 px-4 py-4">
-            {/* Inventory Dropdown */}
             <li className="border-b border-slate-700 pb-2">
               <span className="font-semibold">Inventory</span>
               <ul className="mt-2 ml-2 space-y-1">
