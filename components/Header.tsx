@@ -7,7 +7,7 @@ import Image from 'next/image';
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Main top-level categories
+  // Main categories (replace with Sanity data later if desired)
   const categories = ['CNC Machines', 'Lathes', 'Milling Machines'];
 
   return (
@@ -28,7 +28,9 @@ export default function Header() {
         <nav className="hidden md:flex items-center space-x-6 font-medium">
           {/* Inventory Dropdown */}
           <div className="relative group">
-            <span className="cursor-pointer hover:text-blue-400">Inventory ▼</span>
+            <span className="cursor-pointer hover:text-blue-400">
+              Inventory ▼
+            </span>
             <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
               {categories.map((cat) => (
                 <Link
