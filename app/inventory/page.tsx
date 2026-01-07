@@ -1,59 +1,55 @@
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
 
-interface Subcategory {
-  _id: string;
-  name: string;
-  slug: { current: string };
-}
-
 interface Category {
   _id: string;
-  name: string;
+  title: string;
   slug: { current: string };
-  subcategories: Subcategory[];
+  subcategories?: { title: string; slug: { current: string } }[];
 }
 
+// Optional: reorder main categories for desired column layout
+const categoryOrder = ['CNC Machinery', 'Fabricating & Stamping', 'Manual Machinery'];
+
 export default async function InventoryPage() {
-  // Fetch categories with their subcategories
-  const categories: Category[] = await client.fetch(`
-    *[_type == "category" && !defined(parent)]{
+  // Fetch main categories and their subcategories from Sanity
+  const categories: Category[] = await client.fetch(
+    `*[_type == "category" && defined(title)]{
       _id,
-      name,
-      "slug": slug,
-      "subcategories": *[_type == "category" && parent._ref == ^._id]{
-        _id,
-        name,
-        "slug": slug
-      }
-    }
-  `);
+      title,
+      slug,
+      "subcategories": subcategories[]->{title, slug}
+    }`
+  );
+
+  // Reorder categories based on preferred layout
+  const orderedCategories = categoryOrder
+    .map((title) => categories.find((cat) => cat.title === title))
+    .filter(Boolean) as Category[];
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-12 text-center">
-        Inventory Categories
-      </h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">Inventory</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-        {categories.map((category) => (
-          <div key={category._id}>
-            <h2 className="text-2xl font-semibold mb-4">{category.name}</h2>
-            {category.subcategories.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {orderedCategories.map((cat) => (
+          <div key={cat._id}>
+            <h2 className="text-2xl font-semibold mb-4">{cat.title}</h2>
+            {cat.subcategories && cat.subcategories.length > 0 ? (
               <ul className="space-y-2">
-                {category.subcategories.map((subcat) => (
-                  <li key={subcat._id}>
+                {cat.subcategories.map((sub) => (
+                  <li key={sub.slug.current}>
                     <Link
-                      href={`/inventory/${category.slug.current}/${subcat.slug.current}`}
-                      className="text-blue-500 hover:text-blue-400 transition-colors duration-200"
+                      href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
+                      className="text-blue-600 hover:text-blue-400"
                     >
-                      {subcat.name}
+                      {sub.title}
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-400">No subcategories</p>
+              <p className="text-gray-500">No subcategories available.</p>
             )}
           </div>
         ))}
@@ -61,4 +57,3 @@ export default async function InventoryPage() {
     </main>
   );
 }
-
