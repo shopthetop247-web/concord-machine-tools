@@ -1,157 +1,108 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { client } from '@/lib/sanityClient';
-
-interface Subcategory {
-  _id: string;
-  title: string;
-  slug: { current: string };
-}
-
-interface Category {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  subcategories?: Subcategory[];
-}
+import Image from 'next/image';
 
 export default function Header() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openMobileSubmenus, setOpenMobileSubmenus] = useState<string[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Fetch categories and nested subcategories from Sanity
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const data: Category[] = await client.fetch(
-        `*[_type == "category"]{
-          _id,
-          title,
-          "slug": slug,
-          "subcategories": *[_type == "subcategory" && references(^._id)]{
-            _id,
-            title,
-            "slug": slug
-          }
-        }`
-      );
-      setCategories(data);
-    };
-    fetchCategories();
-  }, []);
-
-  // Toggle mobile submenus
-  const toggleMobileSubmenu = (id: string) => {
-    setOpenMobileSubmenus((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
+  // Sample categories — in the future, you can fetch from Sanity
+  const categories = ['CNC Machines', 'Lathes', 'Milling Machines', 'Metalworking'];
 
   return (
-    <header className="bg-gray-900 text-white shadow-md">
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold">
-          Concord Machine Tools
+        <Link href="/">
+          <Image
+            src="/logo.svg"
+            alt="Concord Machine Tools"
+            width={150}
+            height={40}
+            className="object-contain"
+          />
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-6">
+        <nav className="hidden md:flex items-center space-x-6 font-medium">
+          {/* Inventory Dropdown */}
           <div className="relative group">
-            <span className="cursor-pointer font-medium">Inventory</span>
-
-            {/* Dropdown */}
-            <div className="absolute left-0 mt-2 w-56 bg-white text-gray-900 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              {categories.length === 0 ? (
-                <div className="p-2 text-gray-500">Loading...</div>
-              ) : (
-                categories.map((cat) => (
-                  <div key={cat._id} className="group relative">
-                    <Link
-                      href={`/inventory/${cat.slug.current}`}
-                      className="block px-4 py-2 hover:bg-gray-200"
-                    >
-                      {cat.title}
-                    </Link>
-                    {cat.subcategories && cat.subcategories.length > 0 && (
-                      <div className="absolute top-0 left-full mt-0 ml-1 w-56 bg-white text-gray-900 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                        {cat.subcategories.map((sub) => (
-                          <Link
-                            key={sub._id}
-                            href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
-                            className="block px-4 py-2 hover:bg-gray-200"
-                          >
-                            {sub.title}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
+            <span className="cursor-pointer hover:text-blue-400">Inventory ▼</span>
+            <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+              {categories.map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="block px-4 py-2 hover:bg-slate-700"
+                >
+                  {cat}
+                </Link>
+              ))}
             </div>
           </div>
 
-          <Link href="/about" className="font-medium hover:underline">
+          <Link href="/about" className="hover:text-blue-400">
             About
           </Link>
-          <Link href="/contact" className="font-medium hover:underline">
+          <Link href="/sell" className="hover:text-blue-400">
+            Sell Your Machine
+          </Link>
+          <Link href="/contact" className="hover:text-blue-400">
             Contact
           </Link>
         </nav>
 
         {/* Mobile Hamburger */}
-        <button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          <span className="sr-only">Open menu</span>
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
+        <div className="md:hidden">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="focus:outline-none text-2xl"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-gray-800 text-white px-6 py-4 space-y-2">
-          <Link href="/about" className="block py-2">
-            About
-          </Link>
-          <Link href="/contact" className="block py-2">
-            Contact
-          </Link>
+      {menuOpen && (
+        <div className="md:hidden bg-slate-800 text-white">
+          <ul className="flex flex-col space-y-2 px-4 py-4">
+            {/* Inventory Dropdown */}
+            <li className="border-b border-slate-700 pb-2">
+              <span className="font-semibold">Inventory</span>
+              <ul className="mt-2 ml-2 space-y-1">
+                {categories.map((cat) => (
+                  <li key={cat}>
+                    <Link
+                      href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="block py-1 hover:text-blue-400"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {cat}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </li>
 
-          <span className="block py-2 font-medium">Inventory</span>
-          <div className="pl-4 space-y-1">
-            {categories.length === 0 ? (
-              <div className="text-gray-400">Loading...</div>
-            ) : (
-              categories.map((cat) => (
-                <div key={cat._id}>
-                  <button
-                    className="w-full text-left py-1 font-medium"
-                    onClick={() => toggleMobileSubmenu(cat._id)}
-                  >
-                    {cat.title}
-                  </button>
-                  {openMobileSubmenus.includes(cat._id) && cat.subcategories && (
-                    <div className="pl-4 space-y-1">
-                      {cat.subcategories.map((sub) => (
-                        <Link
-                          key={sub._id}
-                          href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
-                          className="block py-1 hover:underline"
-                        >
-                          {sub.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+            <li>
+              <Link href="/about" onClick={() => setMenuOpen(false)}>
+                About
+              </Link>
+            </li>
+            <li>
+              <Link href="/sell" onClick={() => setMenuOpen(false)}>
+                Sell Your Machine
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" onClick={() => setMenuOpen(false)}>
+                Contact
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
     </header>
