@@ -87,7 +87,7 @@ export default async function MachinePage({ params }: PageProps) {
       </div>
 
       {/* Images + Videos */}
-      <MachineImages images={images} videos={machineData.videos} />
+      <MachineImages images={images} />
 
       {/* Specs */}
       {machineData.specifications && (
