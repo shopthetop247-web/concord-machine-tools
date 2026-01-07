@@ -1,14 +1,22 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Sample categories — in the future, you can fetch from Sanity
+  const categories = ['CNC Machines', 'Lathes', 'Milling Machines', 'Metalworking'];
+
   return (
-    <header className="bg-slate-900 text-white shadow-md">
+    <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link href="/">
           <Image
-            src="/logo.svg" // Place your Concord logo in /public/logo.svg
+            src="/logo.svg"
             alt="Concord Machine Tools"
             width={150}
             height={40}
@@ -16,11 +24,24 @@ export default function Header() {
           />
         </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex space-x-6 font-medium">
-          <Link href="/inventory" className="hover:text-blue-400">
-            Inventory
-          </Link>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6 font-medium">
+          {/* Inventory Dropdown */}
+          <div className="relative group">
+            <span className="cursor-pointer hover:text-blue-400">Inventory ▼</span>
+            <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+              {categories.map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="block px-4 py-2 hover:bg-slate-700"
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          </div>
+
           <Link href="/about" className="hover:text-blue-400">
             About
           </Link>
@@ -32,12 +53,58 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Mobile Menu Placeholder */}
+        {/* Mobile Hamburger */}
         <div className="md:hidden">
-          {/* We'll add a hamburger menu later */}
-          <span>☰</span>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="focus:outline-none text-2xl"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-slate-800 text-white">
+          <ul className="flex flex-col space-y-2 px-4 py-4">
+            {/* Inventory Dropdown */}
+            <li className="border-b border-slate-700 pb-2">
+              <span className="font-semibold">Inventory</span>
+              <ul className="mt-2 ml-2 space-y-1">
+                {categories.map((cat) => (
+                  <li key={cat}>
+                    <Link
+                      href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="block py-1 hover:text-blue-400"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {cat}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li>
+              <Link href="/about" onClick={() => setMenuOpen(false)}>
+                About
+              </Link>
+            </li>
+            <li>
+              <Link href="/sell" onClick={() => setMenuOpen(false)}>
+                Sell Your Machine
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" onClick={() => setMenuOpen(false)}>
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   );
 }
