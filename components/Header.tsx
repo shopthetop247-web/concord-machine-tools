@@ -16,7 +16,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/">
           <Image
-            src="/logo.png"
+            src="public/logo.png"
             alt="Concord Machine Tools"
             width={150}
             height={40}
