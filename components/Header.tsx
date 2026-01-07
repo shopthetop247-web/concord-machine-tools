@@ -7,8 +7,8 @@ import Image from 'next/image';
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Sample categories — in the future, you can fetch from Sanity
-  const categories = ['CNC Machines', 'Lathes', 'Milling Machines', 'Metalworking'];
+  // Main top-level categories
+  const categories = ['CNC Machines', 'Lathes', 'Milling Machines'];
 
   return (
     <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
@@ -34,7 +34,7 @@ export default function Header() {
                 <Link
                   key={cat}
                   href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="block px-4 py-2 hover:bg-slate-700"
+                  className="block px-4 py-2 hover:bg-slate-700 hover:text-blue-400"
                 >
                   {cat}
                 </Link>
