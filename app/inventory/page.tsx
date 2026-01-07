@@ -1,72 +1,81 @@
+// app/inventory/page.tsx
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
 
-interface Subcategory {
-  title: string;
-  slug: string;
-}
-
 interface Category {
-  title: string;
-  slug: string;
-  subcategories: Subcategory[];
+  _id: string;
+  name: string;
+  slug: { current: string };
 }
 
-// Define the column order
-const categoryOrder = ['CNC Machinery', 'Fabricating & Stamping', 'Manual Machinery'];
+interface Subcategory {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  parentCategory: { _ref: string };
+}
 
 export default async function InventoryPage() {
-  // Fetch distinct categories and their subcategories from machine documents
-  const rawData: { category: string; subcategory: string; subcategorySlug: string }[] = await client.fetch(
-    `*[_type == "machine" && defined(category) && defined(subcategory)]{
-      "category": category,
-      "subcategory": subcategory,
-      "subcategorySlug": subcategorySlug.current
-    }`
-  );
+  // Fetch all categories
+  const categories: Category[] = await client.fetch(`
+    *[_type == "category"]{
+      _id,
+      name,
+      slug
+    }
+  `);
 
-  // Group by category
-  const categoriesMap = new Map<string, Category>();
-  rawData.forEach((item) => {
-    if (!categoriesMap.has(item.category)) {
-      categoriesMap.set(item.category, { title: item.category, slug: item.category.toLowerCase().replace(/\s+/g, '-'), subcategories: [] });
+  // Fetch all subcategories
+  const subcategories: Subcategory[] = await client.fetch(`
+    *[_type == "subcategory"]{
+      _id,
+      name,
+      slug,
+      parentCategory
     }
-    const cat = categoriesMap.get(item.category)!;
-    // Add subcategory if not already present
-    if (!cat.subcategories.some((sub) => sub.title === item.subcategory)) {
-      cat.subcategories.push({ title: item.subcategory, slug: item.subcategorySlug });
+  `);
+
+  // Create a map from category ID → subcategories
+  const subcategoriesByCategory: Record<string, Subcategory[]> = {};
+  subcategories.forEach((subcat) => {
+    const parentId = subcat.parentCategory._ref;
+    if (!subcategoriesByCategory[parentId]) {
+      subcategoriesByCategory[parentId] = [];
     }
+    subcategoriesByCategory[parentId].push(subcat);
   });
 
-  // Convert to array and reorder
-  const categories = Array.from(categoriesMap.values()).sort(
-    (a, b) => categoryOrder.indexOf(a.title) - categoryOrder.indexOf(b.title)
-  );
+  // Determine column order
+  const columnOrder = [
+    'CNC Machinery',
+    'Fabricating & Stamping',
+    'Manual Machinery',
+  ];
+
+  const sortedCategories = columnOrder
+    .map((name) => categories.find((c) => c.name === name))
+    .filter(Boolean) as Category[];
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-center">Inventory</h1>
+    <main className="max-w-6xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-semibold mb-6">Inventory</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {categories.map((cat) => (
-          <div key={cat.title}>
-            <h2 className="text-2xl font-semibold mb-4">{cat.title}</h2>
-            {cat.subcategories.length > 0 ? (
-              <ul className="space-y-2">
-                {cat.subcategories.map((sub) => (
-                  <li key={sub.slug}>
-                    <Link
-                      href={`/inventory/${cat.slug}/${sub.slug}`}
-                      className="text-blue-600 hover:text-blue-400"
-                    >
-                      {sub.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500">No subcategories available.</p>
-            )}
+      <div className="grid md:grid-cols-3 gap-8">
+        {sortedCategories.map((cat) => (
+          <div key={cat._id}>
+            <h2 className="text-xl font-semibold mb-4">{cat.name}</h2>
+            <ul className="space-y-2">
+              {subcategoriesByCategory[cat._id]?.map((sub) => (
+                <li key={sub._id}>
+                  <Link
+                    href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
+                    className="text-blue-500 hover:text-blue-400"
+                  >
+                    {sub.name}
+                  </Link>
+                </li>
+              )) ?? <li className="text-gray-500 italic">No subcategories</li>}
+            </ul>
           </div>
         ))}
       </div>
