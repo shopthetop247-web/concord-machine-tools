@@ -7,13 +7,16 @@ import Image from 'next/image';
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Main categories (can later be fetched dynamically from Sanity)
+  const categories = ['CNC Machines', 'Manual Machinery', 'Fabricating & Stamping'];
+
   return (
     <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link href="/">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Concord Machine Tools"
             width={150}
             height={40}
@@ -65,10 +68,21 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-slate-800 text-white">
           <ul className="flex flex-col space-y-2 px-4 py-4">
-            <li>
-              <Link href="/inventory" onClick={() => setMenuOpen(false)}>
-                Inventory
-              </Link>
+            <li className="font-semibold border-b border-slate-700 pb-2">
+              Inventory
+              <ul className="mt-2 ml-2 space-y-1">
+                {categories.map((cat) => (
+                  <li key={cat}>
+                    <Link
+                      href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="block py-1 hover:text-blue-400"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {cat}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </li>
             <li>
               <Link href="/about" onClick={() => setMenuOpen(false)}>
