@@ -57,10 +57,10 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <h3 className="font-semibold mb-2">Contact</h3>
-          <p className="text-sm">123 Industrial Way</p>
-          <p className="text-sm">City, State ZIP</p>
-          <p className="text-sm">Phone: (123) 456-7890</p>
-          <p className="text-sm">Email: info@concordmachinetools.com</p>
+          <p className="text-sm">220 E. Big Beaver Rd.</p>
+          <p className="text-sm">Troy, MI 48083</p>
+          <p className="text-sm">Phone: (248) 224-3147</p>
+          <p className="text-sm">Email: sales@concordmt.com</p>
         </div>
       </div>
 
