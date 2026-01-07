@@ -1,37 +1,26 @@
-import "./globals.css";
-import Link from "next/link";
+import './globals.css';
+import { ReactNode } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: "Concord Machine Tools",
-  description: "Industrial machinery inventory and sales",
+  title: 'Concord Machine Tools – Used CNC & Metalworking Machines',
+  description:
+    'Find high-quality used CNC machines, metalworking machines, and industrial equipment at Concord Machine Tools.',
+  openGraph: {
+    title: 'Concord Machine Tools',
+    description: 'Used CNC machines, lathes, mills, and industrial equipment for sale.',
+    type: 'website',
+  },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
-        <header className="border-b border-gray-200 bg-white">
-          <nav className="max-w-7xl mx-auto flex gap-6 px-6 py-4 font-semibold">
-            <Link href="/" className="hover:text-blue-600">
-              Home
-            </Link>
-            <Link href="/inventory" className="hover:text-blue-600">
-              Inventory
-            </Link>
-            <Link href="/about" className="hover:text-blue-600">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-blue-600">
-              Contact
-            </Link>
-          </nav>
-        </header>
-
-        <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+      <body className="bg-slate-50 text-slate-900">
+        <Header />
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );
