@@ -1,78 +1,74 @@
-import Link from "next/link";
-import { client } from "@/lib/sanityClient";
+import { client } from '@/lib/sanityClient';
+import Link from 'next/link';
+import imageUrlBuilder from '@sanity/image-url';
 
 interface Machine {
   _id: string;
   name: string;
-  slug: { current: string };
+  brand?: string;
+  yearOfMfg?: string;
+  stockNumber: string;
+  images?: { asset: { _ref: string } }[];
 }
 
-interface SubcategoryPageProps {
-  params: { category: string; subcategory: string };
+interface PageProps {
+  params: {
+    category: string;
+    subcategory: string;
+  };
 }
 
-export async function generateStaticParams() {
-  const subcategories: {
-    slug: { current: string };
-    category?: { slug?: { current: string } };
-  }[] = await client.fetch(`
-    *[_type=="subcategory" && defined(category._ref) && defined(slug.current)]{
-      slug,
-      category->{slug}
-    }
-  `);
+const builder = imageUrlBuilder(client);
+const urlFor = (source: any) => builder.image(source).auto('format').url();
 
-  return subcategories
-    .filter((sub) => sub.slug?.current && sub.category?.slug?.current)
-    .map((sub) => ({
-      category: sub.category!.slug!.current,
-      subcategory: sub.slug!.current,
-    }));
-}
-
-async function getMachines(subcategorySlug: string): Promise<Machine[]> {
-  return client.fetch(
-    `
-    *[_type == "machine" && defined(subcategory) && subcategory->slug.current == $subcategorySlug]{
+export default async function SubcategoryPage({ params }: PageProps) {
+  const machines: Machine[] = await client.fetch(
+    `*[_type == "machine" && subcategory->slug.current == $subcategory]{
       _id,
       name,
-      slug
-    } | order(name asc)
-    `,
-    { subcategorySlug }
+      brand,
+      yearOfMfg,
+      stockNumber,
+      images
+    }`,
+    { subcategory: params.subcategory }
   );
-}
 
-export default async function SubcategoryPage({ params }: SubcategoryPageProps) {
-  const category = params.category ?? "unknown";
-
-  if (!params || !params.subcategory) {
-    return <p>Invalid subcategory</p>;
+  if (!machines || machines.length === 0) {
+    return <p className="p-6">No machines found for this subcategory.</p>;
   }
 
-  const machines = await getMachines(params.subcategory);
-
   return (
-    <main style={{ padding: "24px" }}>
-      <h1>
-        Machines in {params.subcategory.replace(/-/g, " ")} ({category.replace(/-/g, " ")})
+    <main className="max-w-6xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-semibold mb-6">
+        {params.subcategory.replace(/-/g, ' ')}
       </h1>
 
-      {machines.length === 0 ? (
-        <p>No machines found in this subcategory.</p>
-      ) : (
-        <ul style={{ marginTop: "16px" }}>
-          {machines.map((machine) => (
-            <li key={machine._id} style={{ marginBottom: "12px" }}>
-              <Link
-                href={`/inventory/${category}/${params.subcategory}/${machine.slug.current}`}
-              >
-                {machine.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {machines.map((machine) => {
+          const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
+          return (
+            <Link
+              key={machine._id}
+              href={`/inventory/${params.category}/${params.subcategory}/${machine._id}`}
+              className="block bg-gray-50 rounded shadow hover:shadow-lg transition overflow-hidden"
+            >
+              <div className="w-full h-48 relative">
+                <img
+                  src={imageUrl}
+                  alt={machine.name}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <div className="p-4">
+                <h2 className="text-lg font-medium">{machine.name}</h2>
+                {machine.yearOfMfg && <p>Year: {machine.yearOfMfg}</p>}
+                <p>Stock #: {machine.stockNumber}</p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </main>
   );
 }
