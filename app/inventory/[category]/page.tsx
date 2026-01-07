@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { client } from "@/lib/sanityClient";
+import { client } from '@/lib/sanityClient';
+import Link from 'next/link';
 
 interface Subcategory {
   _id: string;
@@ -8,62 +8,43 @@ interface Subcategory {
 }
 
 interface CategoryPageProps {
-  params: { category: string };
-}
-
-// Pre-generate all category paths
-export async function generateStaticParams() {
-  const categories: { slug: { current: string } }[] = await client.fetch(`
-    *[_type=="category" && defined(slug.current)]{
-      slug
-    }
-  `);
-
-  return categories.map((cat) => ({
-    category: cat.slug.current,
-  }));
-}
-
-// Fetch subcategories for this category
-async function getSubcategories(categorySlug: string): Promise<Subcategory[]> {
-  return client.fetch(
-    `
-    *[_type=="subcategory" && references(*[_type=="category" && slug.current==$categorySlug]._id)]{
-      _id,
-      name,
-      slug
-    } | order(name asc)
-    `,
-    { categorySlug }
-  );
+  params: {
+    category: string;
+  };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = params;
-  const subcategories = await getSubcategories(category);
+  // Fetch subcategories for this category from Sanity
+  const subcategories: Subcategory[] = await client.fetch(
+    `*[_type == "subcategory" && category->slug.current == $category]{
+      _id,
+      name,
+      slug
+    }`,
+    { category: params.category }
+  );
 
   if (!subcategories || subcategories.length === 0) {
-    return <p>No subcategories found for this category.</p>;
+    return <p className="p-6">No subcategories found for this category.</p>;
   }
 
   return (
-    <main style={{ padding: "24px" }}>
-      <h1 style={{ marginBottom: "24px" }}>
-        Subcategories in {category.replace(/-/g, " ")}
+    <main className="max-w-6xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-semibold mb-6">
+        {params.category.replace(/-/g, ' ')}
       </h1>
 
-      <ul style={{ listStyle: "disc", paddingLeft: "20px" }}>
-        {subcategories.map((sub) => (
-          <li key={sub._id} style={{ marginBottom: "12px" }}>
-            <Link
-              href={`/inventory/${category}/${sub.slug.current}`}
-              style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-              {sub.name}
-            </Link>
-          </li>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {subcategories.map((subcat) => (
+          <Link
+            key={subcat._id}
+            href={`/inventory/${params.category}/${subcat.slug.current}`}
+            className="block p-6 bg-gray-50 rounded shadow hover:shadow-lg hover:bg-gray-100 transition"
+          >
+            <h2 className="text-xl font-medium">{subcat.name}</h2>
+          </Link>
         ))}
-      </ul>
+      </div>
     </main>
   );
 }
