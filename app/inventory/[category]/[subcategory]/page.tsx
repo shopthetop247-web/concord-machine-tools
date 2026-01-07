@@ -1,14 +1,16 @@
+// app/inventory/[category]/[subcategory]/page.tsx
 import { client } from '@/lib/sanityClient';
-import Link from 'next/link';
 import imageUrlBuilder from '@sanity/image-url';
+import Link from 'next/link';
 
 interface Machine {
   _id: string;
   name: string;
   brand?: string;
-  yearOfMfg?: string;
+  yearOfMfg?: number;
   stockNumber: string;
   images?: { asset: { _ref: string } }[];
+  slug: { current: string };
 }
 
 interface PageProps {
@@ -22,36 +24,45 @@ const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 export default async function SubcategoryPage({ params }: PageProps) {
+  const { category, subcategory } = params;
+
+  // Fetch machines in this subcategory
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine" && subcategory->slug.current == $subcategory]{
+    `*[_type == "machine" && subcategory._ref in *[_type=="subcategory" && slug.current == $slug]._id]{
       _id,
       name,
       brand,
       yearOfMfg,
       stockNumber,
-      images
+      images,
+      slug
     }`,
-    { subcategory: params.subcategory }
+    { slug: subcategory }
   );
 
-  if (!machines || machines.length === 0) {
-    return <p className="p-6">No machines found for this subcategory.</p>;
+  if (!machines.length) {
+    return (
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-semibold mb-6">No Machines Found</h1>
+        <p className="text-gray-700">
+          There are no machines listed in this subcategory yet.
+        </p>
+      </main>
+    );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-6">
-        {params.subcategory.replace(/-/g, ' ')}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-6">{subcategory.replace(/-/g, ' ')}</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
           return (
             <Link
               key={machine._id}
-              href={`/inventory/${params.category}/${params.subcategory}/${machine._id}`}
-              className="block bg-gray-50 rounded shadow hover:shadow-lg transition overflow-hidden"
+              href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
+              className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
             >
               <div className="w-full h-48 relative">
                 <img
@@ -60,10 +71,12 @@ export default async function SubcategoryPage({ params }: PageProps) {
                   className="object-cover w-full h-full"
                 />
               </div>
-              <div className="p-4">
-                <h2 className="text-lg font-medium">{machine.name}</h2>
-                {machine.yearOfMfg && <p>Year: {machine.yearOfMfg}</p>}
-                <p>Stock #: {machine.stockNumber}</p>
+              <div className="p-4 bg-white">
+                <h2 className="text-lg font-medium mb-1">{machine.name}</h2>
+                <p className="text-gray-600 text-sm">
+                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp; </>}
+                  Stock #: {machine.stockNumber}
+                </p>
               </div>
             </Link>
           );
