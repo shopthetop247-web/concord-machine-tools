@@ -6,10 +6,6 @@ import Image from 'next/image';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [inventoryOpen, setInventoryOpen] = useState(false);
-
-  // Main categories
-  const categories = ['CNC Machines', 'Lathes', 'Milling Machines'];
 
   return (
     <header className="bg-slate-900 text-white shadow-md sticky top-0 z-50">
@@ -27,38 +23,28 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 font-medium">
-          {/* Inventory Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setInventoryOpen(true)}
-            onMouseLeave={() => setInventoryOpen(false)}
+          <Link
+            href="/inventory"
+            className="hover:text-blue-400 transition-colors duration-200"
           >
-            <span className="cursor-pointer hover:text-blue-400">
-              Inventory ▼
-            </span>
-
-            {inventoryOpen && (
-              <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="block px-4 py-2 hover:bg-slate-700 hover:text-blue-400"
-                  >
-                    {cat}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <Link href="/about" className="hover:text-blue-400">
+            Inventory
+          </Link>
+          <Link
+            href="/about"
+            className="hover:text-blue-400 transition-colors duration-200"
+          >
             About
           </Link>
-          <Link href="/sell" className="hover:text-blue-400">
+          <Link
+            href="/sell"
+            className="hover:text-blue-400 transition-colors duration-200"
+          >
             Sell Your Machine
           </Link>
-          <Link href="/contact" className="hover:text-blue-400">
+          <Link
+            href="/contact"
+            className="hover:text-blue-400 transition-colors duration-200"
+          >
             Contact
           </Link>
         </nav>
@@ -79,23 +65,11 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-slate-800 text-white">
           <ul className="flex flex-col space-y-2 px-4 py-4">
-            <li className="border-b border-slate-700 pb-2">
-              <span className="font-semibold">Inventory</span>
-              <ul className="mt-2 ml-2 space-y-1">
-                {categories.map((cat) => (
-                  <li key={cat}>
-                    <Link
-                      href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="block py-1 hover:text-blue-400"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {cat}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            <li>
+              <Link href="/inventory" onClick={() => setMenuOpen(false)}>
+                Inventory
+              </Link>
             </li>
-
             <li>
               <Link href="/about" onClick={() => setMenuOpen(false)}>
                 About
