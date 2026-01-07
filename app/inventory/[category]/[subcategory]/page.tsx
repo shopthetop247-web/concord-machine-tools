@@ -2,6 +2,7 @@
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 interface Machine {
   _id: string;
@@ -23,10 +24,34 @@ interface PageProps {
 const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
+/* ------------------------------------
+   SEO METADATA
+------------------------------------ */
+export async function generateMetadata(
+  { params }: PageProps
+): Promise<Metadata> {
+  const subcategoryName = params.subcategory.replace(/-/g, ' ');
+
+  return {
+    title: `${subcategoryName} for Sale | Used Industrial Machinery`,
+    description: `Browse available ${subcategoryName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
+    alternates: {
+      canonical: `/inventory/${params.category}/${params.subcategory}`,
+    },
+    openGraph: {
+      title: `${subcategoryName} for Sale`,
+      description: `View our current inventory of ${subcategoryName} machines.`,
+      type: 'website',
+    },
+  };
+}
+
+/* ------------------------------------
+   PAGE COMPONENT
+------------------------------------ */
 export default async function SubcategoryPage({ params }: PageProps) {
   const { category, subcategory } = params;
 
-  // Fetch machines in this subcategory
   const machines: Machine[] = await client.fetch(
     `*[_type == "machine" && subcategory._ref in *[_type=="subcategory" && slug.current == $slug]._id]{
       _id,
@@ -40,12 +65,29 @@ export default async function SubcategoryPage({ params }: PageProps) {
     { slug: subcategory }
   );
 
+  /* ------------------------------------
+     STRUCTURED DATA (JSON-LD)
+  ------------------------------------ */
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${subcategory.replace(/-/g, ' ')} Machines`,
+    itemListElement: machines.map((machine, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: machine.name,
+      url: `https://www.concordmachinetools.com/inventory/${category}/${subcategory}/${machine.slug.current}`,
+    })),
+  };
+
   if (!machines.length) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-semibold mb-6">No Machines Found</h1>
+        <h1 className="text-3xl font-semibold mb-4 capitalize">
+          {subcategory.replace(/-/g, ' ')}
+        </h1>
         <p className="text-gray-700">
-          There are no machines listed in this subcategory yet.
+          There are currently no machines listed in this category.
         </p>
       </main>
     );
@@ -53,28 +95,41 @@ export default async function SubcategoryPage({ params }: PageProps) {
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-6">{subcategory.replace(/-/g, ' ')}</h1>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      <h1 className="text-3xl font-semibold mb-6 capitalize">
+        {subcategory.replace(/-/g, ' ')}
+      </h1>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
-          const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
+          const imageUrl = machine.images?.[0]
+            ? urlFor(machine.images[0])
+            : '/placeholder.jpg';
+
           return (
             <Link
               key={machine._id}
               href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
-              className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
+              className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="w-full h-48 relative">
+              <div className="w-full h-48">
                 <img
                   src={imageUrl}
-                  alt={machine.name}
+                  alt={`${machine.name} for sale`}
                   className="object-cover w-full h-full"
                 />
               </div>
               <div className="p-4 bg-white">
-                <h2 className="text-lg font-medium mb-1">{machine.name}</h2>
-                <p className="text-gray-600 text-sm">
-                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp; </>}
+                <h2 className="text-lg font-medium mb-1">
+                  {machine.name}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp;</>}
                   Stock #: {machine.stockNumber}
                 </p>
               </div>
