@@ -1,11 +1,17 @@
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
 
+interface Subcategory {
+  _id: string;
+  title: string;
+  slug: { current: string };
+}
+
 interface Category {
   _id: string;
   title: string;
   slug: { current: string };
-  subcategories?: { title: string; slug: { current: string } }[];
+  subcategories?: Subcategory[];
 }
 
 // Optional: reorder main categories for desired column layout
@@ -14,11 +20,15 @@ const categoryOrder = ['CNC Machinery', 'Fabricating & Stamping', 'Manual Machin
 export default async function InventoryPage() {
   // Fetch main categories and their subcategories from Sanity
   const categories: Category[] = await client.fetch(
-    `*[_type == "category" && defined(title)]{
+    `*[_type == "category" && defined(title)] | order(title asc){
       _id,
       title,
       slug,
-      "subcategories": subcategories[]->{title, slug}
+      "subcategories": *[_type == "subcategory" && references(^._id)]{
+        _id,
+        title,
+        slug
+      }
     }`
   );
 
@@ -38,7 +48,7 @@ export default async function InventoryPage() {
             {cat.subcategories && cat.subcategories.length > 0 ? (
               <ul className="space-y-2">
                 {cat.subcategories.map((sub) => (
-                  <li key={sub.slug.current}>
+                  <li key={sub._id}>
                     <Link
                       href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
                       className="text-blue-600 hover:text-blue-400"
