@@ -20,7 +20,7 @@ export default function Header() {
             alt="Concord Machine Tools"
             width={180}
             height={50}
-            className="mb-4 object-contain"
+            className="object-contain m-0"
           />
         </Link>
 
