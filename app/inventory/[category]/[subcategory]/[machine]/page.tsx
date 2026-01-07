@@ -9,11 +9,12 @@ interface Machine {
   _id: string;
   name: string;
   brand?: string;
-  yearOfMfg?: string;
+  yearOfMfg?: number;
   specifications?: string;
   images?: { asset: { _ref: string } }[];
-  videoUrl?: string; // single YouTube URL
+  videoUrl?: string;
   stockNumber: string;
+  slug?: { current: string };
 }
 
 interface PageProps {
@@ -28,9 +29,9 @@ const builder = imageUrlBuilder(client);
 const urlFor = (source: any) =>
   builder.image(source).auto('format').fit('max').url();
 
-/**
- * Safely extract a YouTube video ID
- */
+/* -----------------------------------
+   YouTube ID Extractor
+----------------------------------- */
 function getYouTubeId(url?: string) {
   if (!url) return null;
 
@@ -41,7 +42,9 @@ function getYouTubeId(url?: string) {
   return match ? match[1] : null;
 }
 
-/* ---------------- SEO METADATA ---------------- */
+/* -----------------------------------
+   SEO METADATA
+----------------------------------- */
 export async function generateMetadata(
   { params }: PageProps
 ): Promise<Metadata> {
@@ -61,23 +64,32 @@ export async function generateMetadata(
     };
   }
 
-  const brandPart = machine.brand ? `${machine.brand} ` : '';
-  const title = `${brandPart}${machine.name} CNC Machine for Sale | Concord Machine Tools`;
-
-  const description = `Used ${brandPart}${machine.name} CNC machine for sale. View photos, specifications, and request a quote from Concord Machine Tools. Stock #${machine.stockNumber}.`;
+  const brandPrefix = machine.brand ? `${machine.brand} ` : '';
+  const title = `${brandPrefix}${machine.name} for Sale | Used CNC Machinery`;
+  const description = `Used ${brandPrefix}${machine.name} for sale. View photos, specifications, video, and request a quote. Stock #${machine.stockNumber}.`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: `/inventory/${params.category}/${params.subcategory}/${params.machine}`,
+    },
     openGraph: {
       title,
       description,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
-/* ---------------- PAGE ---------------- */
+/* -----------------------------------
+   PAGE
+----------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
   const machineData: Machine | null = await client.fetch(
     `*[_type == "machine" && slug.current == $slug][0]{
@@ -88,7 +100,8 @@ export default async function MachinePage({ params }: PageProps) {
       specifications,
       images,
       videoUrl,
-      stockNumber
+      stockNumber,
+      slug
     }`,
     { slug: params.machine }
   );
@@ -100,32 +113,63 @@ export default async function MachinePage({ params }: PageProps) {
   const images = machineData.images?.map(urlFor) ?? [];
   const videoId = getYouTubeId(machineData.videoUrl);
 
-  /* ----------- STRUCTURED DATA (JSON-LD) ----------- */
-  const structuredData = {
+  /* -----------------------------------
+     STRUCTURED DATA
+  ----------------------------------- */
+  const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `${machineData.brand ?? ''} ${machineData.name}`.trim(),
-    brand: machineData.brand
-      ? {
-          '@type': 'Brand',
-          name: machineData.brand,
-        }
-      : undefined,
     image: images,
-    description: `Used ${machineData.brand ?? ''} ${machineData.name} CNC machine for sale.`,
+    description: `Used ${machineData.brand ?? ''} ${machineData.name} for sale.`,
     sku: machineData.stockNumber,
+    brand: machineData.brand
+      ? { '@type': 'Brand', name: machineData.brand }
+      : undefined,
     itemCondition: 'https://schema.org/UsedCondition',
     seller: {
       '@type': 'Organization',
       name: 'Concord Machine Tools',
     },
-    video: videoId
-      ? {
-          '@type': 'VideoObject',
-          name: `${machineData.name} Machine Video`,
-          embedUrl: `https://www.youtube.com/embed/${videoId}`,
-        }
-      : undefined,
+  };
+
+  const videoSchema = videoId
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        name: `${machineData.name} Machine Video`,
+        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+      }
+    : null;
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Inventory',
+        item: 'https://www.concordmachinetools.com/inventory',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: params.category.replace(/-/g, ' '),
+        item: `https://www.concordmachinetools.com/inventory/${params.category}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: params.subcategory.replace(/-/g, ' '),
+        item: `https://www.concordmachinetools.com/inventory/${params.category}/${params.subcategory}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: machineData.name,
+      },
+    ],
   };
 
   return (
@@ -134,7 +178,11 @@ export default async function MachinePage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData),
+          __html: JSON.stringify([
+            productSchema,
+            videoSchema,
+            breadcrumbSchema,
+          ].filter(Boolean)),
         }}
       />
 
@@ -181,7 +229,7 @@ export default async function MachinePage({ params }: PageProps) {
       {/* Images */}
       {images.length > 0 && <MachineImages images={images} />}
 
-      {/* 🎥 Machine Video */}
+      {/* Video */}
       {videoId && (
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
@@ -192,8 +240,6 @@ export default async function MachinePage({ params }: PageProps) {
             <iframe
               src={`https://www.youtube.com/embed/${videoId}`}
               className="absolute inset-0 w-full h-full"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title={`${machineData.name} video`}
             />
@@ -207,13 +253,13 @@ export default async function MachinePage({ params }: PageProps) {
           <h2 className="text-lg font-medium mb-2">
             Specifications
           </h2>
-          <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded border border-gray-200 text-sm">
+          <pre className="whitespace-pre-wrap bg-gray-50 p-4 rounded border text-sm">
             {machineData.specifications}
           </pre>
         </section>
       )}
 
-      {/* Quote CTA */}
+      {/* Quote */}
       <section className="mt-8">
         <RequestQuoteSection stockNumber={machineData.stockNumber} />
       </section>
