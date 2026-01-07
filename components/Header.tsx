@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
 
   // Main categories
   const categories = ['CNC Machines', 'Lathes', 'Milling Machines'];
@@ -27,21 +28,28 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 font-medium">
           {/* Inventory Dropdown */}
-          <div className="relative group">
+          <div
+            className="relative"
+            onMouseEnter={() => setInventoryOpen(true)}
+            onMouseLeave={() => setInventoryOpen(false)}
+          >
             <span className="cursor-pointer hover:text-blue-400">
               Inventory ▼
             </span>
-            <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-hover:visible invisible">
-              {categories.map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="block px-4 py-2 hover:bg-slate-700 hover:text-blue-400"
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
+
+            {inventoryOpen && (
+              <div className="absolute left-0 mt-2 w-48 bg-slate-800 text-white rounded shadow-lg">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/inventory/${cat.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="block px-4 py-2 hover:bg-slate-700 hover:text-blue-400"
+                  >
+                    {cat}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           <Link href="/about" className="hover:text-blue-400">
