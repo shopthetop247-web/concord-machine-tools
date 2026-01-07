@@ -3,15 +3,16 @@ import MachineImages from '@/components/MachineImages';
 import RequestQuoteSection from '@/components/RequestQuoteSection';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 interface Machine {
   _id: string;
   name: string;
-  brand?: string; // optional for future search
+  brand?: string;
   yearOfMfg?: string;
   specifications?: string;
   images?: { asset: { _ref: string } }[];
-  videoUrl?: string; // ✅ NEW: single YouTube video
+  videoUrl?: string; // single YouTube URL
   stockNumber: string;
 }
 
@@ -24,7 +25,8 @@ interface PageProps {
 }
 
 const builder = imageUrlBuilder(client);
-const urlFor = (source: any) => builder.image(source).auto('format').url();
+const urlFor = (source: any) =>
+  builder.image(source).auto('format').fit('max').url();
 
 /**
  * Safely extract a YouTube video ID
@@ -39,6 +41,43 @@ function getYouTubeId(url?: string) {
   return match ? match[1] : null;
 }
 
+/* ---------------- SEO METADATA ---------------- */
+export async function generateMetadata(
+  { params }: PageProps
+): Promise<Metadata> {
+  const machine: Machine | null = await client.fetch(
+    `*[_type == "machine" && slug.current == $slug][0]{
+      name,
+      brand,
+      yearOfMfg,
+      stockNumber
+    }`,
+    { slug: params.machine }
+  );
+
+  if (!machine) {
+    return {
+      title: 'Machine Not Found | Concord Machine Tools',
+    };
+  }
+
+  const brandPart = machine.brand ? `${machine.brand} ` : '';
+  const title = `${brandPart}${machine.name} CNC Machine for Sale | Concord Machine Tools`;
+
+  const description = `Used ${brandPart}${machine.name} CNC machine for sale. View photos, specifications, and request a quote from Concord Machine Tools. Stock #${machine.stockNumber}.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+  };
+}
+
+/* ---------------- PAGE ---------------- */
 export default async function MachinePage({ params }: PageProps) {
   const machineData: Machine | null = await client.fetch(
     `*[_type == "machine" && slug.current == $slug][0]{
@@ -58,14 +97,47 @@ export default async function MachinePage({ params }: PageProps) {
     return <p className="p-6">Machine not found</p>;
   }
 
-  // Map images to URLs
   const images = machineData.images?.map(urlFor) ?? [];
-
-  // Extract YouTube ID if present
   const videoId = getYouTubeId(machineData.videoUrl);
+
+  /* ----------- STRUCTURED DATA (JSON-LD) ----------- */
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: `${machineData.brand ?? ''} ${machineData.name}`.trim(),
+    brand: machineData.brand
+      ? {
+          '@type': 'Brand',
+          name: machineData.brand,
+        }
+      : undefined,
+    image: images,
+    description: `Used ${machineData.brand ?? ''} ${machineData.name} CNC machine for sale.`,
+    sku: machineData.stockNumber,
+    itemCondition: 'https://schema.org/UsedCondition',
+    seller: {
+      '@type': 'Organization',
+      name: 'Concord Machine Tools',
+    },
+    video: videoId
+      ? {
+          '@type': 'VideoObject',
+          name: `${machineData.name} Machine Video`,
+          embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        }
+      : undefined,
+  };
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
+
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/inventory" className="text-blue-500 hover:underline">
@@ -93,6 +165,7 @@ export default async function MachinePage({ params }: PageProps) {
 
       {/* Title */}
       <h1 className="text-3xl font-semibold mb-2">
+        {machineData.brand && `${machineData.brand} `}
         {machineData.name}
       </h1>
 
@@ -123,7 +196,7 @@ export default async function MachinePage({ params }: PageProps) {
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              title="Machine video"
+              title={`${machineData.name} video`}
             />
           </div>
         </section>
@@ -148,4 +221,3 @@ export default async function MachinePage({ params }: PageProps) {
     </main>
   );
 }
-
