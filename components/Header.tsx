@@ -18,8 +18,8 @@ export default function Header() {
           <Image
             src="/logo.png"
             alt="Concord Machine Tools"
-            width={150}
-            height={40}
+            width={180}
+            height={50}
             className="mb-4 object-contain"
           />
         </Link>
