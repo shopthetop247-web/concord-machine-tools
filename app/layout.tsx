@@ -9,7 +9,8 @@ export const metadata = {
     'Find high-quality used CNC machines, metalworking machines, and industrial equipment at Concord Machine Tools.',
   openGraph: {
     title: 'Concord Machine Tools',
-    description: 'Used CNC machines, lathes, mills, and industrial equipment for sale.',
+    description:
+      'Used CNC machines, lathes, mills, and industrial equipment for sale.',
     type: 'website',
   },
 };
@@ -19,6 +20,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className="bg-slate-50 text-slate-900">
         <Header />
+
+        {/* Organization Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'Concord Machine Tools',
+              url: 'https://www.concordmachinetools.com',
+              logo: 'https://www.concordmachinetools.com/logo.png',
+              sameAs: [],
+            }),
+          }}
+        />
+
         <main>{children}</main>
         <Footer />
       </body>
