@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+// app/inventory/[category]/[subcategory]/page.tsx
+export const revalidate = 60;
 
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
@@ -11,7 +12,7 @@ interface Machine {
   brand?: string;
   yearOfMfg?: number;
   stockNumber: string;
-  images?: any[];
+  images?: { asset: { _ref: string } }[];
   slug: { current: string };
 }
 
@@ -20,54 +21,41 @@ interface PageProps {
     category: string;
     subcategory: string;
   };
-  searchParams: {
-    brand?: string;
-    year?: string;
-  };
 }
 
 const builder = imageUrlBuilder(client);
-const urlFor = (source: any) =>
-  builder.image(source).auto('format').url();
+const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 /* ------------------------------------
    SEO METADATA
 ------------------------------------ */
 export async function generateMetadata(
-  { params, searchParams }: PageProps
+  { params }: PageProps
 ): Promise<Metadata> {
   const subcategoryName = params.subcategory.replace(/-/g, ' ');
-  const filters = [];
-
-  if (searchParams.brand) filters.push(searchParams.brand);
-  if (searchParams.year) filters.push(searchParams.year);
-
-  const filterText = filters.length ? ` – ${filters.join(', ')}` : '';
 
   return {
-    title: `${subcategoryName}${filterText} for Sale | Used Industrial Machinery`,
-    description: `Browse ${subcategoryName} machines${filterText}. View photos, specifications, and request a quote.`,
+    title: `${subcategoryName} for Sale | Used Industrial Machinery`,
+    description: `Browse available ${subcategoryName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
     alternates: {
       canonical: `/inventory/${params.category}/${params.subcategory}`,
+    },
+    openGraph: {
+      title: `${subcategoryName} for Sale`,
+      description: `View our current inventory of ${subcategoryName} machines.`,
+      type: 'website',
     },
   };
 }
 
 /* ------------------------------------
-   PAGE
+   PAGE COMPONENT
 ------------------------------------ */
-export default async function SubcategoryPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function SubcategoryPage({ params }: PageProps) {
   const { category, subcategory } = params;
-  const { brand, year } = searchParams;
 
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine"
-      && subcategory._ref in *[_type=="subcategory" && slug.current == $subcategorySlug]._id
-      && (!defined($brand) || brand == $brand)
-      && (!defined($year) || yearOfMfg == $year)
+    `*[_type == "machine" && subcategory._ref in *[_type=="subcategory" && slug.current == $slug]._id
     ]
     | order(yearOfMfg desc, brand asc){
       _id,
@@ -75,99 +63,86 @@ export default async function SubcategoryPage({
       brand,
       yearOfMfg,
       stockNumber,
-      images,
+      images[]{
+      asset->
+      },
       slug
     }`,
-    {
-      subcategorySlug: subcategory,
-      brand,
-      year: year ? Number(year) : undefined,
-    }
+    { slug: subcategory }
   );
+
+  /* ------------------------------------
+     STRUCTURED DATA (JSON-LD)
+  ------------------------------------ */
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${subcategory.replace(/-/g, ' ')} Machines`,
+    itemListElement: machines.map((machine, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: machine.name,
+      url: `https://www.concordmachinetools.com/inventory/${category}/${subcategory}/${machine.slug.current}`,
+    })),
+  };
+
+  if (!machines.length) {
+    return (
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-semibold mb-4 capitalize">
+          {subcategory.replace(/-/g, ' ')}
+        </h1>
+        <p className="text-gray-700">
+          There are currently no machines listed in this category.
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       <h1 className="text-3xl font-semibold mb-6 capitalize">
         {subcategory.replace(/-/g, ' ')}
       </h1>
 
-      {/* FILTER BAR */}
-      <form className="flex flex-wrap gap-4 mb-8">
-        <select
-          name="brand"
-          defaultValue={brand || ''}
-          className="border rounded px-3 py-2"
-        >
-          <option value="">All Brands</option>
-          {[...new Set(machines.map(m => m.brand).filter(Boolean))].map(
-            (b) => (
-              <option key={b} value={b!}>
-                {b}
-              </option>
-            )
-          )}
-        </select>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {machines.map((machine) => {
+          const imageUrl = machine.images?.[0]
+            ? urlFor(machine.images[0])
+            : '/placeholder.jpg';
 
-        <select
-          name="year"
-          defaultValue={year || ''}
-          className="border rounded px-3 py-2"
-        >
-          <option value="">All Years</option>
-          {[...new Set(machines.map(m => m.yearOfMfg).filter(Boolean))]
-            .sort((a, b) => b! - a!)
-            .map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-        </select>
-
-        <button
-          type="submit"
-          className="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800"
-        >
-          Apply Filters
-        </button>
-      </form>
-
-      {/* GRID */}
-      {machines.length === 0 ? (
-        <p>No machines found for the selected filters.</p>
-      ) : (
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {machines.map((machine) => {
-            const imageUrl = machine.images?.[0]
-              ? urlFor(machine.images[0])
-              : '/placeholder.jpg';
-
-            return (
-              <Link
-                key={machine._id}
-                href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
-                className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-              >
-                <div className="w-full h-48">
-                  <img
-                    src={imageUrl}
-                    alt={`${machine.name} for sale`}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="p-4">
-                  <h2 className="text-lg font-medium">
-                    {machine.name}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {machine.yearOfMfg && <>Year: {machine.yearOfMfg} | </>}
-                    Stock #: {machine.stockNumber}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <Link
+              key={machine._id}
+              href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
+              className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+            >
+              <div className="w-full h-48">
+                <img
+                  src={imageUrl}
+                  alt={`${machine.name} for sale`}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <div className="p-4 bg-white">
+                <h2 className="text-lg font-medium mb-1">
+                  {machine.name}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp;</>}
+                  Stock #: {machine.stockNumber}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </main>
   );
 }
