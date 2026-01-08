@@ -1,7 +1,5 @@
-'use client'; // ← MUST be the first line for Client Components
-
 import { Metadata } from 'next';
-import { useEffect, useState } from 'react';
+import BackToTopButton from './BackToTopButton';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions | Concord Machine Tools',
@@ -19,18 +17,6 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
-  const [showButton, setShowButton] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setShowButton(window.scrollY > 300);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <main className="max-w-4xl mx-auto px-6 py-12 relative">
       <h1 className="text-3xl font-semibold mb-6">Machine Sale Terms</h1>
@@ -66,15 +52,8 @@ export default function TermsPage() {
         </ol>
       </section>
 
-      {/* Back to Top Button */}
-      {showButton && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
-        >
-          ↑ Back to Top
-        </button>
-      )}
+      {/* Client-side Back to Top Button */}
+      <BackToTopButton />
     </main>
   );
 }
