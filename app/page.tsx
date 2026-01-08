@@ -24,7 +24,7 @@ export default function HomePage() {
 
           <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
             Specializing in CNC machining centers, lathes, mills, and industrial equipment —
-            professionally represented and ready for production.
+            wide ranging & budget friendly options.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
