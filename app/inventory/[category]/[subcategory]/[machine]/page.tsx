@@ -98,7 +98,9 @@ export default async function MachinePage({ params }: PageProps) {
       brand,
       yearOfMfg,
       specifications,
-      images,
+       images[]{
+      asset->
+      },
       videoUrl,
       stockNumber,
       slug
