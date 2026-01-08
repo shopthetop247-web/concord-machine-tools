@@ -59,8 +59,22 @@ export default function Footer() {
           <h3 className="font-semibold mb-2">Contact</h3>
           <p className="text-sm">200 E. Big Beaver Rd.</p>
           <p className="text-sm">Troy, MI 48083</p>
-          <p className="text-sm">Phone: (248) 224-3147</p>
-          <p className="text-sm">Email: sales@concordmt.com</p>
+          <p className="text-sm">Phone:{' '}
+          <a
+            href="tel:+12482243147"
+            className="text-blue-400 hover:text-white underline"
+            >
+             (248) 224-3147
+            </a>
+          </p>
+          <p className="text-sm">Email:{' '}
+          <a
+            href="mailto:info@concordmachinetools.com"
+            className="text-blue-400 hover:text-white underline"
+          >
+            sales@concordmt.com
+          </a>
+          </p>
         </div>
       </div>
 
