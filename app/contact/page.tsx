@@ -29,8 +29,8 @@ export default function ContactPage() {
               contactPoint: {
                 '@type': 'ContactPoint',
                 contactType: 'sales',
-                telephone: '+1-123-456-7890',
-                email: 'info@concordmachinetools.com',
+                telephone: '+1-248-224-3147',
+                email: 'sales@concordmt.com',
                 areaServed: ['US', 'Worldwide'],
                 availableLanguage: 'English',
               },
@@ -80,9 +80,15 @@ export default function ContactPage() {
             <div>
               <h3 className="font-semibold">Email</h3>
               <p className="text-slate-700">
+              <a
+                href="mailto:sales@concordmt.com"
+                className="text-blue-500 hover:underline"
+              >
                 sales@concordmt.com
-              </p>
-            </div>
+           </a>
+          </p>
+        </div>
+
 
             <div>
               <h3 className="font-semibold">Business Hours</h3>
