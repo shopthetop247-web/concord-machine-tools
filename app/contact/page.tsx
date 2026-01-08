@@ -73,9 +73,16 @@ export default function ContactPage() {
             </div>
 
             <div>
-              <h3 className="font-semibold">Phone</h3>
-              <p className="text-slate-700">(248) 224-3147</p>
-            </div>
+               <h3 className="font-semibold">Phone</h3>
+               <p className="text-slate-700">
+               <a
+                 href="tel:+12482243147"
+                 className="text-blue-500 hover:underline"
+               >
+                 (248) 224-3147
+               </a>
+               </p>
+             </div>
 
             <div>
               <h3 className="font-semibold">Email</h3>
