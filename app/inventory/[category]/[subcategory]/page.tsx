@@ -63,7 +63,9 @@ export default async function SubcategoryPage({ params }: PageProps) {
       brand,
       yearOfMfg,
       stockNumber,
-      images,
+      images[]{
+      asset->
+      },
       slug
     }`,
     { slug: subcategory }
