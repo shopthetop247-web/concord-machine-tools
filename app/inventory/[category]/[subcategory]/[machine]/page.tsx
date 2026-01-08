@@ -110,7 +110,17 @@ export default async function MachinePage({ params }: PageProps) {
     return <p className="p-6">Machine not found</p>;
   }
 
-  const images = machineData.images?.map(urlFor) ?? [];
+  const images =
+  machineData.images
+    ?.map((img) => {
+      try {
+        return urlFor(img);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) ?? [];
+
   const videoId = getYouTubeId(machineData.videoUrl);
 
   /* -----------------------------------
