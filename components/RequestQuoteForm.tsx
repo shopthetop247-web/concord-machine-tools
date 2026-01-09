@@ -10,6 +10,7 @@ interface RequestQuoteFormProps {
 
 export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuoteFormProps) {
   const [name, setName] = useState('');
+  const [company, setCompany] = useState(''); // ← New field
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,13 +27,14 @@ export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuot
       const res = await fetch('/api/request-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stockNumber, name, email, message }),
+        body: JSON.stringify({ stockNumber, name, company, email, message }),
       });
 
       if (!res.ok) throw new Error('Failed to send email. Please try again.');
 
       setSuccess(true);
       setName('');
+      setCompany(''); // ← Clear company field
       setEmail('');
       setMessage('');
       if (onSuccess) onSuccess();
@@ -55,6 +57,17 @@ export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuot
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     focus:outline-none focus:ring-brandBlue focus:border-brandBlue sm:text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Company</label> {/* New field */}
+        <input
+          type="text"
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
                      focus:outline-none focus:ring-brandBlue focus:border-brandBlue sm:text-sm"
         />
@@ -95,3 +108,4 @@ export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuot
     </form>
   );
 }
+
