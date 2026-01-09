@@ -14,35 +14,41 @@ export const metadata: Metadata = {
 interface Brand {
   name: string;
   slug: string;
-  count: number; // optional: number of machines
+  count: number;
 }
 
 export default async function BrandsIndexPage() {
-  // Fetch all distinct brands from your machines collection
-  const brands: Brand[] = await client.fetch(
+  // Fetch all distinct brands
+  const brandsData: { brand: string }[] = await client.fetch(
     `*[_type == "machine" && defined(brand)]{
-      "name": brand,
-      "slug": coalesce(lower(replace(brand, " ", "-")), "unknown")
-    } | order(name asc)`
+      "brand": brand
+    }`
   );
 
-  // Count machines per brand
-  const brandsWithCount = await Promise.all(
-    brands.map(async (brand) => {
+  // Deduplicate brands
+  const uniqueBrands = Array.from(new Set(brandsData.map(b => b.brand)));
+
+  // Create slug & count
+  const brands: Brand[] = await Promise.all(
+    uniqueBrands.map(async (brand) => {
+      const slug = brand.toLowerCase().replace(/\s+/g, '-'); // generate slug in JS
       const count: number = await client.fetch(
         `count(*[_type=="machine" && brand == $brand])`,
-        { brand: brand.name }
+        { brand }
       );
-      return { ...brand, count };
+      return { name: brand, slug, count };
     })
   );
+
+  // Sort alphabetically
+  brands.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-12">
       <h1 className="text-3xl font-semibold mb-8">Browse Machines by Brand</h1>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {brandsWithCount.map((brand) => (
+        {brands.map((brand) => (
           <Link
             key={brand.slug}
             href={`/brands/${brand.slug}`}
