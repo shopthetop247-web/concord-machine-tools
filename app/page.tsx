@@ -63,7 +63,7 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/inventory/fabricating-stamping"
+            href="/inventory/fabricating-and-stamping"
             className="block bg-white border rounded-lg p-6 hover:shadow-lg transition"
           >
             <h3 className="text-lg font-semibold mb-2">
