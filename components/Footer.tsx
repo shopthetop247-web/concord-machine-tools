@@ -5,9 +5,9 @@ export default function Footer() {
   const topBrands = [
     { name: 'Haas', slug: 'haas' },
     { name: 'Hurco', slug: 'hurco' },
-    { name: 'Mazak', slug: 'mazak' },
     { name: 'Makino', slug: 'makino' },
-  ];
+    { name: 'Mazak', slug: 'mazak' },
+    ];
 
   return (
     <footer className="bg-slate-800 text-slate-200 mt-12">
@@ -95,7 +95,7 @@ export default function Footer() {
           <p className="text-sm">
             Email:{' '}
             <a
-              href="mailto:info@concordmachinetools.com"
+              href="mailto:sales@concordmt.com"
               className="text-blue-400 hover:text-white underline"
             >
               sales@concordmt.com
