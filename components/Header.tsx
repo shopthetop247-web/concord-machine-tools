@@ -11,7 +11,7 @@ export default function Header() {
   const categories = [
     { title: 'CNC Machines', slug: 'cnc-machinery' },
     { title: 'Manual Machinery', slug: 'manual-machinery' },
-    { title: 'Fabricating & Stamping', slug: 'fabricating-stamping' },
+    { title: 'Fabricating & Stamping', slug: 'fabricating-and-stamping' },
   ];
 
   return (
