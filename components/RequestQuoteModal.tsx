@@ -25,7 +25,8 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
     });
 
     if (!res.ok) {
-      setError('Failed to send request. Please try again.');
+      const data = await res.json();
+      setError(data.error || 'Failed to send request. Please try again.');
       setLoading(false);
       return;
     }
@@ -54,6 +55,12 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
             name="name"
             placeholder="Your Name"
             required
+            className="w-full border rounded px-4 py-2"
+          />
+
+          <input
+            name="company"
+            placeholder="Company"
             className="w-full border rounded px-4 py-2"
           />
 
@@ -87,3 +94,4 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
     </div>
   );
 }
+
