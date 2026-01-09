@@ -34,6 +34,7 @@ export default function Header() {
           <Link href="/inventory" className="hover:text-blue-400">
             Inventory
           </Link>
+         
           <Link href="/about" className="hover:text-blue-400">
             About
           </Link>
