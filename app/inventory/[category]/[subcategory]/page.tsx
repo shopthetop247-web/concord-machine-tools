@@ -29,10 +29,21 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 /* ------------------------------------
    SEO METADATA
 ------------------------------------ */
+function formatSubcategory(slug: string) {
+  return slug
+    .replace(/-/g, ' ')
+    .replace(/\bcnc\b/gi, 'CNC')
+    .replace(/\bvmc\b/gi, 'VMC')
+    .replace(/\bedm\b/gi, 'EDM')
+    .replace(/\bhmc\b/gi, 'HMC');
+;
+}
+
 export async function generateMetadata(
   { params }: PageProps
 ): Promise<Metadata> {
-  const subcategoryName = params.subcategory.replace(/-/g, ' ');
+  const subcategoryName = formatSubcategory(params.subcategory);
+
 
   return {
     title: `${subcategoryName} for Sale | Used Industrial Machinery`,
@@ -77,7 +88,7 @@ export default async function SubcategoryPage({ params }: PageProps) {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `${subcategory.replace(/-/g, ' ')} Machines`,
+    name: `${formatSubcategory(subcategory)} Machines`,
     itemListElement: machines.map((machine, index) => ({
       '@type': 'ListItem',
       position: index + 1,
@@ -89,8 +100,8 @@ export default async function SubcategoryPage({ params }: PageProps) {
   if (!machines.length) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-semibold mb-4 capitalize">
-          {subcategory.replace(/-/g, ' ')}
+        <h1 className="text-3xl font-semibold mb-4">
+        {formatSubcategory(subcategory)}
         </h1>
         <p className="text-gray-700">
           There are currently no machines listed in this category.
@@ -107,9 +118,10 @@ export default async function SubcategoryPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <h1 className="text-3xl font-semibold mb-6 capitalize">
-        {subcategory.replace(/-/g, ' ')}
+      <h1 className="text-3xl font-semibold mb-6">
+      {formatSubcategory(subcategory)}
       </h1>
+
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
