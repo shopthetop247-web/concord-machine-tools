@@ -1,4 +1,6 @@
 // app/brands/[brand]/page.tsx
+export const revalidate = 60;
+
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
@@ -11,7 +13,7 @@ interface Machine {
   yearOfMfg?: number;
   stockNumber: string;
   images?: { asset: { _ref: string } }[];
-  slug: { current: string };
+  slug: string;
 }
 
 interface PageProps {
@@ -30,14 +32,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brandName = params.brand.replace(/-/g, ' ');
 
   return {
-    title: `${brandName} Machines for Sale | Concord Machine Tools`,
-    description: `View our current inventory of ${brandName} metalworking machines, including CNC and industrial equipment.`,
+    title: `${brandName} Machines for Sale | Used Industrial Machinery`,
+    description: `Browse available ${brandName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
     alternates: {
       canonical: `/brands/${params.brand}`,
     },
     openGraph: {
       title: `${brandName} Machines for Sale`,
-      description: `Browse available ${brandName} machines including CNC and industrial equipment.`,
+      description: `View our current inventory of ${brandName} machines.`,
       type: 'website',
     },
   };
@@ -48,15 +50,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 ------------------------------------ */
 export default async function BrandPage({ params }: PageProps) {
   const { brand } = params;
-
-  // Convert slug back to brand name (replace hyphens with spaces, capitalize each word)
-  const brandName = brand
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+  const brandName = brand.replace(/-/g, ' ');
 
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine" && brand == $brandName] | order(yearOfMfg desc, name asc){
+    `*[_type == "machine" && brand == $brand] | order(yearOfMfg desc, name asc){
       _id,
       name,
       brand,
@@ -65,9 +62,9 @@ export default async function BrandPage({ params }: PageProps) {
       images[] {
         asset->
       },
-      slug
+      "slug": slug.current
     }`,
-    { brandName }
+    { brand: brandName }
   );
 
   /* ------------------------------------
@@ -81,14 +78,14 @@ export default async function BrandPage({ params }: PageProps) {
       '@type': 'ListItem',
       position: index + 1,
       name: machine.name,
-      url: `https://www.concordmachinetools.com/inventory/${machine.slug.current}`,
+      url: `https://www.concordmachinetools.com/machines/${machine.slug}`,
     })),
   };
 
   if (!machines.length) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-semibold mb-4">{brandName}</h1>
+        <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
         <p className="text-gray-700">There are currently no machines listed for this brand.</p>
       </main>
     );
@@ -102,15 +99,16 @@ export default async function BrandPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <h1 className="text-3xl font-semibold mb-6">{brandName}</h1>
+      <h1 className="text-3xl font-semibold mb-6 capitalize">{brandName} Machines</h1>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
+
           return (
             <Link
               key={machine._id}
-              href={`/inventory/${machine.slug.current}`}
+              href={`/machines/${machine.slug}`}
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="w-full h-48">
@@ -134,3 +132,4 @@ export default async function BrandPage({ params }: PageProps) {
     </main>
   );
 }
+
