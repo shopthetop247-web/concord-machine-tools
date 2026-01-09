@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     // Basic validation
-    const { name, email, stockNumber, message } = data;
+    const { name, email, company, stockNumber, message } = data;
     if (!name || !email || !stockNumber || !message) {
       return NextResponse.json(
         { success: false, error: "All fields are required." },
@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       subject: `Quote Request from ${name} - Stock# ${stockNumber}`,
       text: `
         Name: ${name}
+        Company: ${company || 'N/A'}
         Email: ${email}
         Stock#: ${stockNumber}
         Message: ${message}
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
       html: `
         <h2>Quote Request</h2>
         <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Company:</strong> ${company || 'N/A'}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Stock#:</strong> ${stockNumber}</p>
         <p><strong>Message:</strong></p>
