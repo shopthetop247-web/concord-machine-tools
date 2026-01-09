@@ -13,7 +13,7 @@ interface Machine {
   yearOfMfg?: number;
   stockNumber: string;
   images?: { asset: { _ref: string } }[];
-  slug: string;
+  slug: { current: string };
 }
 
 interface PageProps {
@@ -32,13 +32,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brandName = params.brand.replace(/-/g, ' ');
 
   return {
-    title: `${brandName} Machines for Sale | Used Industrial Machinery`,
-    description: `Browse available ${brandName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
+    title: `${brandName} Machines | Concord Machine Tools`,
+    description: `Browse our inventory of ${brandName} machines including CNC and industrial equipment.`,
     alternates: {
       canonical: `/brands/${params.brand}`,
     },
     openGraph: {
-      title: `${brandName} Machines for Sale`,
+      title: `${brandName} Machines`,
       description: `View our current inventory of ${brandName} machines.`,
       type: 'website',
     },
@@ -50,37 +50,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 ------------------------------------ */
 export default async function BrandPage({ params }: PageProps) {
   const { brand } = params;
+
+  // Convert slug back to normal brand name
   const brandName = brand.replace(/-/g, ' ');
 
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine" && brand == $brand] | order(yearOfMfg desc, name asc){
+    `*[_type == "machine" && brand match $brandName] | order(yearOfMfg desc, name asc){
       _id,
       name,
       brand,
       yearOfMfg,
       stockNumber,
-      images[] {
-        asset->
-      },
-      "slug": slug.current
+      images[] { asset-> },
+      slug
     }`,
-    { brand: brandName }
+    { brandName }
   );
-
-  /* ------------------------------------
-     STRUCTURED DATA (JSON-LD)
-  ------------------------------------ */
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: `${brandName} Machines`,
-    itemListElement: machines.map((machine, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: machine.name,
-      url: `https://www.concordmachinetools.com/machines/${machine.slug}`,
-    })),
-  };
 
   if (!machines.length) {
     return (
@@ -93,22 +78,15 @@ export default async function BrandPage({ params }: PageProps) {
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-
-      <h1 className="text-3xl font-semibold mb-6 capitalize">{brandName} Machines</h1>
+      <h1 className="text-3xl font-semibold mb-6 capitalize">{brandName}</h1>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
-
           return (
             <Link
               key={machine._id}
-              href={`/machines/${machine.slug}`}
+              href={`/inventory/${machine.slug.current}`}
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="w-full h-48">
