@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 export default function Footer() {
   const topBrands = [
+    { name: 'Doosan', slug: 'doosan' },
     { name: 'Haas', slug: 'haas' },
     { name: 'Hurco', slug: 'hurco' },
     { name: 'Makino', slug: 'makino' },
