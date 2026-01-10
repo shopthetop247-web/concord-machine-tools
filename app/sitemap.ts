@@ -8,9 +8,12 @@ export default async function sitemap() {
      FETCH DATA FROM SANITY
   ---------------------------- */
 
-  // Machines
   const machines = await client.fetch(`
-    *[_type == "machine" && defined(slug.current)]{
+    *[_type == "machine" &&
+      defined(slug.current) &&
+      defined(category->slug.current) &&
+      defined(subcategory->slug.current)
+    ]{
       "slug": slug.current,
       _updatedAt,
       category->{
@@ -18,14 +21,10 @@ export default async function sitemap() {
       },
       subcategory->{
         "slug": slug.current
-      },
-      brand->{
-        "slug": slug.current
       }
     }
   `);
 
-  // Categories
   const categories = await client.fetch(`
     *[_type == "category" && defined(slug.current)]{
       "slug": slug.current,
@@ -33,9 +32,11 @@ export default async function sitemap() {
     }
   `);
 
-  // Subcategories
   const subcategories = await client.fetch(`
-    *[_type == "subcategory" && defined(slug.current)]{
+    *[_type == "subcategory" &&
+      defined(slug.current) &&
+      defined(category->slug.current)
+    ]{
       "slug": slug.current,
       _updatedAt,
       category->{
@@ -44,7 +45,6 @@ export default async function sitemap() {
     }
   `);
 
-  // Brands
   const brands = await client.fetch(`
     *[_type == "brand" && defined(slug.current)]{
       "slug": slug.current,
@@ -129,7 +129,7 @@ export default async function sitemap() {
   }));
 
   /* ----------------------------
-     MACHINE DETAIL PAGES
+     MACHINE PAGES
   ---------------------------- */
 
   const machinePages = machines.map((machine: any) => ({
@@ -139,10 +139,6 @@ export default async function sitemap() {
     priority: 0.6,
   }));
 
-  /* ----------------------------
-     FINAL SITEMAP OUTPUT
-  ---------------------------- */
-
   return [
     ...staticPages,
     ...categoryPages,
@@ -151,4 +147,3 @@ export default async function sitemap() {
     ...machinePages,
   ];
 }
-
