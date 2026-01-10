@@ -14,7 +14,7 @@ export default function NotFound() {
         </p>
 
         <p className="text-gray-600 mb-6">
-          Please use our <strong>Inventory</strong> menu above to find the machine
+          Please use our <strong>Inventory</strong> menu to find the machine
           you’re looking for, or feel free to contact us directly.
         </p>
 
