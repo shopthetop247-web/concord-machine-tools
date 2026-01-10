@@ -6,6 +6,6 @@ export default function robots() {
         allow: '/',
       },
     ],
-    sitemap: 'https://www.concordmachinetools.com/sitemap.xml',
+    sitemap: 'https://www.concordmt.com/sitemap.xml',
   };
 }
