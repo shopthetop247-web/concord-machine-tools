@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${brandName} Machines | Concord Machine Tools`,
-    description: `Browse available ${brandName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
+    description: `Browse available used ${brandName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
     alternates: {
       canonical: `/brands/${params.brand}`,
     },
@@ -49,7 +49,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
    PAGE COMPONENT
 ------------------------------------ */
 export default async function BrandPage({ params }: PageProps) {
-  const { brand } = params;
+  const brandSlug = params.brand;
+  const brandName = brandSlug.replace(/-/g, ' ');
 
   const machines: Machine[] = await client.fetch(
     `*[_type == "machine" && brand match $brand]{
@@ -63,43 +64,61 @@ export default async function BrandPage({ params }: PageProps) {
       category->{ slug },
       subcategory->{ slug }
     } | order(yearOfMfg desc, name asc)`,
-    { brand: brand.replace(/-/g, ' ') }
+    { brand: brandName }
   );
 
   /* ------------------------------------
-     STRUCTURED DATA (JSON-LD)
+     BRAND + COLLECTION JSON-LD
   ------------------------------------ */
-  const structuredData = {
+  const brandSchema = {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: `${brand.replace(/-/g, ' ')} Machines`,
-    itemListElement: machines.map((machine, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: machine.name,
-      url: `https://www.concordmachinetools.com/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`,
-    })),
+    '@type': 'Brand',
+    name: brandName,
+    url: `https://www.concordmt.com/brands/${brandSlug}`,
+    mainEntityOfPage: {
+      '@type': 'CollectionPage',
+      name: `Used ${brandName} Machines`,
+      description: `Browse available used ${brandName} machines for sale.`,
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: machines.length,
+        itemListElement: machines.map((machine, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: machine.name,
+          url: `https://www.concordmt.com/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`,
+        })),
+      },
+    },
   };
 
   if (!machines.length) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-semibold mb-4 capitalize">{brand.replace(/-/g, ' ')}</h1>
-        <p className="text-gray-700">There are currently no machines listed for this brand.</p>
+        <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
+        <p className="text-gray-700">
+          There are currently no machines listed for this brand.
+        </p>
       </main>
     );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      {/* Structured Data */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      {/* Brand Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(brandSchema) }}
+      />
 
-      <h1 className="text-3xl font-semibold mb-6 capitalize">{brand.replace(/-/g, ' ')}</h1>
+      <h1 className="text-3xl font-semibold mb-6 capitalize">{brandName}</h1>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
-          const imageUrl = machine.images?.[0] ? urlFor(machine.images[0]) : '/placeholder.jpg';
+          const imageUrl = machine.images?.[0]
+            ? urlFor(machine.images[0])
+            : '/placeholder.jpg';
+
           return (
             <Link
               key={machine._id}
@@ -107,7 +126,11 @@ export default async function BrandPage({ params }: PageProps) {
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="w-full h-48">
-                <img src={imageUrl} alt={`${machine.name} for sale`} className="object-cover w-full h-full" />
+                <img
+                  src={imageUrl}
+                  alt={`${machine.name} for sale`}
+                  className="object-cover w-full h-full"
+                />
               </div>
               <div className="p-4 bg-white">
                 <h2 className="text-lg font-medium mb-1">{machine.name}</h2>
