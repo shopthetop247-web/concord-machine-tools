@@ -86,16 +86,23 @@ export default async function SubcategoryPage({ params }: PageProps) {
      STRUCTURED DATA (JSON-LD)
   ------------------------------------ */
   const structuredData = {
-    '@context': 'https://schema.org',
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${subcategory.replace(/-/g, ' ')} Machines`,
+  description: `Browse used ${subcategory.replace(/-/g, ' ')} machines for sale from top manufacturers.`,
+  url: `https://www.concordmt.com/inventory/${category}/${subcategory}`,
+  mainEntity: {
     '@type': 'ItemList',
-    name: `${formatSubcategory(subcategory)} Machines`,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: machines.length,
     itemListElement: machines.map((machine, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: machine.name,
-      url: `https://www.concordmachinetools.com/inventory/${category}/${subcategory}/${machine.slug.current}`,
+      url: `https://www.concordmt.com/inventory/${category}/${subcategory}/${machine.slug.current}`,
     })),
-  };
+  },
+};
 
   if (!machines.length) {
     return (
