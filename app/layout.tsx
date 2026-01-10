@@ -29,8 +29,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Concord Machine Tools',
-              url: 'https://www.concordmachinetools.com',
-              logo: 'https://www.concordmachinetools.com/logo.png',
+              url: 'https://www.concordmt.com',
+              logo: 'https://www.concordmt.com/logo.png',
               sameAs: [],
             }),
           }}
