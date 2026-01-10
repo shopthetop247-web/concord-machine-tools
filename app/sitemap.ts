@@ -1,7 +1,7 @@
 import { client } from '@/lib/sanityClient';
 
 export default async function sitemap() {
-  const baseUrl = 'https://www.concordmachinetools.com';
+  const baseUrl = 'https://www.concordmt.com';
 
   // Fetch all published machines
   const machines = await client.fetch(`
