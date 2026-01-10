@@ -1,12 +1,29 @@
+// app/sitemap.ts
 import { client } from '@/lib/sanityClient';
-import { MetadataRoute } from 'next';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap() {
   const baseUrl = 'https://www.concordmt.com';
 
-  /* ------------------------------------
+  /* ----------------------------
      FETCH DATA FROM SANITY
-  ------------------------------------ */
+  ---------------------------- */
+
+  // Machines
+  const machines = await client.fetch(`
+    *[_type == "machine" && defined(slug.current)]{
+      "slug": slug.current,
+      _updatedAt,
+      category->{
+        "slug": slug.current
+      },
+      subcategory->{
+        "slug": slug.current
+      },
+      brand->{
+        "slug": slug.current
+      }
+    }
+  `);
 
   // Categories
   const categories = await client.fetch(`
@@ -16,14 +33,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   `);
 
-  // Subcategories (with parent category)
+  // Subcategories
   const subcategories = await client.fetch(`
     *[_type == "subcategory" && defined(slug.current)]{
       "slug": slug.current,
+      _updatedAt,
       category->{
         "slug": slug.current
-      },
-      _updatedAt
+      }
     }
   `);
 
@@ -35,77 +52,97 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   `);
 
-  // Machines
-  const machines = await client.fetch(`
-    *[_type == "machine" && defined(slug.current)]{
-      "slug": slug.current,
-      category->{
-        "slug": slug.current
-      },
-      subcategory->{
-        "slug": slug.current
-      },
-      _updatedAt
-    }
-  `);
+  /* ----------------------------
+     STATIC PAGES
+  ---------------------------- */
 
-  /* ------------------------------------
-     STATIC CORE PAGES
-  ------------------------------------ */
-  const staticPages: MetadataRoute.Sitemap = [
-    '',
-    '/inventory',
-    '/brands',
-    '/about',
-    '/sell',
-    '/contact',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-  }));
+  const staticPages = [
+    {
+      url: `${baseUrl}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/inventory`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/brands`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/sell`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+  ];
 
-  /* ------------------------------------
+  /* ----------------------------
      CATEGORY PAGES
-  ------------------------------------ */
-  const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
+  ---------------------------- */
+
+  const categoryPages = categories.map((cat: any) => ({
     url: `${baseUrl}/inventory/${cat.slug}`,
     lastModified: new Date(cat._updatedAt),
+    changeFrequency: 'daily',
+    priority: 0.8,
   }));
 
-  /* ------------------------------------
+  /* ----------------------------
      SUBCATEGORY PAGES
-  ------------------------------------ */
-  const subcategoryPages: MetadataRoute.Sitemap = subcategories
-    .filter((sub: any) => sub.category?.slug)
-    .map((sub: any) => ({
-      url: `${baseUrl}/inventory/${sub.category.slug}/${sub.slug}`,
-      lastModified: new Date(sub._updatedAt),
-    }));
+  ---------------------------- */
 
-  /* ------------------------------------
-     BRAND LANDING PAGES
-  ------------------------------------ */
-  const brandPages: MetadataRoute.Sitemap = brands.map((brand: any) => ({
+  const subcategoryPages = subcategories.map((sub: any) => ({
+    url: `${baseUrl}/inventory/${sub.category.slug}/${sub.slug}`,
+    lastModified: new Date(sub._updatedAt),
+    changeFrequency: 'daily',
+    priority: 0.8,
+  }));
+
+  /* ----------------------------
+     BRAND PAGES
+  ---------------------------- */
+
+  const brandPages = brands.map((brand: any) => ({
     url: `${baseUrl}/brands/${brand.slug}`,
     lastModified: new Date(brand._updatedAt),
+    changeFrequency: 'weekly',
+    priority: 0.7,
   }));
 
-  /* ------------------------------------
+  /* ----------------------------
      MACHINE DETAIL PAGES
-  ------------------------------------ */
-  const machinePages: MetadataRoute.Sitemap = machines
-    .filter(
-      (machine: any) =>
-        machine.category?.slug && machine.subcategory?.slug
-    )
-    .map((machine: any) => ({
-      url: `${baseUrl}/inventory/${machine.category.slug}/${machine.subcategory.slug}/${machine.slug}`,
-      lastModified: new Date(machine._updatedAt),
-    }));
+  ---------------------------- */
 
-  /* ------------------------------------
-     RETURN FULL SITEMAP
-  ------------------------------------ */
+  const machinePages = machines.map((machine: any) => ({
+    url: `${baseUrl}/inventory/${machine.category.slug}/${machine.subcategory.slug}/${machine.slug}`,
+    lastModified: new Date(machine._updatedAt),
+    changeFrequency: 'weekly',
+    priority: 0.6,
+  }));
+
+  /* ----------------------------
+     FINAL SITEMAP OUTPUT
+  ---------------------------- */
+
   return [
     ...staticPages,
     ...categoryPages,
@@ -114,3 +151,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...machinePages,
   ];
 }
+
