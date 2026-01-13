@@ -16,6 +16,12 @@ interface Machine {
   subcategory: { slug: { current: string } };
 }
 
+interface Brand {
+  name: string;
+  description?: string;
+  website?: string;
+}
+
 interface PageProps {
   params: {
     brand: string;
@@ -52,6 +58,21 @@ export default async function BrandPage({ params }: PageProps) {
   const brandSlug = params.brand;
   const brandName = brandSlug.replace(/-/g, ' ');
 
+  /* ----------------------------
+     FETCH BRAND DATA
+  ---------------------------- */
+  const brand: Brand | null = await client.fetch(
+    `*[_type == "brand" && slug.current == $slug][0]{
+      name,
+      description,
+      website
+    }`,
+    { slug: brandSlug }
+  );
+
+  /* ----------------------------
+     FETCH MACHINES
+  ---------------------------- */
   const machines: Machine[] = await client.fetch(
     `*[_type == "machine" && brand match $brand]{
       _id,
@@ -75,10 +96,11 @@ export default async function BrandPage({ params }: PageProps) {
     '@type': 'Brand',
     name: brandName,
     url: `https://www.concordmt.com/brands/${brandSlug}`,
+    description: brand?.description,
+    sameAs: brand?.website ? [brand.website] : undefined,
     mainEntityOfPage: {
       '@type': 'CollectionPage',
       name: `Used ${brandName} Machines`,
-      description: `Browse available used ${brandName} machines for sale.`,
       mainEntity: {
         '@type': 'ItemList',
         numberOfItems: machines.length,
@@ -111,8 +133,31 @@ export default async function BrandPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(brandSchema) }}
       />
 
-      <h1 className="text-3xl font-semibold mb-6 capitalize">{brandName}</h1>
+      <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
 
+      {/* Brand Description (only if present) */}
+      {brand?.description && (
+        <section className="mb-8 max-w-4xl">
+          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+            {brand.description}
+          </p>
+
+          {brand.website && (
+            <p className="mt-3">
+              <a
+                href={brand.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Visit official {brandName} website →
+              </a>
+            </p>
+          )}
+        </section>
+      )}
+
+      {/* Machine Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
@@ -146,3 +191,4 @@ export default async function BrandPage({ params }: PageProps) {
     </main>
   );
 }
+
