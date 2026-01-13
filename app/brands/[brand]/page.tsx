@@ -81,10 +81,11 @@ export default async function BrandPage({ params }: PageProps) {
   `*[
     _type == "machine" &&
     !(_id in path("drafts.**")) &&
-    brandRef->slug.current == $slug
+    lower(brand) == lower($brand)
   ]{
     _id,
     name,
+    brand,
     yearOfMfg,
     stockNumber,
     images[] { asset-> },
@@ -92,7 +93,7 @@ export default async function BrandPage({ params }: PageProps) {
     category->{ slug },
     subcategory->{ slug }
   } | order(yearOfMfg desc, name asc)`,
-  { slug: brandSlug }
+  { brand: brandName }
 );
 
   /* ------------------------------------
