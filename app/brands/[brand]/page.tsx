@@ -20,6 +20,7 @@ interface Brand {
   name: string;
   description?: string;
   website?: string;
+  slug: string;
 }
 
 interface PageProps {
@@ -36,7 +37,6 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 ------------------------------------ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brandName = params.brand.replace(/-/g, ' ');
-
   return {
     title: `${brandName} Machines | Concord Machine Tools`,
     description: `Browse available used ${brandName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
@@ -56,7 +56,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 ------------------------------------ */
 export default async function BrandPage({ params }: PageProps) {
   const brandSlug = params.brand;
-  const brandName = brandSlug.replace(/-/g, ' ');
 
   /* ----------------------------
      FETCH BRAND DATA
@@ -65,10 +64,13 @@ export default async function BrandPage({ params }: PageProps) {
     `*[_type == "brand" && slug.current == $slug][0]{
       name,
       description,
-      website
+      website,
+      slug
     }`,
     { slug: brandSlug }
   );
+
+  const brandName = brand?.name || brandSlug.replace(/-/g, ' ');
 
   /* ----------------------------
      FETCH MACHINES
@@ -114,28 +116,15 @@ export default async function BrandPage({ params }: PageProps) {
     },
   };
 
+  /* ----------------------------
+     RENDER PAGE
+  ---------------------------- */
   if (!machines.length) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
         {brand?.description && (
-          <section className="mb-6 max-w-4xl">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {brand.description}
-            </p>
-            {brand.website && (
-              <p className="mt-3">
-                <a
-                  href={brand.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline font-medium"
-                >
-                  Visit official {brandName} website →
-                </a>
-              </p>
-            )}
-          </section>
+          <p className="text-gray-700 mb-6">{brand.description}</p>
         )}
         <p className="text-gray-700">
           There are currently no machines listed for this brand.
@@ -152,9 +141,10 @@ export default async function BrandPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(brandSchema) }}
       />
 
+      {/* Page Heading */}
       <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
 
-      {/* Brand Description (only if present) */}
+      {/* Brand Description (if exists) */}
       {brand?.description && (
         <section className="mb-8 max-w-4xl">
           <p className="text-gray-700 leading-relaxed whitespace-pre-line">
@@ -175,7 +165,7 @@ export default async function BrandPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Machine Grid */}
+      {/* Machines Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
@@ -209,3 +199,4 @@ export default async function BrandPage({ params }: PageProps) {
     </main>
   );
 }
+
