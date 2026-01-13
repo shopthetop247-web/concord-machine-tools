@@ -118,6 +118,25 @@ export default async function BrandPage({ params }: PageProps) {
     return (
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-semibold mb-4 capitalize">{brandName}</h1>
+        {brand?.description && (
+          <section className="mb-6 max-w-4xl">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+              {brand.description}
+            </p>
+            {brand.website && (
+              <p className="mt-3">
+                <a
+                  href={brand.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Visit official {brandName} website →
+                </a>
+              </p>
+            )}
+          </section>
+        )}
         <p className="text-gray-700">
           There are currently no machines listed for this brand.
         </p>
@@ -141,7 +160,6 @@ export default async function BrandPage({ params }: PageProps) {
           <p className="text-gray-700 leading-relaxed whitespace-pre-line">
             {brand.description}
           </p>
-
           {brand.website && (
             <p className="mt-3">
               <a
@@ -191,4 +209,3 @@ export default async function BrandPage({ params }: PageProps) {
     </main>
   );
 }
-
