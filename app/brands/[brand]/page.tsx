@@ -1,4 +1,6 @@
 // app/brands/[brand]/page.tsx
+export const revalidate = 60;
+
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
@@ -76,19 +78,22 @@ export default async function BrandPage({ params }: PageProps) {
      FETCH MACHINES
   ---------------------------- */
   const machines: Machine[] = await client.fetch(
-    `*[_type == "machine" && brand match $brand]{
-      _id,
-      name,
-      brand,
-      yearOfMfg,
-      stockNumber,
-      images[] { asset-> },
-      slug,
-      category->{ slug },
-      subcategory->{ slug }
-    } | order(yearOfMfg desc, name asc)`,
-    { brand: brandName }
-  );
+  `*[
+    _type == "machine" &&
+    !(_id in path("drafts.**")) &&
+    brandRef->slug.current == $slug
+  ]{
+    _id,
+    name,
+    yearOfMfg,
+    stockNumber,
+    images[] { asset-> },
+    slug,
+    category->{ slug },
+    subcategory->{ slug }
+  } | order(yearOfMfg desc, name asc)`,
+  { slug: brandSlug }
+);
 
   /* ------------------------------------
      BRAND + COLLECTION JSON-LD
