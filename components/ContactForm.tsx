@@ -149,10 +149,6 @@ export default function ContactForm() {
         </button>
       </form>
 
-      <p className="text-sm text-slate-600 mt-4">
-        📌 Tip: When selling a machine, include condition, tooling, controls,
-        and photos for the fastest response.
-      </p>
-    </div>
+     </div>
   );
 }
