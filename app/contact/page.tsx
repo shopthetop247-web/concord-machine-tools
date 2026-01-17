@@ -1,5 +1,6 @@
 // app/contact/page.tsx
 import { Metadata } from 'next';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
   title: 'Contact Us | Concord Machine Tools',
@@ -109,114 +110,10 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="bg-slate-100 border border-slate-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">
-              Send Us a Message About A Machine You Want To Sell
+              Send Us a Message About a Machine You Want to Sell
             </h2>
 
-            <form
-              action="/api/contact"
-              method="POST"
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  className="w-full border rounded-md px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Company
-                </label>
-                <input
-                  type="text"
-                  name="company"
-                  className="w-full border rounded-md px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  className="w-full border rounded-md px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="w-full border rounded-md px-3 py-2"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Machine Brand
-                  </label>
-                  <input
-                    type="text"
-                    name="machineBrand"
-                    className="w-full border rounded-md px-3 py-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Machine Model
-                  </label>
-                  <input
-                    type="text"
-                    name="machineModel"
-                    className="w-full border rounded-md px-3 py-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Machine Year
-                  </label>
-                  <input
-                    type="text"
-                    name="machineYear"
-                    className="w-full border rounded-md px-3 py-2"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Message *
-                </label>
-                <textarea
-                  name="message"
-                  rows={4}
-                  required
-                  className="w-full border rounded-md px-3 py-2"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-              >
-                Send Message
-              </button>
-            </form>
+            <ContactForm />
 
             <p className="text-sm text-slate-600 mt-4">
               📌 Tip: When selling a machine, include condition, tooling,
