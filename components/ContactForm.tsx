@@ -42,8 +42,7 @@ export default function ContactForm() {
 
   return (
     <div className="bg-slate-100 border border-slate-200 rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Send Us a Message</h2>
-
+     
       {success && (
         <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
           {success}
