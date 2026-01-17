@@ -117,7 +117,7 @@ export default function ContactPage() {
 
             <p className="text-sm text-slate-600 mt-4">
               📌 Tip: When selling a machine, include condition, tooling,
-              controls, and photos for the fastest response.
+              controls, and price idea you have in mind for the fastest response.
             </p>
           </div>
         </div>
