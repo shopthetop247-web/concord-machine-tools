@@ -1,3 +1,4 @@
+// app/contact/page.tsx
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function ContactPage() {
             mainEntity: {
               '@type': 'Organization',
               name: 'Concord Machine Tools',
-              url: 'https://www.concordmachinetools.com',
+              url: 'https://www.concordmt.com',
               contactPoint: {
                 '@type': 'ContactPoint',
                 contactType: 'sales',
@@ -73,29 +74,28 @@ export default function ContactPage() {
             </div>
 
             <div>
-               <h3 className="font-semibold">Phone</h3>
-               <p className="text-slate-700">
-               <a
-                 href="tel:+12482243147"
-                 className="text-blue-500 hover:underline"
-               >
-                 (248) 224-3147
-               </a>
-               </p>
-             </div>
+              <h3 className="font-semibold">Phone</h3>
+              <p className="text-slate-700">
+                <a
+                  href="tel:+12482243147"
+                  className="text-blue-600 hover:underline"
+                >
+                  (248) 224-3147
+                </a>
+              </p>
+            </div>
 
             <div>
               <h3 className="font-semibold">Email</h3>
               <p className="text-slate-700">
-              <a
-                href="mailto:sales@concordmt.com"
-                className="text-blue-500 hover:underline"
-              >
-                sales@concordmt.com
-           </a>
-          </p>
-        </div>
-
+                <a
+                  href="mailto:sales@concordmt.com"
+                  className="text-blue-600 hover:underline"
+                >
+                  sales@concordmt.com
+                </a>
+              </p>
+            </div>
 
             <div>
               <h3 className="font-semibold">Business Hours</h3>
@@ -106,23 +106,122 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Placeholder for Future Form */}
+          {/* Contact Form */}
           <div className="bg-slate-100 border border-slate-200 rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">
               Send Us a Message
             </h2>
-            <p className="text-slate-700 mb-4">
-              Prefer to send details about a machine or request more information?
-              A contact form will be available here soon. In the meantime, feel
-              free to call or email us directly.
-            </p>
 
-            <div className="text-sm text-slate-600">
-              <p>
-                📌 Tip: When selling a machine, include brand, model, year,
-                condition, and photos for the fastest response.
-              </p>
-            </div>
+            <form
+              action="/api/contact"
+              method="POST"
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Company
+                </label>
+                <input
+                  type="text"
+                  name="company"
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Machine Brand
+                  </label>
+                  <input
+                    type="text"
+                    name="machineBrand"
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Machine Model
+                  </label>
+                  <input
+                    type="text"
+                    name="machineModel"
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Machine Year
+                  </label>
+                  <input
+                    type="text"
+                    name="machineYear"
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Message *
+                </label>
+                <textarea
+                  name="message"
+                  rows={4}
+                  required
+                  className="w-full border rounded-md px-3 py-2"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+              >
+                Send Message
+              </button>
+            </form>
+
+            <p className="text-sm text-slate-600 mt-4">
+              📌 Tip: When selling a machine, include condition, tooling,
+              controls, and photos for the fastest response.
+            </p>
           </div>
         </div>
       </section>
