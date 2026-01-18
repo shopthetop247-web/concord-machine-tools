@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Used CNC & Metalworking Machinery for Sale | Concord Machine Tools',
+  title: 'Used Machinery for Sale | Concord Machine Tools',
   description:
     'Browse high-quality used CNC machines, machining centers, lathes, mills, and metalworking equipment. Professionally represented industrial machinery.',
   openGraph: {
