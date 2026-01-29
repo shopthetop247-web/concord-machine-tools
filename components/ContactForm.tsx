@@ -1,11 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+declare global {
+  interface Window {
+    turnstile?: any;
+  }
+}
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const turnstileToken = useRef<string | null>(null);
+
+  // Load Cloudflare Turnstile
+  useEffect(() => {
+    if (document.getElementById('turnstile-script')) return;
+
+    const script = document.createElement('script');
+    script.id = 'turnstile-script';
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,7 +35,37 @@ export default function ContactForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const payload = Object.fromEntries(formData.entries());
+    // Honeypot check (bots usually fill this)
+    if (formData.get('website')) {
+      setLoading(false);
+      return;
+    }
+
+    // Execute Turnstile
+    if (!window.turnstile) {
+      setError('Security check failed. Please refresh and try again.');
+      setLoading(false);
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      window.turnstile.render(document.createElement('div'), {
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+        callback: (token: string) => {
+          turnstileToken.current = token;
+          resolve();
+        },
+        'error-callback': () => {
+          setError('Security verification failed. Please try again.');
+          setLoading(false);
+        },
+      });
+    });
+
+    const payload = {
+      ...Object.fromEntries(formData.entries()),
+      turnstileToken: turnstileToken.current,
+    };
 
     try {
       const res = await fetch('/api/contact', {
@@ -37,12 +86,12 @@ export default function ContactForm() {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      turnstileToken.current = null;
     }
   }
 
   return (
     <div className="bg-slate-100 border border-slate-200 rounded-lg p-6">
-     
       {success && (
         <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
           {success}
@@ -56,6 +105,15 @@ export default function ContactForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Honeypot field (hidden) */}
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          className="hidden"
+        />
+
         <div>
           <label className="block text-sm font-medium mb-1">Name *</label>
           <input
@@ -147,7 +205,6 @@ export default function ContactForm() {
           {loading ? 'Sending...' : 'Send Message'}
         </button>
       </form>
-
-     </div>
+    </div>
   );
 }
