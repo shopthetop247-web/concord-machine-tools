@@ -12,14 +12,11 @@ export default function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const turnstileToken = useRef<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
 
-  // Load Cloudflare Turnstile
+  // Load Turnstile script
   useEffect(() => {
-    if (document.getElementById('turnstile-script')) return;
-
     const script = document.createElement('script');
-    script.id = 'turnstile-script';
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
     script.async = true;
     script.defer = true;
@@ -32,46 +29,33 @@ export default function ContactForm() {
     setSuccess(null);
     setError(null);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    // Honeypot check (bots usually fill this)
-    if (formData.get('website')) {
-      setLoading(false);
-      return;
-    }
-
-    // Execute Turnstile
-    if (!window.turnstile) {
-      setError('Security check failed. Please refresh and try again.');
-      setLoading(false);
-      return;
-    }
-
-    await new Promise<void>((resolve) => {
-      window.turnstile.render(document.createElement('div'), {
-        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
-        callback: (token: string) => {
-          turnstileToken.current = token;
-          resolve();
-        },
-        'error-callback': () => {
-          setError('Security verification failed. Please try again.');
-          setLoading(false);
-        },
-      });
-    });
-
-    const payload = {
-      ...Object.fromEntries(formData.entries()),
-      turnstileToken: turnstileToken.current,
-    };
-
     try {
+      // Execute Turnstile
+      if (!window.turnstile) {
+        throw new Error('Spam protection not loaded. Please refresh and try again.');
+      }
+
+      const token = await new Promise<string>((resolve, reject) => {
+        window.turnstile.render(document.createElement('div'), {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+          callback: resolve,
+          'error-callback': () => reject(),
+        });
+      });
+
+      tokenRef.current = token;
+
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          turnstileToken: tokenRef.current,
+        }),
       });
 
       const result = await res.json();
@@ -86,12 +70,11 @@ export default function ContactForm() {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
-      turnstileToken.current = null;
     }
   }
 
   return (
-    <div className="bg-slate-100 border border-slate-200 rounded-lg p-6">
+    <>
       {success && (
         <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
           {success}
@@ -105,96 +88,35 @@ export default function ContactForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Honeypot field (hidden) */}
-        <input
-          type="text"
-          name="website"
-          tabIndex={-1}
-          autoComplete="off"
-          className="hidden"
-        />
-
         <div>
           <label className="block text-sm font-medium mb-1">Name *</label>
-          <input
-            type="text"
-            name="name"
-            required
-            className="w-full border rounded-md px-3 py-2"
-          />
+          <input type="text" name="name" required className="w-full border rounded-md px-3 py-2" />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Company</label>
-          <input
-            type="text"
-            name="company"
-            className="w-full border rounded-md px-3 py-2"
-          />
+          <input type="text" name="company" className="w-full border rounded-md px-3 py-2" />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Email *</label>
-          <input
-            type="email"
-            name="email"
-            required
-            className="w-full border rounded-md px-3 py-2"
-          />
+          <input type="email" name="email" required className="w-full border rounded-md px-3 py-2" />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Phone</label>
-          <input
-            type="tel"
-            name="phone"
-            className="w-full border rounded-md px-3 py-2"
-          />
+          <input type="tel" name="phone" className="w-full border rounded-md px-3 py-2" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Machine Brand
-            </label>
-            <input
-              type="text"
-              name="machineBrand"
-              className="w-full border rounded-md px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Machine Model
-            </label>
-            <input
-              type="text"
-              name="machineModel"
-              className="w-full border rounded-md px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Machine Year
-            </label>
-            <input
-              type="text"
-              name="machineYear"
-              className="w-full border rounded-md px-3 py-2"
-            />
-          </div>
+          <input name="machineBrand" placeholder="Machine Brand" className="border rounded-md px-3 py-2" />
+          <input name="machineModel" placeholder="Machine Model" className="border rounded-md px-3 py-2" />
+          <input name="machineYear" placeholder="Machine Year" className="border rounded-md px-3 py-2" />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Message *</label>
-          <textarea
-            name="message"
-            rows={4}
-            required
-            className="w-full border rounded-md px-3 py-2"
-          />
+          <textarea name="message" rows={4} required className="w-full border rounded-md px-3 py-2" />
         </div>
 
         <button
@@ -202,9 +124,9 @@ export default function ContactForm() {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
         >
-          {loading ? 'Sending...' : 'Send Message'}
+          {loading ? 'Sending…' : 'Send Message'}
         </button>
       </form>
-    </div>
+    </>
   );
 }
