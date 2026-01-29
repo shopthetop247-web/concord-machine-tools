@@ -8,7 +8,13 @@ declare global {
   }
 }
 
-export default function ContactForm() {
+interface ContactFormProps {
+  title?: string;
+  description?: string;
+  tip?: string;
+}
+
+export default function ContactForm({ title, description, tip }: ContactFormProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +103,9 @@ export default function ContactForm() {
 
   return (
     <>
+      {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
+      {description && <p className="mb-4 text-slate-700">{description}</p>}
+
       {success && (
         <div className="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3 text-sm">
           {success}
@@ -143,6 +152,8 @@ export default function ContactForm() {
 
         {/* Visible Turnstile widget */}
         <div ref={turnstileContainerRef} className="mt-4" />
+
+        {tip && <p className="text-sm text-slate-600 mt-4">{tip}</p>}
 
         <button
           type="submit"
