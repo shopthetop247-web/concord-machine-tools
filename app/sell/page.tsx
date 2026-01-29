@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
   title: 'Sell Your Machine | Concord Machine Tools',
@@ -27,7 +27,7 @@ export default function SellPage() {
             provider: {
               '@type': 'Organization',
               name: 'Concord Machine Tools',
-              url: 'https://www.concordmachinetools.com',
+              url: 'https://www.concordmt.com',
             },
             areaServed: ['United States', 'Worldwide'],
             serviceType: 'Used CNC and Metalworking Machinery Purchasing',
@@ -57,9 +57,7 @@ export default function SellPage() {
 
           <div className="grid md:grid-cols-3 gap-8 pt-8">
             <div>
-              <h2 className="text-xl font-semibold mb-3">
-                Single Machines
-              </h2>
+              <h2 className="text-xl font-semibold mb-3">Single Machines</h2>
               <p>
                 Have one machine you no longer need? We buy individual CNC and
                 metalworking machines across a wide range of brands and
@@ -68,9 +66,7 @@ export default function SellPage() {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-3">
-                Multiple Machines
-              </h2>
+              <h2 className="text-xl font-semibold mb-3">Multiple Machines</h2>
               <p>
                 Downsizing or upgrading equipment? We can purchase multiple
                 machines at once and coordinate logistics to minimize downtime.
@@ -78,9 +74,7 @@ export default function SellPage() {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-3">
-                Complete Shops & Auctions
-              </h2>
+              <h2 className="text-xl font-semibold mb-3">Complete Shops & Auctions</h2>
               <p>
                 For larger facilities or full plant liquidations, we offer
                 complete buyout and auction solutions when appropriate, ensuring
@@ -102,20 +96,21 @@ export default function SellPage() {
             </ul>
           </div>
 
-          <div className="pt-10 text-center">
-            <h2 className="text-2xl font-semibold mb-4">
-              Ready to Sell Your Machine?
+          {/* Form Section */}
+          <div className="mt-10">
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              Submit Your Machine Details
             </h2>
-            <p className="mb-6">
-              Contact us today to discuss your surplus equipment and receive a
-              prompt evaluation.
+            <p className="mb-6 text-center text-slate-700">
+              Fill out the form below to provide information about your machine, including brand, model, year, and condition. Our team will review it and get back to you promptly with an evaluation.
             </p>
-            <Link
-              href="/contact"
-              className="inline-block bg-slate-900 text-white px-8 py-3 rounded-md font-medium hover:bg-slate-800 transition"
-            >
-              Contact Us
-            </Link>
+
+            {/* ContactForm component with props for Sell page */}
+            <ContactForm
+              title="Sell Your Machine"
+              description="Provide details below for a fast evaluation."
+              tip="📌 Tip: Include condition, tooling, controls, and a price idea to speed up our response."
+            />
           </div>
         </div>
       </section>
