@@ -15,20 +15,30 @@ export default function ContactForm() {
   const tokenRef = useRef<string | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Render Turnstile once when component mounts
+  // Load Turnstile script once
   useEffect(() => {
-    if (!turnstileContainerRef.current || !window.turnstile) return;
+    if (document.getElementById('cf-turnstile-script')) return;
 
-    window.turnstile.render(turnstileContainerRef.current, {
-      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
-      callback: (token: string) => {
-        tokenRef.current = token;
-      },
-      'error-callback': () => {
-        setError('Spam protection error. Please reload the page.');
-      },
-      theme: 'light',
-    });
+    const script = document.createElement('script');
+    script.id = 'cf-turnstile-script';
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (turnstileContainerRef.current && window.turnstile) {
+        window.turnstile.render(turnstileContainerRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
+          callback: (token: string) => {
+            tokenRef.current = token;
+          },
+          'error-callback': () => {
+            setError('Spam protection error. Please reload the page.');
+          },
+          theme: 'light',
+        });
+      }
+    };
+    document.body.appendChild(script);
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,7 +56,6 @@ export default function ContactForm() {
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
 
-      // Add the Turnstile token
       payload['turnstileToken'] = tokenRef.current;
 
       const res = await fetch('/api/contact', {
@@ -63,7 +72,22 @@ export default function ContactForm() {
 
       setSuccess('Thank you! Your message has been sent successfully.');
       form.reset();
-      tokenRef.current = null; // reset token after submission
+      tokenRef.current = null;
+
+      // Re-render Turnstile for next submission
+      if (turnstileContainerRef.current && window.turnstile) {
+        turnstileContainerRef.current.innerHTML = '';
+        window.turnstile.render(turnstileContainerRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
+          callback: (token: string) => {
+            tokenRef.current = token;
+          },
+          'error-callback': () => {
+            setError('Spam protection error. Please reload the page.');
+          },
+          theme: 'light',
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -117,8 +141,8 @@ export default function ContactForm() {
           <textarea name="message" rows={4} required className="w-full border rounded-md px-3 py-2" />
         </div>
 
-        {/* Hidden container for Turnstile */}
-        <div ref={turnstileContainerRef} className="mt-2" />
+        {/* Visible Turnstile widget */}
+        <div ref={turnstileContainerRef} className="mt-4" />
 
         <button
           type="submit"
