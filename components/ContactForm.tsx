@@ -37,7 +37,7 @@ export default function ContactForm() {
 
       const token = await new Promise<string>((resolve, reject) => {
         window.turnstile.render(document.createElement('div'), {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
           callback: resolve,
           'error-callback': () => reject(),
         });
