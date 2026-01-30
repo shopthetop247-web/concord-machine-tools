@@ -1,16 +1,33 @@
 import Link from 'next/link';
+import { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Used Machinery for Sale | Concord Machine Tools',
+export const metadata: Metadata = {
+  title: 'Used CNC Machines for Sale | CNC Mills & Lathes | Concord Machine Tools',
   description:
-    'Browse high-quality used CNC machines, machining centers, lathes, mills, and metalworking equipment. Professionally represented industrial machinery.',
+    'Buy and sell used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering inspected inventory, fair pricing, and fast response nationwide.',
+  keywords: [
+    'used CNC machines for sale',
+    'CNC mills for sale',
+    'used CNC lathes',
+    'used machining centers',
+    'metalworking equipment for sale',
+    'industrial machinery dealer',
+    'Concord Machine Tools',
+  ],
   openGraph: {
-    title: 'Used CNC & Metalworking Machinery for Sale',
+    title: 'Used CNC Machines for Sale | Concord Machine Tools',
     description:
-      'Concord Machine Tools specializes in used CNC machines and industrial equipment ready for production.',
+      'Browse used CNC machines including mills, lathes, and machining centers. Trusted inventory, fair pricing, and fast response nationwide.',
+    url: 'https://www.concordmt.com',
+    siteName: 'Concord Machine Tools',
     type: 'website',
+    locale: 'en_US',
+  },
+  alternates: {
+    canonical: 'https://www.concordmt.com',
   },
 };
+
 
 export default function HomePage() {
   return (
