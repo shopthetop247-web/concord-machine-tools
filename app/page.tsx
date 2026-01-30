@@ -6,14 +6,18 @@ export const metadata: Metadata = {
   description:
     'Buy and sell used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering inspected inventory, fair pricing, and fast response nationwide.',
   keywords: [
-    'used CNC machines for sale',
-    'CNC mills for sale',
-    'used CNC lathes',
-    'used machining centers',
-    'metalworking equipment for sale',
-    'industrial machinery dealer',
-    'Concord Machine Tools',
-  ],
+  'used CNC machines for sale',
+  'CNC mills for sale',
+  'used CNC lathes',
+  'used machining centers',
+  'metalworking equipment for sale',
+  'industrial machinery dealer',
+  'used Haas CNC machines',
+  'used Mazak CNC machines',
+  'used Okuma CNC machines',
+  'used Doosan CNC machines',
+  'Concord Machine Tools',
+],
   openGraph: {
     title: 'Used CNC Machines for Sale | Concord Machine Tools',
     description:
