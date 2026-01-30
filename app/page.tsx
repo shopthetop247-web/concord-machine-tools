@@ -44,7 +44,7 @@ export default function HomePage() {
             wide ranging & budget friendly options.
           </p>
 
-          <p className="mt-4 text-base md:text-lg text-slate-300 max-w-4xl mx-auto leading-relaxed">
+          <p className="mb-10 text-base md:text-lg text-slate-300 max-w-4xl mx-auto leading-relaxed">
   Browse a continually updated inventory of used CNC machines for sale, including CNC mills, lathes, machining centers,
   and metalworking equipment from trusted brands like{' '}
   <Link
