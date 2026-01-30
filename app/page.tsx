@@ -102,8 +102,7 @@ export default function HomePage() {
               Sell Your Machine
             </Link>
           </div>
-          </div>
-</div>
+         </div>
       </section>
 
       {/* CATEGORY PILLARS */}
