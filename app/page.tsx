@@ -102,35 +102,7 @@ export default function HomePage() {
               Sell Your Machine
             </Link>
           </div>
-          
-          <div className="mt-14">
-  <h2 className="text-xl font-semibold text-center mb-6">
-    Machine Brands We Often Stock
-  </h2>
-
-  <div className="flex flex-wrap justify-center items-center gap-8">
-    <Link href="/brands/haas" title="Used Haas CNC Machines For Sale">
-      <img src="/haaslogo.jpg" alt="Used Haas CNC Machines For Sale" className="h-10" />
-    </Link>
-
-    <Link href="/brands/doosan" title="Used Doosan CNC Machines For Sale">
-      <img src="/doosanlogo.jpg" alt="Used Doosan CNC Machines For Sale" className="h-10" />
-    </Link>
-
-    <Link href="/brands/hurco" title="Used Hurco CNC Machines For Sale">
-      <img src="/hurcologo.jpg" alt="Used Hurco CNC Machines For Sale" className="h-10" />
-    </Link>
-
-    <Link href="/brands/mazak" title="Used Mazak CNC Machines For Sale">
-      <img src="/mazaklogo.jpg" alt="Used Mazak CNC Machines For Sale" className="h-10" />
-    </Link>
-
-    <Link href="/brands/okuma" title="Used Okuma CNC Machines For Sale">
-      <img src="/okumalogo.jpg" alt="Used Okuma CNC Machines For Sale" className="h-10" />
-    </Link>
-  </div>
-            
-</div>
+          </div>
 </div>
       </section>
 
