@@ -60,6 +60,23 @@ export default async function InventoryPage() {
     }
   `);
 
+  interface Machine {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  _createdAt: string;
+}
+
+const recentMachines: Machine[] = await client.fetch(`
+  *[_type == "machine"] | order(_createdAt desc)[0...6]{
+    _id,
+    title,
+    slug,
+    _createdAt
+  }
+`);
+
+
   // Create a map from category ID → subcategories
   const subcategoriesByCategory: Record<string, Subcategory[]> = {};
   subcategories.forEach((subcat) => {
@@ -123,4 +140,32 @@ export default async function InventoryPage() {
       </div>
     </main>
   );
+  {recentMachines.length > 0 && (
+  <section className="mt-16">
+    <h2 className="text-2xl font-semibold mb-6">
+      Recently Added CNC Machines
+    </h2>
+
+    <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {recentMachines.map((machine) => (
+        <li
+          key={machine._id}
+          className="border rounded-md p-4 hover:shadow-md transition"
+        >
+          <Link
+            href={`/machines/${machine.slug.current}`}
+            className="text-blue-600 hover:underline font-medium"
+          >
+            {machine.title}
+          </Link>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Newly listed
+          </p>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
 }
