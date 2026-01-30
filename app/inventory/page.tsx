@@ -3,7 +3,12 @@ export const revalidate = 60;
 
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Metadata } from 'next';
+import imageUrlBuilder from '@sanity/image-url';
+
+const builder = imageUrlBuilder(client);
+const urlFor = (source: any) => builder.image(source);
 
 export const metadata: Metadata = {
   title: 'Used CNC Machines Inventory | CNC Mills, Lathes & Industrial Equipment',
@@ -40,8 +45,14 @@ interface Subcategory {
   parentCategory: { _ref: string };
 }
 
+interface Machine {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  mainImage?: any;
+}
+
 export default async function InventoryPage() {
-  // Fetch all categories
   const categories: Category[] = await client.fetch(`
     *[_type == "category"]{
       _id,
@@ -50,7 +61,6 @@ export default async function InventoryPage() {
     }
   `);
 
-  // Fetch all subcategories
   const subcategories: Subcategory[] = await client.fetch(`
     *[_type == "subcategory"]{
       _id,
@@ -60,24 +70,15 @@ export default async function InventoryPage() {
     }
   `);
 
-  interface Machine {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  _createdAt: string;
-}
+  const recentMachines: Machine[] = await client.fetch(`
+    *[_type == "machine"] | order(_createdAt desc)[0...6]{
+      _id,
+      title,
+      slug,
+      mainImage
+    }
+  `);
 
-const recentMachines: Machine[] = await client.fetch(`
-  *[_type == "machine"] | order(_createdAt desc)[0...6]{
-    _id,
-    title,
-    slug,
-    _createdAt
-  }
-`);
-
-
-  // Create a map from category ID → subcategories
   const subcategoriesByCategory: Record<string, Subcategory[]> = {};
   subcategories.forEach((subcat) => {
     const parentId = subcat.parentCategory._ref;
@@ -87,7 +88,6 @@ const recentMachines: Machine[] = await client.fetch(`
     subcategoriesByCategory[parentId].push(subcat);
   });
 
-  // Determine column order
   const columnOrder = [
     'CNC Machinery',
     'Fabricating & Stamping',
@@ -100,25 +100,69 @@ const recentMachines: Machine[] = await client.fetch(`
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-6">Used Machines & Industrial Equipment Inventory</h1>
+      <h1 className="text-3xl font-semibold mb-6">
+        Used Machines & Industrial Equipment Inventory
+      </h1>
 
-      {/* SEO Intro Copy */}
-      <div className="max-w-4xl mb-10 text-slate-700 leading-relaxed space-y-4">
+      {/* SEO Intro */}
+      <div className="max-w-4xl mb-12 text-slate-700 leading-relaxed space-y-4">
         <p>
           Browse our current inventory of used CNC machines for sale, including CNC
           machining centers, lathes, mills, turning centers, and metalworking equipment.
           Concord Machine Tools offers a continually changing selection of quality
           pre-owned industrial machinery sourced from shops across the United States.
         </p>
-
         <p>
-          Our used CNC inventory is updated frequently as machines are bought and sold,
-          so availability can change daily. You’ll find equipment from leading
-          manufacturers such as Haas, Mazak, Okuma, Doosan, Hurco, and other trusted
-          brands—ranging from single machines to complete shop packages.
+          Our used CNC inventory is updated frequently as machines are bought and sold.
+          You’ll find equipment from leading manufacturers such as Haas, Mazak, Okuma,
+          Doosan, Hurco, and other trusted brands—ranging from single machines to
+          complete shop packages.
         </p>
       </div>
 
+      {/* Recently Added Machines */}
+      {recentMachines.length > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-semibold mb-6">
+            Recently Added CNC Machines
+          </h2>
+
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recentMachines.map((machine) => (
+              <li
+                key={machine._id}
+                className="border rounded-md overflow-hidden hover:shadow-md transition"
+              >
+                {machine.mainImage ? (
+                  <Image
+                    src={urlFor(machine.mainImage).width(600).height(400).url()}
+                    alt={machine.title}
+                    width={600}
+                    height={400}
+                    className="object-cover w-full h-48"
+                  />
+                ) : (
+                  <div className="h-48 bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+                    No image available
+                  </div>
+                )}
+
+                <div className="p-4">
+                  <Link
+                    href={`/machines/${machine.slug.current}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {machine.title}
+                  </Link>
+                  <p className="text-sm text-gray-500 mt-1">Newly listed</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Categories */}
       <div className="grid md:grid-cols-3 gap-8">
         {sortedCategories.map((cat) => (
           <div key={cat._id}>
@@ -133,39 +177,13 @@ const recentMachines: Machine[] = await client.fetch(`
                     {sub.name}
                   </Link>
                 </li>
-              )) ?? <li className="text-gray-500 italic">No subcategories</li>}
+              )) ?? (
+                <li className="text-gray-500 italic">No subcategories</li>
+              )}
             </ul>
           </div>
         ))}
       </div>
     </main>
   );
-  {recentMachines.length > 0 && (
-  <section className="mt-16">
-    <h2 className="text-2xl font-semibold mb-6">
-      Recently Added CNC Machines
-    </h2>
-
-    <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {recentMachines.map((machine) => (
-        <li
-          key={machine._id}
-          className="border rounded-md p-4 hover:shadow-md transition"
-        >
-          <Link
-            href={`/machines/${machine.slug.current}`}
-            className="text-blue-600 hover:underline font-medium"
-          >
-            {machine.title}
-          </Link>
-
-          <p className="text-sm text-gray-500 mt-1">
-            Newly listed
-          </p>
-        </li>
-      ))}
-    </ul>
-  </section>
-)}
-
 }
