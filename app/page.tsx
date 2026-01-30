@@ -44,12 +44,45 @@ export default function HomePage() {
             wide ranging & budget friendly options.
           </p>
 
-          <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
-            Browse a continually updated inventory of used CNC machines for sale, including CNC mills, lathes, machining centers, 
-            and metalworking equipment from trusted brands like Haas, Mazak, Okuma, Doosan, and more. Whether you’re looking to 
-            buy a single CNC machine or outfit an entire shop, Concord Machine Tools provides inspected equipment, honest descriptions, 
-            and fast response times for buyers across the United States and worldwide.
-          </p>
+          <p className="mt-4 text-slate-700 leading-relaxed">
+  Browse a continually updated inventory of used CNC machines for sale, including CNC mills, lathes, machining centers,
+  and metalworking equipment from trusted brands like{' '}
+  <Link
+    href="/brands/haas"
+    className="text-blue-600 hover:underline"
+    title="Used Haas CNC Machines For Sale"
+  >
+    Haas CNC machines
+  </Link>
+  ,{' '}
+  <Link
+    href="/brands/mazak"
+    className="text-blue-600 hover:underline"
+    title="Used Mazak CNC Machines For Sale"
+  >
+    Mazak CNC machines
+  </Link>
+  ,{' '}
+  <Link
+    href="/brands/okuma"
+    className="text-blue-600 hover:underline"
+    title="Used Okuma CNC Machines For Sale"
+  >
+    Okuma CNC machines
+  </Link>
+  ,{' '}
+  <Link
+    href="/brands/doosan"
+    className="text-blue-600 hover:underline"
+    title="Used Doosan CNC Machines For Sale"
+  >
+    Doosan CNC machines
+  </Link>
+  , and more.
+  Whether you’re looking to buy a single CNC machine or outfit an entire shop, Concord Machine Tools provides inspected
+  equipment, honest descriptions, and fast response times for buyers across the United States and worldwide.
+</p>
+
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
