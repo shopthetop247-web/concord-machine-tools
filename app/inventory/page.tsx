@@ -60,7 +60,24 @@ export default async function InventoryPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-6">Inventory</h1>
+      <h1 className="text-3xl font-semibold mb-6">Used Machines & Industrial Equipment Inventory</h1>
+
+      {/* SEO Intro Copy */}
+      <div className="max-w-4xl mb-10 text-slate-700 leading-relaxed space-y-4">
+        <p>
+          Browse our current inventory of used CNC machines for sale, including CNC
+          machining centers, lathes, mills, turning centers, and metalworking equipment.
+          Concord Machine Tools offers a continually changing selection of quality
+          pre-owned industrial machinery sourced from shops across the United States.
+        </p>
+
+        <p>
+          Our used CNC inventory is updated frequently as machines are bought and sold,
+          so availability can change daily. You’ll find equipment from leading
+          manufacturers such as Haas, Mazak, Okuma, Doosan, Hurco, and other trusted
+          brands—ranging from single machines to complete shop packages.
+        </p>
+      </div>
 
       <div className="grid md:grid-cols-3 gap-8">
         {sortedCategories.map((cat) => (
