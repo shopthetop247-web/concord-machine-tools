@@ -3,6 +3,29 @@ export const revalidate = 60;
 
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Used CNC Machines Inventory | CNC Mills, Lathes & Industrial Equipment',
+  description:
+    'Browse our current inventory of used CNC machines for sale, including CNC mills, lathes, machining centers, and metalworking equipment from trusted brands. Inventory updated frequently.',
+  keywords: [
+    'used CNC machines inventory',
+    'used CNC machines for sale',
+    'CNC mills for sale',
+    'used CNC lathes',
+    'used machining centers',
+    'industrial machinery inventory',
+    'metalworking equipment for sale',
+    'used Haas CNC machines',
+    'used Mazak CNC machines',
+    'used Okuma CNC machines',
+    'Concord Machine Tools',
+  ],
+  alternates: {
+    canonical: 'https://www.concordmt.com/inventory',
+  },
+};
 
 interface Category {
   _id: string;
