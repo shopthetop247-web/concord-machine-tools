@@ -28,11 +28,10 @@ export default function HomePage() {
           </p>
 
           <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
-            With decades of experience in the metalworking industry, Concord Machine Tools 
-            connects manufacturers with reliable used CNC machines from trusted brands. From vertical and 
-            horizontal machining centers to CNC lathes, grinders, and fabrication equipment, our inventory is 
-            carefully sourced and competitively priced. Based in Michigan and serving customers nationwide and worldwide, 
-            we provide expert guidance, fast response times, and dependable solutions for shops of all sizes. 
+            Browse a continually updated inventory of used CNC machines for sale, including CNC mills, lathes, machining centers, 
+            and metalworking equipment from trusted brands like Haas, Mazak, Okuma, Doosan, and more. Whether you’re looking to 
+            buy a single CNC machine or outfit an entire shop, Concord Machine Tools provides inspected equipment, honest descriptions, 
+            and fast response times for buyers across the United States and worldwide.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
