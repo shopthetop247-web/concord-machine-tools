@@ -148,7 +148,7 @@ export default function HomePage() {
         </div>
        <div className="mt-14">
        <h2 className="text-xl font-semibold text-center mb-6">
-        Machine Brands We Often Stock
+        We frequently stock late-model CNC machines from leading manufacturers:
        </h2>
 
        <div className="flex flex-wrap justify-center items-center gap-8">
