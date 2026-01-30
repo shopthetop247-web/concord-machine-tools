@@ -82,6 +82,7 @@ export default function HomePage() {
   inspected equipment, honest descriptions, and fast response times for buyers across the United States and worldwide.
 </p>
 
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/inventory"
