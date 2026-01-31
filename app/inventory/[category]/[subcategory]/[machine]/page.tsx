@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import { client } from '@/lib/sanityClient';
 import MachineImages from '@/components/MachineImages';
 import RequestQuoteSection from '@/components/RequestQuoteSection';
