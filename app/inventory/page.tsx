@@ -49,7 +49,9 @@ interface Machine {
   _id: string;
   title: string;
   slug: { current: string };
-  mainImage?: any;
+  mainImage?: {
+    asset?: any;
+  };
 }
 
 export default async function InventoryPage() {
@@ -75,7 +77,9 @@ export default async function InventoryPage() {
       _id,
       title,
       slug,
-      mainImage
+      mainImage{
+        asset
+      }
     }
   `);
 
@@ -120,11 +124,34 @@ export default async function InventoryPage() {
         </p>
       </div>
 
+      {/* Categories */}
+      <div className="grid md:grid-cols-3 gap-8 mb-16">
+        {sortedCategories.map((cat) => (
+          <div key={cat._id}>
+            <h2 className="text-xl font-semibold mb-4">{cat.name}</h2>
+            <ul className="space-y-2">
+              {subcategoriesByCategory[cat._id]?.map((sub) => (
+                <li key={sub._id}>
+                  <Link
+                    href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
+                    className="text-blue-500 hover:text-blue-400"
+                  >
+                    {sub.name}
+                  </Link>
+                </li>
+              )) ?? (
+                <li className="text-gray-500 italic">No subcategories</li>
+              )}
+            </ul>
+          </div>
+        ))}
+      </div>
+
       {/* Recently Added Machines */}
       {recentMachines.length > 0 && (
-        <section className="mb-16">
+        <section>
           <h2 className="text-2xl font-semibold mb-6">
-            Recently Added CNC Machines
+            Recently Added Machines
           </h2>
 
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -133,9 +160,13 @@ export default async function InventoryPage() {
                 key={machine._id}
                 className="border rounded-md overflow-hidden hover:shadow-md transition"
               >
-                {machine.mainImage ? (
+                {machine.mainImage?.asset ? (
                   <Image
-                    src={urlFor(machine.mainImage).width(600).height(400).url()}
+                    src={urlFor(machine.mainImage.asset)
+                      .width(600)
+                      .height(400)
+                      .fit('crop')
+                      .url()}
                     alt={machine.title}
                     width={600}
                     height={400}
@@ -161,29 +192,6 @@ export default async function InventoryPage() {
           </ul>
         </section>
       )}
-
-      {/* Categories */}
-      <div className="grid md:grid-cols-3 gap-8">
-        {sortedCategories.map((cat) => (
-          <div key={cat._id}>
-            <h2 className="text-xl font-semibold mb-4">{cat.name}</h2>
-            <ul className="space-y-2">
-              {subcategoriesByCategory[cat._id]?.map((sub) => (
-                <li key={sub._id}>
-                  <Link
-                    href={`/inventory/${cat.slug.current}/${sub.slug.current}`}
-                    className="text-blue-500 hover:text-blue-400"
-                  >
-                    {sub.name}
-                  </Link>
-                </li>
-              )) ?? (
-                <li className="text-gray-500 italic">No subcategories</li>
-              )}
-            </ul>
-          </div>
-        ))}
-      </div>
     </main>
   );
 }
