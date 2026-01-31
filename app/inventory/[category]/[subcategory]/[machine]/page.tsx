@@ -11,6 +11,7 @@ interface Machine {
   brand?: string;
   yearOfMfg?: number;
   specifications?: string;
+  description?: string;
   images?: { asset: { _ref: string } }[];
   videoUrl?: string;
   stockNumber: string;
@@ -53,7 +54,8 @@ export async function generateMetadata(
       name,
       brand,
       yearOfMfg,
-      stockNumber
+      stockNumber,
+      description
     }`,
     { slug: params.machine }
   );
@@ -66,7 +68,10 @@ export async function generateMetadata(
 
   const brandPrefix = machine.brand ? `${machine.brand} ` : '';
   const title = `${brandPrefix}${machine.name} for Sale | Used CNC Machinery`;
-  const description = `Used ${brandPrefix}${machine.name} for sale. View photos, specifications, video, and request a quote. Stock #${machine.stockNumber}.`;
+
+  const description =
+    machine.description ??
+    `Used ${brandPrefix}${machine.name} for sale. View photos, specifications, video, and request a quote. Stock #${machine.stockNumber}.`;
 
   return {
     title,
@@ -98,8 +103,9 @@ export default async function MachinePage({ params }: PageProps) {
       brand,
       yearOfMfg,
       specifications,
-       images[]{
-      asset->
+      description,
+      images[]{
+        asset->
       },
       videoUrl,
       stockNumber,
@@ -113,15 +119,15 @@ export default async function MachinePage({ params }: PageProps) {
   }
 
   const images =
-  machineData.images
-    ?.map((img) => {
-      try {
-        return urlFor(img);
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean) ?? [];
+    machineData.images
+      ?.map((img) => {
+        try {
+          return urlFor(img);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean) ?? [];
 
   const videoId = getYouTubeId(machineData.videoUrl);
 
@@ -133,7 +139,9 @@ export default async function MachinePage({ params }: PageProps) {
     '@type': 'Product',
     name: `${machineData.brand ?? ''} ${machineData.name}`.trim(),
     image: images,
-    description: `Used ${machineData.brand ?? ''} ${machineData.name} for sale.`,
+    description:
+      machineData.description ??
+      `Used ${machineData.brand ?? ''} ${machineData.name} for sale.`,
     sku: machineData.stockNumber,
     brand: machineData.brand
       ? { '@type': 'Brand', name: machineData.brand }
@@ -190,11 +198,9 @@ export default async function MachinePage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify([
-            productSchema,
-            videoSchema,
-            breadcrumbSchema,
-          ].filter(Boolean)),
+          __html: JSON.stringify(
+            [productSchema, videoSchema, breadcrumbSchema].filter(Boolean)
+          ),
         }}
       />
 
@@ -229,7 +235,7 @@ export default async function MachinePage({ params }: PageProps) {
       </h1>
 
       {/* Meta */}
-      <div className="text-gray-700 mb-6">
+      <div className="text-gray-700 mb-4">
         {machineData.yearOfMfg && (
           <>
             <strong>Year:</strong> {machineData.yearOfMfg} &nbsp;|&nbsp;
@@ -237,6 +243,13 @@ export default async function MachinePage({ params }: PageProps) {
         )}
         <strong>Stock #:</strong> {machineData.stockNumber}
       </div>
+
+      {/* Description */}
+      {machineData.description && (
+        <p className="mb-6 text-gray-800 leading-relaxed">
+          {machineData.description}
+        </p>
+      )}
 
       {/* Images */}
       {images.length > 0 && <MachineImages images={images} />}
