@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Used CNC Machines for Sale | CNC Mills & Lathes | Concord Machine Tools',
+  title: 'Used CNC Machines for Sale | Machinery | Concord Machine Tools',
   description:
     'Buy and sell used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering inspected inventory, fair pricing, and fast response nationwide.',
   keywords: [
