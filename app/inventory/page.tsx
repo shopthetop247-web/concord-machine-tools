@@ -47,10 +47,11 @@ interface Subcategory {
 
 interface Machine {
   _id: string;
-  title: string;
+  name: string;
   slug: { current: string };
-  mainImage?: {
+  thumbnail?: {
     asset?: any;
+    alt?: string;
   };
 }
 
@@ -75,10 +76,11 @@ export default async function InventoryPage() {
   const recentMachines: Machine[] = await client.fetch(`
     *[_type == "machine"] | order(_createdAt desc)[0...6]{
       _id,
-      title,
+      name,
       slug,
-      mainImage{
-        asset
+      "thumbnail": images[0]{
+        asset,
+        alt
       }
     }
   `);
@@ -125,7 +127,7 @@ export default async function InventoryPage() {
       </div>
 
       {/* Categories */}
-      <div className="grid md:grid-cols-3 gap-8 mb-16">
+      <div className="grid md:grid-cols-3 gap-8">
         {sortedCategories.map((cat) => (
           <div key={cat._id}>
             <h2 className="text-xl font-semibold mb-4">{cat.name}</h2>
@@ -149,7 +151,7 @@ export default async function InventoryPage() {
 
       {/* Recently Added Machines */}
       {recentMachines.length > 0 && (
-        <section>
+        <section className="mt-16">
           <h2 className="text-2xl font-semibold mb-6">
             Recently Added Machines
           </h2>
@@ -160,14 +162,13 @@ export default async function InventoryPage() {
                 key={machine._id}
                 className="border rounded-md overflow-hidden hover:shadow-md transition"
               >
-                {machine.mainImage?.asset ? (
+                {machine.thumbnail?.asset ? (
                   <Image
-                    src={urlFor(machine.mainImage.asset)
-                      .width(600)
-                      .height(400)
-                      .fit('crop')
-                      .url()}
-                    alt={machine.title}
+                    src={urlFor(machine.thumbnail).width(600).height(400).url()}
+                    alt={
+                      machine.thumbnail.alt ||
+                      `${machine.name} CNC machine for sale`
+                    }
                     width={600}
                     height={400}
                     className="object-cover w-full h-48"
@@ -183,7 +184,7 @@ export default async function InventoryPage() {
                     href={`/machines/${machine.slug.current}`}
                     className="font-medium text-blue-600 hover:underline"
                   >
-                    {machine.title}
+                    {machine.name}
                   </Link>
                   <p className="text-sm text-gray-500 mt-1">Newly listed</p>
                 </div>
