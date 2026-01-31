@@ -49,9 +49,16 @@ interface Machine {
   _id: string;
   name: string;
   slug: { current: string };
+  yearOfMfg?: number;
   thumbnail?: {
     asset?: any;
     alt?: string;
+  };
+  category?: {
+    slug?: { current: string };
+  };
+  subcategory?: {
+    slug?: { current: string };
   };
 }
 
@@ -78,9 +85,16 @@ export default async function InventoryPage() {
       _id,
       name,
       slug,
+      yearOfMfg,
       "thumbnail": images[0]{
         asset,
         alt
+      },
+      category->{
+        slug
+      },
+      subcategory->{
+        slug
       }
     }
   `);
@@ -113,13 +127,13 @@ export default async function InventoryPage() {
       {/* SEO Intro */}
       <div className="max-w-4xl mb-12 text-slate-700 leading-relaxed space-y-4">
         <p>
-          Browse our current inventory of used CNC machines for sale, including CNC
+          Browse our current inventory of used machines for sale, including CNC
           machining centers, lathes, mills, turning centers, and metalworking equipment.
           Concord Machine Tools offers a continually changing selection of quality
           pre-owned industrial machinery sourced from shops across the United States.
         </p>
         <p>
-          Our used CNC inventory is updated frequently as machines are bought and sold.
+          Our used machinery inventory is updated frequently as machines are bought and sold.
           You’ll find equipment from leading manufacturers such as Haas, Mazak, Okuma,
           Doosan, Hurco, and other trusted brands—ranging from single machines to
           complete shop packages.
@@ -164,10 +178,10 @@ export default async function InventoryPage() {
               >
                 {machine.thumbnail?.asset ? (
                   <Image
-                    src={urlFor(machine.thumbnail).width(600).height(400).url()}
+                    src={urlFor(machine.thumbnail.asset).width(600).height(400).url()}
                     alt={
                       machine.thumbnail.alt ||
-                      `${machine.name} CNC machine for sale`
+                      `${machine.name} machine for sale`
                     }
                     width={600}
                     height={400}
@@ -181,10 +195,10 @@ export default async function InventoryPage() {
 
                 <div className="p-4">
                   <Link
-                    href={`/machines/${machine.slug.current}`}
+                    href={`/inventory/${machine.category?.slug?.current}/${machine.subcategory?.slug?.current}/${machine.slug.current}`}
                     className="font-medium text-blue-600 hover:underline"
                   >
-                    {machine.name}
+                    {machine.yearOfMfg ? `${machine.yearOfMfg} - ` : ''}{machine.name}
                   </Link>
                   <p className="text-sm text-gray-500 mt-1">Newly listed</p>
                 </div>
