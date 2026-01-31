@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Used CNC Machines for Sale | Machinery | Concord Machine Tools',
   description:
-    'Buy and sell used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering inspected inventory, fair pricing, and fast response nationwide.',
+    'Buy and sell used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory, fair pricing, and fast response nationwide.',
   keywords: [
   'used CNC machines for sale',
   'CNC mills for sale',
