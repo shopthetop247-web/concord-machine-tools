@@ -6,6 +6,38 @@ import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
 import { Metadata } from 'next';
 
+export async function generateMetadata({
+  params,
+}: {
+  params: { category: string; subcategory: string };
+}): Promise<Metadata> {
+  const { category, subcategory } = params;
+
+  const data = await client.fetch(
+    `
+    {
+      "category": *[_type == "category" && slug.current == $category][0]{ name },
+      "subcategory": *[_type == "subcategory" && slug.current == $subcategory][0]{ name }
+    }
+    `,
+    { category, subcategory }
+  );
+
+  if (!data?.category || !data?.subcategory) {
+    return {
+      title: 'Used CNC Machines for Sale | Concord Machine Tools',
+    };
+  }
+
+  return {
+    title: `Used ${data.subcategory.name} for Sale | ${data.category.name}`,
+    description: `Browse used ${data.subcategory.name.toLowerCase()} for sale from top manufacturers. Inventory updated frequently.`,
+    alternates: {
+      canonical: `https://www.concordmt.com/inventory/${category}/${subcategory}`,
+    },
+  };
+}
+
 interface Machine {
   _id: string;
   name: string;
@@ -36,27 +68,6 @@ function formatSubcategory(slug: string) {
     .replace(/\bvmc\b/gi, 'VMC')
     .replace(/\bedm\b/gi, 'EDM')
     .replace(/\bhmc\b/gi, 'HMC');
-;
-}
-
-export async function generateMetadata(
-  { params }: PageProps
-): Promise<Metadata> {
-  const subcategoryName = formatSubcategory(params.subcategory);
-
-
-  return {
-    title: `${subcategoryName} for Sale | Used Industrial Machinery`,
-    description: `Browse available ${subcategoryName} machines including CNC and industrial equipment. View specifications, photos, and request a quote.`,
-    alternates: {
-      canonical: `/inventory/${params.category}/${params.subcategory}`,
-    },
-    openGraph: {
-      title: `${subcategoryName} for Sale`,
-      description: `View our current inventory of ${subcategoryName} machines.`,
-      type: 'website',
-    },
-  };
 }
 
 /* ------------------------------------
