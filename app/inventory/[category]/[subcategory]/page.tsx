@@ -156,7 +156,7 @@ export default async function SubcategoryPage({ params }: PageProps) {
       </h1>
 
       {/* SEO INTRO CONTENT */}
-      <div className="max-w-4xl mb-8 text-gray-700 leading-relaxed border border-red-500 bg-yellow-50 p-4">
+      <div className="max-w-4xl mb-8 text-gray-700 leading-relaxed">
 
         <p>
           Browse our current inventory of used {formattedSubcategory} machines
