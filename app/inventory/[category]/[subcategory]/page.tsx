@@ -156,7 +156,8 @@ export default async function SubcategoryPage({ params }: PageProps) {
       </h1>
 
       {/* SEO INTRO CONTENT */}
-      <div className="max-w-4xl mb-8 text-gray-700 leading-relaxed">
+      <div className="max-w-4xl mb-8 text-gray-700 leading-relaxed border border-red-500 bg-yellow-50 p-4">
+
         <p>
           Browse our current inventory of used {formattedSubcategory} machines
           for sale. Concord Machine Tools offers high-quality pre-owned
