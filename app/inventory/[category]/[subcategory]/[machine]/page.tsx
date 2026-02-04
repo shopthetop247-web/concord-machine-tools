@@ -129,12 +129,12 @@ export default async function MachinePage({ params }: PageProps) {
     <main className="max-w-6xl mx-auto px-6 py-8">
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/inventory">Inventory</Link> ›{' '}
+        <Link href="/inventory" className="text-blue-500 hover:underline">Inventory</Link> ›{' '}
         <Link href={`/inventory/${params.category}`}>
           {params.category.replace(/-/g, ' ')}
         </Link>{' '}
         ›{' '}
-        <Link href={`/inventory/${params.category}/${params.subcategory}`}>
+        <Link href={`/inventory/${params.category}/${params.subcategory}`} className="text-blue-500 hover:underline">
           {params.subcategory.replace(/-/g, ' ')}
         </Link>{' '}
         › <span>{machine.name}</span>
