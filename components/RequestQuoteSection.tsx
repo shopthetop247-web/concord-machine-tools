@@ -5,17 +5,20 @@ import RequestQuoteModal from './RequestQuoteModal';
 
 interface Props {
   stockNumber: string;
+  machineName?: string;
+  machineUrl?: string;
   variant?: 'primary' | 'inline';
 }
 
 export default function RequestQuoteSection({
   stockNumber,
+  machineName,
+  machineUrl,
   variant = 'primary',
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  const baseClasses =
-    'font-semibold rounded transition duration-200';
+  const baseClasses = 'font-semibold rounded transition duration-200';
 
   const styles =
     variant === 'inline'
@@ -34,9 +37,12 @@ export default function RequestQuoteSection({
       {open && (
         <RequestQuoteModal
           stockNumber={stockNumber}
+          machineName={machineName}
+          machineUrl={machineUrl}
           onClose={() => setOpen(false)}
         />
       )}
     </>
   );
 }
+
