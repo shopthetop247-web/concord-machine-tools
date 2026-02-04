@@ -1,32 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import RequestQuoteModal from './RequestQuoteModal';
-
 interface Props {
-  stockNumber: string;
+  onClick: () => void;
+  variant?: 'compact' | 'primary';
 }
 
-export default function RequestQuoteSection({ stockNumber }: Props) {
-  const [open, setOpen] = useState(false);
+export default function RequestQuoteSection({
+  onClick,
+  variant = 'primary',
+}: Props) {
+  const base =
+    'font-semibold rounded transition duration-300 ease-in-out';
+
+  const styles =
+    variant === 'compact'
+      ? 'bg-brandBlue text-white px-4 py-2 text-sm hover:bg-blue-400'
+      : 'bg-brandBlue text-white px-6 py-3 shadow-md hover:bg-blue-400 hover:shadow-lg transform hover:scale-105';
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="bg-brandBlue text-white font-semibold px-6 py-3 rounded shadow-md
-                   hover:bg-blue-400 hover:shadow-lg transform hover:scale-105
-                   transition duration-300 ease-in-out"
-      >
-        Request Quote
-      </button>
-
-      {open && (
-        <RequestQuoteModal
-          stockNumber={stockNumber}
-          onClose={() => setOpen(false)}
-        />
-      )}
-    </>
+    <button onClick={onClick} className={`${base} ${styles}`}>
+      Request Quote
+    </button>
   );
 }
+
