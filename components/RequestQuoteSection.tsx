@@ -6,6 +6,10 @@ import RequestQuoteModal from './RequestQuoteModal';
 interface Props {
   stockNumber: string;
   variant?: 'primary' | 'inline';
+
+  // Accept legacy props so existing pages don’t break
+  machineName?: string;
+  machineUrl?: string;
 }
 
 export default function RequestQuoteSection({
@@ -14,7 +18,8 @@ export default function RequestQuoteSection({
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  const baseClasses = 'font-semibold rounded transition duration-200';
+  const baseClasses =
+    'font-semibold rounded transition duration-200';
 
   const styles =
     variant === 'inline'
@@ -24,7 +29,6 @@ export default function RequestQuoteSection({
   return (
     <>
       <button
-        type="button"
         onClick={() => setOpen(true)}
         className={`${baseClasses} ${styles}`}
       >
@@ -40,4 +44,3 @@ export default function RequestQuoteSection({
     </>
   );
 }
-
