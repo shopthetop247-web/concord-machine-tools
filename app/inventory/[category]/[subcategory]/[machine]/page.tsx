@@ -3,11 +3,9 @@ export const revalidate = 60;
 import { client } from '@/lib/sanityClient';
 import MachineImages from '@/components/MachineImages';
 import RequestQuoteSection from '@/components/RequestQuoteSection';
-import RequestQuoteModal from '@/components/RequestQuoteModal';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { useState } from 'react';
 
 interface Machine {
   _id: string;
@@ -17,7 +15,6 @@ interface Machine {
   specifications?: string;
   description?: string;
   images?: { asset: { _ref: string } }[];
-  videoUrl?: string;
   stockNumber: string;
   slug?: { current: string };
   subcategory?: { _ref: string };
@@ -98,6 +95,9 @@ export default async function MachinePage({ params }: PageProps) {
       })
       .filter(Boolean) ?? [];
 
+  /* -----------------------------------
+     RELATED MACHINES
+  ----------------------------------- */
   const relatedMachines =
     machine.subcategory?._ref
       ? await client.fetch(
@@ -111,9 +111,7 @@ export default async function MachinePage({ params }: PageProps) {
             )[0...4]{
             _id,
             name,
-            brand,
             yearOfMfg,
-            stockNumber,
             slug
           }`,
           {
@@ -123,11 +121,6 @@ export default async function MachinePage({ params }: PageProps) {
           }
         )
       : [];
-
-  /* -----------------------------
-     CLIENT STATE (MODAL)
-  ----------------------------- */
-  const [quoteOpen, setQuoteOpen] = useState(false);
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -157,15 +150,15 @@ export default async function MachinePage({ params }: PageProps) {
         {machine.name}
       </h1>
 
-      {/* Stock + Top CTA */}
+      {/* Stock + Inline CTA */}
       <div className="flex items-center gap-4 mb-4">
         <p className="text-gray-700">
           <strong>Stock #:</strong> {machine.stockNumber}
         </p>
 
         <RequestQuoteSection
-          onClick={() => setQuoteOpen(true)}
-          variant="compact"
+          stockNumber={machine.stockNumber}
+          variant="inline"
         />
       </div>
 
@@ -187,19 +180,9 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {/* Bottom CTA */}
-      <section className="mt-10 flex justify-center">
-        <RequestQuoteSection
-          onClick={() => setQuoteOpen(true)}
-        />
+      <section className="mt-10">
+        <RequestQuoteSection stockNumber={machine.stockNumber} />
       </section>
-
-      {/* Modal (single instance) */}
-      {quoteOpen && (
-        <RequestQuoteModal
-          stockNumber={machine.stockNumber}
-          onClose={() => setQuoteOpen(false)}
-        />
-      )}
 
       {/* Related Machines */}
       {relatedMachines.length > 0 && (
