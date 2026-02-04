@@ -18,6 +18,7 @@ interface Machine {
   videoUrl?: string;
   stockNumber: string;
   slug?: { current: string };
+  subcategory?: { _ref: string };
 }
 
 interface PageProps {
@@ -106,12 +107,11 @@ export default async function MachinePage({ params }: PageProps) {
       yearOfMfg,
       specifications,
       description,
-      images[]{
-        asset->
-      },
+      images[]{ asset-> },
       videoUrl,
       stockNumber,
-      slug
+      slug,
+      subcategory
     }`,
     { slug: params.machine }
   );
@@ -134,6 +134,32 @@ export default async function MachinePage({ params }: PageProps) {
   const videoId = getYouTubeId(machineData.videoUrl);
 
   /* -----------------------------------
+     RELATED MACHINES QUERY
+  ----------------------------------- */
+  const relatedMachines: Machine[] = await client.fetch(
+    `
+    *[_type == "machine" &&
+      slug.current != $slug &&
+      subcategory._ref == $subcategoryRef
+    ]
+    | order(brand == $brand desc, yearOfMfg desc)[0...4]{
+      _id,
+      name,
+      brand,
+      yearOfMfg,
+      stockNumber,
+      images[]{ asset-> },
+      slug
+    }
+    `,
+    {
+      slug: params.machine,
+      subcategoryRef: machineData.subcategory?._ref,
+      brand: machineData.brand ?? '',
+    }
+  );
+
+  /* -----------------------------------
      STRUCTURED DATA (Product + Offer)
   ----------------------------------- */
   const productSchema = {
@@ -146,10 +172,7 @@ export default async function MachinePage({ params }: PageProps) {
       `Used ${machineData.brand ?? ''} ${machineData.name} for sale.`,
     sku: machineData.stockNumber,
     brand: machineData.brand
-      ? {
-          '@type': 'Brand',
-          name: machineData.brand,
-        }
+      ? { '@type': 'Brand', name: machineData.brand }
       : undefined,
     category: params.subcategory.replace(/-/g, ' '),
     itemCondition: 'https://schema.org/UsedCondition',
@@ -164,15 +187,6 @@ export default async function MachinePage({ params }: PageProps) {
       },
     },
   };
-
-  const videoSchema = videoId
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'VideoObject',
-        name: `${machineData.name} Machine Video`,
-        embedUrl: `https://www.youtube.com/embed/${videoId}`,
-      }
-    : null;
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -210,9 +224,7 @@ export default async function MachinePage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            [productSchema, videoSchema, breadcrumbSchema].filter(Boolean)
-          ),
+          __html: JSON.stringify([productSchema, breadcrumbSchema]),
         }}
       />
 
@@ -220,13 +232,6 @@ export default async function MachinePage({ params }: PageProps) {
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/inventory" className="text-blue-500 hover:underline">
           Inventory
-        </Link>
-        <span className="mx-1">›</span>
-        <Link
-          href={`/inventory/${params.category}`}
-          className="text-blue-500 hover:underline"
-        >
-          {params.category.replace(/-/g, ' ')}
         </Link>
         <span className="mx-1">›</span>
         <Link
@@ -241,12 +246,10 @@ export default async function MachinePage({ params }: PageProps) {
         </span>
       </nav>
 
-      {/* Title */}
       <h1 className="text-3xl font-semibold mb-2">
         {machineData.name}
       </h1>
 
-      {/* Meta */}
       <div className="text-gray-700 mb-4">
         {machineData.yearOfMfg && (
           <>
@@ -256,23 +259,19 @@ export default async function MachinePage({ params }: PageProps) {
         <strong>Stock #:</strong> {machineData.stockNumber}
       </div>
 
-      {/* Description */}
       {machineData.description && (
         <p className="mb-6 text-gray-800 leading-relaxed">
           {machineData.description}
         </p>
       )}
 
-      {/* Images */}
       {images.length > 0 && <MachineImages images={images} />}
 
-      {/* Video */}
       {videoId && (
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
             Machine Video
           </h2>
-
           <div className="relative w-full max-w-4xl aspect-video rounded-lg overflow-hidden border bg-black">
             <iframe
               src={`https://www.youtube.com/embed/${videoId}`}
@@ -284,7 +283,6 @@ export default async function MachinePage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Specs */}
       {machineData.specifications && (
         <section className="mt-8">
           <h2 className="text-lg font-medium mb-2">
@@ -300,6 +298,49 @@ export default async function MachinePage({ params }: PageProps) {
       <section className="mt-8">
         <RequestQuoteSection stockNumber={machineData.stockNumber} />
       </section>
+
+      {/* Related Machines */}
+      {relatedMachines.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-xl font-semibold mb-4">
+            Related Machines
+          </h2>
+
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {relatedMachines.map((machine) => {
+              const imageUrl = machine.images?.[0]
+                ? urlFor(machine.images[0])
+                : '/placeholder.jpg';
+
+              return (
+                <Link
+                  key={machine._id}
+                  href={`/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`}
+                  className="block border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="w-full h-40">
+                    <img
+                      src={imageUrl}
+                      alt={`${machine.name} for sale`}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div className="p-4 bg-white">
+                    <h3 className="text-md font-medium mb-1">
+                      {machine.name}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp;</>}
+                      Stock #: {machine.stockNumber}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
+
