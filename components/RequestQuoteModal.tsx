@@ -4,83 +4,146 @@ import { useState } from 'react';
 
 interface Props {
   stockNumber: string;
-  machineName?: string;
-  machineUrl?: string;
   onClose: () => void;
 }
 
-export default function RequestQuoteModal({
-  stockNumber,
-  machineName,
-  machineUrl,
-  onClose,
-}: Props) {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: `Inquiry about ${machineName ?? ''} (Stock #${stockNumber})`,
-  });
+export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [company, setCompany] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // send form logic
-    onClose();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/request-quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          company,
+          stockNumber,
+          message,
+        }),
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send request');
+      }
+
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
-        <h2 className="text-xl font-semibold mb-4">Request a Quote</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-lg w-full max-w-lg p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+
+        <h2 className="text-xl font-semibold mb-4">
+          Request a Quote
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your Name"
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Your Email"
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Message"
-            className="w-full border px-3 py-2 rounded"
-            rows={4}
-            required
-          />
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-brandBlue text-white rounded hover:bg-blue-500"
-            >
-              Send
-            </button>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Name *
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Email *
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Company
+            </label>
+            <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Stock #
+            </label>
+            <input
+              type="text"
+              value={stockNumber}
+              disabled
+              className="w-full border rounded px-3 py-2 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Message *
+            </label>
+            <textarea
+              required
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brandBlue text-white font-semibold py-3 rounded hover:bg-blue-400 transition disabled:opacity-50"
+          >
+            {loading ? 'Sending...' : 'Submit Quote Request'}
+          </button>
         </form>
       </div>
     </div>
   );
 }
+
 
