@@ -134,24 +134,34 @@ export default async function MachinePage({ params }: PageProps) {
   const videoId = getYouTubeId(machineData.videoUrl);
 
   /* -----------------------------------
-     STRUCTURED DATA
+     STRUCTURED DATA (Product + Offer)
   ----------------------------------- */
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `${machineData.brand ?? ''} ${machineData.name}`.trim(),
-    image: images,
+    image: images.length ? images : undefined,
     description:
       machineData.description ??
       `Used ${machineData.brand ?? ''} ${machineData.name} for sale.`,
     sku: machineData.stockNumber,
     brand: machineData.brand
-      ? { '@type': 'Brand', name: machineData.brand }
+      ? {
+          '@type': 'Brand',
+          name: machineData.brand,
+        }
       : undefined,
+    category: params.subcategory.replace(/-/g, ' '),
     itemCondition: 'https://schema.org/UsedCondition',
-    seller: {
-      '@type': 'Organization',
-      name: 'Concord Machine Tools',
+    offers: {
+      '@type': 'Offer',
+      url: `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${params.machine}`,
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'Concord Machine Tools',
+        url: 'https://www.concordmt.com',
+      },
     },
   };
 
@@ -172,19 +182,19 @@ export default async function MachinePage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Inventory',
-        item: 'https://www.concordmachinetools.com/inventory',
+        item: 'https://www.concordmt.com/inventory',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: params.category.replace(/-/g, ' '),
-        item: `https://www.concordmachinetools.com/inventory/${params.category}`,
+        item: `https://www.concordmt.com/inventory/${params.category}`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: params.subcategory.replace(/-/g, ' '),
-        item: `https://www.concordmachinetools.com/inventory/${params.category}/${params.subcategory}`,
+        item: `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}`,
       },
       {
         '@type': 'ListItem',
