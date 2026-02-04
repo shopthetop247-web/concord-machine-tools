@@ -122,6 +122,8 @@ export default async function MachinePage({ params }: PageProps) {
         )
       : [];
 
+  const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
+
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
       {/* Breadcrumbs */}
@@ -146,9 +148,7 @@ export default async function MachinePage({ params }: PageProps) {
         › <span>{machine.name}</span>
       </nav>
 
-      <h1 className="text-3xl font-semibold mb-2">
-        {machine.name}
-      </h1>
+      <h1 className="text-3xl font-semibold mb-2">{machine.name}</h1>
 
       {/* Stock + Inline CTA */}
       <div className="flex items-center gap-4 mb-4">
@@ -158,14 +158,14 @@ export default async function MachinePage({ params }: PageProps) {
 
         <RequestQuoteSection
           stockNumber={machine.stockNumber}
+          machineName={machine.name}
+          machineUrl={machineUrl}
           variant="inline"
         />
       </div>
 
       {machine.description && (
-        <p className="mb-6 text-gray-800">
-          {machine.description}
-        </p>
+        <p className="mb-6 text-gray-800">{machine.description}</p>
       )}
 
       {images.length > 0 && <MachineImages images={images} />}
@@ -180,16 +180,18 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {/* Bottom CTA */}
-      <section className="mt-10">
-        <RequestQuoteSection stockNumber={machine.stockNumber} />
+      <section id="request-quote" className="mt-10">
+        <RequestQuoteSection
+          stockNumber={machine.stockNumber}
+          machineName={machine.name}
+          machineUrl={machineUrl}
+        />
       </section>
 
       {/* Related Machines */}
       {relatedMachines.length > 0 && (
         <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">
-            Related Machines
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">Related Machines</h2>
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {relatedMachines.map((m: any) => (
@@ -201,9 +203,7 @@ export default async function MachinePage({ params }: PageProps) {
                   {m.name}
                 </Link>
                 {m.yearOfMfg && (
-                  <p className="text-sm text-gray-600">
-                    Year: {m.yearOfMfg}
-                  </p>
+                  <p className="text-sm text-gray-600">Year: {m.yearOfMfg}</p>
                 )}
               </li>
             ))}
