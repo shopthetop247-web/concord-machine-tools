@@ -130,7 +130,7 @@ export default async function MachinePage({ params }: PageProps) {
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/inventory" className="text-blue-500 hover:underline">Inventory</Link> ›{' '}
-        <Link href={`/inventory/${params.category}`}>
+        <Link href={`/inventory/${params.category}`} className="text-blue-500 hover:underline">
           {params.category.replace(/-/g, ' ')}
         </Link>{' '}
         ›{' '}
