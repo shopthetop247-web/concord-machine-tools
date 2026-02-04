@@ -4,91 +4,80 @@ import { useState } from 'react';
 
 interface Props {
   stockNumber: string;
+  machineName?: string;
+  machineUrl?: string;
   onClose: () => void;
 }
 
-export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function RequestQuoteModal({
+  stockNumber,
+  machineName,
+  machineUrl,
+  onClose,
+}: Props) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: `Inquiry about ${machineName ?? ''} (Stock #${stockNumber})`,
+  });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const formData = new FormData(e.currentTarget);
-
-    const res = await fetch('/api/request-quote', {
-      method: 'POST',
-      body: JSON.stringify(Object.fromEntries(formData)),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error || 'Failed to send request. Please try again.');
-      setLoading(false);
-      return;
-    }
-
+    // send form logic
     onClose();
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          Request a Quote
-        </h2>
-
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
+        <h2 className="text-xl font-semibold mb-4">Request a Quote</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="hidden" name="stockNumber" value={stockNumber} />
-
           <input
+            type="text"
             name="name"
+            value={formData.name}
+            onChange={handleChange}
             placeholder="Your Name"
+            className="w-full border px-3 py-2 rounded"
             required
-            className="w-full border rounded px-4 py-2"
           />
-
           <input
-            name="company"
-            placeholder="Company"
-            className="w-full border rounded px-4 py-2"
-          />
-
-          <input
-            name="email"
             type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
             placeholder="Your Email"
+            className="w-full border px-3 py-2 rounded"
             required
-            className="w-full border rounded px-4 py-2"
           />
-
           <textarea
             name="message"
+            value={formData.message}
+            onChange={handleChange}
             placeholder="Message"
+            className="w-full border px-3 py-2 rounded"
             rows={4}
-            className="w-full border rounded px-4 py-2"
+            required
           />
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg
-                       hover:bg-blue-500 transition font-semibold"
-          >
-            {loading ? 'Sending...' : 'Submit Request'}
-          </button>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border rounded hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-brandBlue text-white rounded hover:bg-blue-500"
+            >
+              Send
+            </button>
+          </div>
         </form>
       </div>
     </div>
