@@ -97,7 +97,7 @@ export default async function MachinePage({ params }: PageProps) {
       .filter(Boolean) ?? [];
 
   /* -----------------------------------
-     RELATED MACHINES (FIXED GROQ)
+     RELATED MACHINES
   ----------------------------------- */
   const relatedMachines =
     machine.subcategory?._ref
@@ -129,12 +129,21 @@ export default async function MachinePage({ params }: PageProps) {
     <main className="max-w-6xl mx-auto px-6 py-8">
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/inventory" className="text-blue-500 hover:underline">Inventory</Link> ›{' '}
-        <Link href={`/inventory/${params.category}`} className="text-blue-500 hover:underline">
+        <Link href="/inventory" className="text-blue-500 hover:underline">
+          Inventory
+        </Link>{' '}
+        ›{' '}
+        <Link
+          href={`/inventory/${params.category}`}
+          className="text-blue-500 hover:underline"
+        >
           {params.category.replace(/-/g, ' ')}
         </Link>{' '}
         ›{' '}
-        <Link href={`/inventory/${params.category}/${params.subcategory}`} className="text-blue-500 hover:underline">
+        <Link
+          href={`/inventory/${params.category}/${params.subcategory}`}
+          className="text-blue-500 hover:underline"
+        >
           {params.subcategory.replace(/-/g, ' ')}
         </Link>{' '}
         › <span>{machine.name}</span>
@@ -144,9 +153,19 @@ export default async function MachinePage({ params }: PageProps) {
         {machine.name}
       </h1>
 
-      <p className="text-gray-700 mb-4">
-        <strong>Stock #:</strong> {machine.stockNumber}
-      </p>
+      {/* Stock + Inline CTA */}
+      <div className="flex items-center gap-4 mb-4">
+        <p className="text-gray-700">
+          <strong>Stock #:</strong> {machine.stockNumber}
+        </p>
+
+        <a
+          href="#request-quote"
+          className="text-sm px-3 py-1.5 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition"
+        >
+          Request a Quote
+        </a>
+      </div>
 
       {machine.description && (
         <p className="mb-6 text-gray-800">
@@ -165,7 +184,8 @@ export default async function MachinePage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="mt-8">
+      {/* Bottom CTA */}
+      <section id="request-quote" className="mt-8">
         <RequestQuoteSection stockNumber={machine.stockNumber} />
       </section>
 
