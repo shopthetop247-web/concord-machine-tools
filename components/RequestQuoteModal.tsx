@@ -7,7 +7,10 @@ interface Props {
   onClose: () => void;
 }
 
-export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
+export default function RequestQuoteModal({
+  stockNumber,
+  onClose,
+}: Props) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
@@ -33,7 +36,7 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
           stockNumber,
           message,
         }),
-      );
+      });
 
       const data = await res.json();
 
@@ -51,21 +54,22 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg w-full max-w-lg p-6 relative">
+      <div className="relative w-full max-w-lg rounded-lg bg-white p-6">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+          aria-label="Close"
         >
           ✕
         </button>
 
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="mb-4 text-xl font-semibold">
           Request a Quote
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Name *
             </label>
             <input
@@ -73,12 +77,12 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Email *
             </label>
             <input
@@ -86,36 +90,36 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Company
             </label>
             <input
               type="text"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Stock #
             </label>
             <input
               type="text"
               value={stockNumber}
               disabled
-              className="w-full border rounded px-3 py-2 bg-gray-100"
+              className="w-full rounded border bg-gray-100 px-3 py-2"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="mb-1 block text-sm font-medium">
               Message *
             </label>
             <textarea
@@ -123,7 +127,7 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full rounded border px-3 py-2"
             />
           </div>
 
@@ -136,14 +140,12 @@ export default function RequestQuoteModal({ stockNumber, onClose }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brandBlue text-white font-semibold py-3 rounded hover:bg-blue-400 transition disabled:opacity-50"
+            className="w-full rounded bg-brandBlue py-3 font-semibold text-white transition hover:bg-blue-400 disabled:opacity-50"
           >
-            {loading ? 'Sending...' : 'Submit Quote Request'}
+            {loading ? 'Sending…' : 'Submit Quote Request'}
           </button>
         </form>
       </div>
     </div>
   );
 }
-
-
