@@ -5,16 +5,17 @@ import RequestQuoteModal from './RequestQuoteModal';
 
 interface Props {
   stockNumber: string;
+  variant?: 'primary' | 'inline';
+  // New optional props to prefill the modal
   machineName?: string;
   machineUrl?: string;
-  variant?: 'primary' | 'inline';
 }
 
 export default function RequestQuoteSection({
   stockNumber,
+  variant = 'primary',
   machineName,
   machineUrl,
-  variant = 'primary',
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -45,4 +46,5 @@ export default function RequestQuoteSection({
     </>
   );
 }
+
 
