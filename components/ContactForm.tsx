@@ -21,44 +21,49 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
   const tokenRef = useRef<string | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // Function to initialize Cloudflare Turnstile
+  const initializeTurnstile = () => {
+    if (!turnstileContainerRef.current || !window.turnstile) return;
+
+    turnstileContainerRef.current.innerHTML = '';
+    window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
+      callback: (token: string) => {
+        tokenRef.current = token;
+      },
+      'error-callback': () => {
+        setError('Spam protection error. Please reload the page.');
+      },
+      theme: 'light',
+    });
+  };
+
   // Load Turnstile script once
   useEffect(() => {
-    if (document.getElementById('cf-turnstile-script')) return;
+    if (document.getElementById('cf-turnstile-script')) {
+      initializeTurnstile();
+      return;
+    }
 
     const script = document.createElement('script');
     script.id = 'cf-turnstile-script';
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
     script.async = true;
     script.defer = true;
-    script.onload = () => {
-      if (turnstileContainerRef.current && window.turnstile) {
-        window.turnstile.render(turnstileContainerRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
-          callback: (token: string) => {
-            tokenRef.current = token;
-          },
-          'error-callback': () => {
-            setError('Spam protection error. Please reload the page.');
-          },
-          theme: 'light',
-        });
-      }
-    };
+    script.onload = initializeTurnstile;
     document.body.appendChild(script);
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setSuccess(null);
     setError(null);
 
     try {
-      if (!tokenRef.current) {
-        throw new Error('Please complete the security check.');
-      }
+      if (!tokenRef.current) throw new Error('Please complete the security check.');
 
-      const form = e.currentTarget as HTMLFormElement;
+      const form = e.currentTarget;
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
       payload['turnstileToken'] = tokenRef.current;
@@ -71,34 +76,18 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
 
       const result = await res.json();
 
-      if (!res.ok || !result.success) {
-        throw new Error(result.error || 'Failed to send message.');
-      }
+      if (!res.ok || !result.success) throw new Error(result.error || 'Failed to send message.');
 
       setSuccess('Thank you! Your message has been sent successfully.');
       form.reset();
       tokenRef.current = null;
-
-      // Re-render Turnstile for next submission
-      if (turnstileContainerRef.current && window.turnstile) {
-        turnstileContainerRef.current.innerHTML = '';
-        window.turnstile.render(turnstileContainerRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
-          callback: (token: string) => {
-            tokenRef.current = token;
-          },
-          'error-callback': () => {
-            setError('Spam protection error. Please reload the page.');
-          },
-          theme: 'light',
-        });
-      }
+      initializeTurnstile();
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <>
