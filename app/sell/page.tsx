@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import ContactForm from '@/components/ContactForm';
+import SellYourMachineForm from '@/components/SellYourMachineForm';
 
 export const metadata: Metadata = {
   title: 'Sell Your Machine | Concord Machine Tools',
@@ -36,23 +36,19 @@ export default function SellPage() {
       />
 
       <section className="max-w-5xl mx-auto px-6 py-16">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">
-          Sell Your Machine
-        </h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">Sell Your Machine</h1>
 
         <div className="space-y-6 text-slate-700 leading-relaxed">
           <p>
             Do you have surplus metalworking or CNC machinery? Whether you’re
             selling a single machine, multiple units, or an entire shop or
-            manufacturing facility, <strong>Concord Machine Tools</strong> can
-            help.
+            manufacturing facility, <strong>Concord Machine Tools</strong> can help.
           </p>
 
           <p>
             We actively purchase used metalworking equipment for inventory and
             provide flexible solutions tailored to your situation. Our goal is
-            to make the selling process efficient, transparent, and
-            hassle-free.
+            to make the selling process efficient, transparent, and hassle-free.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 pt-8">
@@ -84,9 +80,7 @@ export default function SellPage() {
           </div>
 
           <div className="bg-slate-100 border border-slate-200 rounded-lg p-6 mt-10">
-            <h2 className="text-2xl font-semibold mb-4">
-              Why Sell to Concord Machine Tools?
-            </h2>
+            <h2 className="text-2xl font-semibold mb-4">Why Sell to Concord Machine Tools?</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Experienced metalworking machinery professionals</li>
               <li>Competitive, market-driven pricing</li>
@@ -96,7 +90,7 @@ export default function SellPage() {
             </ul>
           </div>
 
-          {/* Form Section */}
+          {/* Sell Your Machine Form */}
           <div className="mt-10">
             <h2 className="text-2xl font-semibold mb-4 text-center">
               Submit Your Machine Details
@@ -105,8 +99,7 @@ export default function SellPage() {
               Fill out the form below to provide information about your machine, including brand, model, year, and condition. Our team will review it and get back to you promptly with an evaluation.
             </p>
 
-            {/* ContactForm component with props for Sell page */}
-            <ContactForm
+            <SellYourMachineForm
               title="Sell Your Machine"
               description="Provide details below for a fast evaluation."
               tip="📌 Tip: Include condition, tooling, controls, and a price idea to speed up our response."
