@@ -21,27 +21,34 @@ export default function SellYourMachineForm({ title, description, tip }: SellYou
   const tokenRef = useRef<string | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Load Cloudflare Turnstile on page load
+  const initializeTurnstile = () => {
+    if (!turnstileContainerRef.current || !window.turnstile) return;
+
+    turnstileContainerRef.current.innerHTML = '';
+    window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
+      callback: (token: string) => {
+        tokenRef.current = token;
+      },
+      'error-callback': () => {
+        setError('Spam protection error. Please reload the page.');
+      },
+      theme: 'light',
+    });
+  };
+
   useEffect(() => {
-    if (document.getElementById('cf-turnstile-script')) return;
+    if (document.getElementById('cf-turnstile-script')) {
+      initializeTurnstile();
+      return;
+    }
 
     const script = document.createElement('script');
     script.id = 'cf-turnstile-script';
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
     script.async = true;
     script.defer = true;
-    script.onload = () => {
-      if (turnstileContainerRef.current && window.turnstile) {
-        window.turnstile.render(turnstileContainerRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
-          callback: (token: string) => {
-            tokenRef.current = token;
-          },
-          'error-callback': () => setError('Spam protection error. Please reload the page.'),
-          theme: 'light',
-        });
-      }
-    };
+    script.onload = initializeTurnstile;
     document.body.appendChild(script);
   }, []);
 
@@ -54,7 +61,7 @@ export default function SellYourMachineForm({ title, description, tip }: SellYou
     try {
       if (!tokenRef.current) throw new Error('Please complete the security check.');
 
-      const form = e.currentTarget as HTMLFormElement;
+      const form = e.currentTarget;
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
       payload['turnstileToken'] = tokenRef.current;
@@ -67,26 +74,12 @@ export default function SellYourMachineForm({ title, description, tip }: SellYou
 
       const result = await res.json();
 
-      if (!res.ok || !result.success) {
-        throw new Error(result.error || 'Failed to send message.');
-      }
+      if (!res.ok || !result.success) throw new Error(result.error || 'Failed to send message.');
 
-      setSuccess('Thank you! Your message has been sent successfully.');
+      setSuccess('Thank you! Your machine submission has been received.');
       form.reset();
       tokenRef.current = null;
-
-      // Re-render Turnstile
-      if (turnstileContainerRef.current && window.turnstile) {
-        turnstileContainerRef.current.innerHTML = '';
-        window.turnstile.render(turnstileContainerRef.current, {
-          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
-          callback: (token: string) => {
-            tokenRef.current = token;
-          },
-          'error-callback': () => setError('Spam protection error. Please reload the page.'),
-          theme: 'light',
-        });
-      }
+      initializeTurnstile();
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -95,7 +88,7 @@ export default function SellYourMachineForm({ title, description, tip }: SellYou
   };
 
   return (
-    <div>
+    <>
       {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
       {description && <p className="mb-4 text-slate-700">{description}</p>}
 
@@ -143,19 +136,18 @@ export default function SellYourMachineForm({ title, description, tip }: SellYou
           <textarea name="message" rows={4} required className="w-full border rounded-md px-3 py-2" />
         </div>
 
-        {/* Turnstile widget */}
         <div ref={turnstileContainerRef} className="mt-4" />
 
         {tip && <p className="text-sm text-slate-600 mt-4">{tip}</p>}
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
         >
           {loading ? 'Sending…' : 'Send Message'}
         </button>
       </form>
-    </div>
+    </>
   );
 }
+
