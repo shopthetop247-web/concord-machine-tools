@@ -18,7 +18,6 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
   const tokenRef = useRef<string | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -43,7 +42,6 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
           },
           theme: 'light',
         });
-        setLoaded(true); // Widget ready
       }
     };
     document.body.appendChild(script);
@@ -63,7 +61,6 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
       const form = e.currentTarget as HTMLFormElement;
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
-
       payload['turnstileToken'] = tokenRef.current;
 
       const res = await fetch('/api/contact', {
@@ -82,9 +79,19 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
       form.reset();
       tokenRef.current = null;
 
-      // Reset Turnstile for next submission
-      if (window.turnstile && turnstileContainerRef.current) {
-        window.turnstile.reset();
+      // Re-render Turnstile for next submission
+      if (turnstileContainerRef.current && window.turnstile) {
+        turnstileContainerRef.current.innerHTML = '';
+        window.turnstile.render(turnstileContainerRef.current, {
+          sitekey: process.env.NEXT_PUBLIC_TURNSTILE_KEY,
+          callback: (token: string) => {
+            tokenRef.current = token;
+          },
+          'error-callback': () => {
+            setError('Spam protection error. Please reload the page.');
+          },
+          theme: 'light',
+        });
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -111,12 +118,6 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Honeypot field - invisible to users */}
-        <div style={{ display: 'none' }}>
-          <label htmlFor="website">Website</label>
-          <input type="text" name="website" id="website" autoComplete="off" />
-        </div>
-
         <div>
           <label className="block text-sm font-medium mb-1">Name *</label>
           <input type="text" name="name" required className="w-full border rounded-md px-3 py-2" />
@@ -155,8 +156,7 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
 
         <button
           type="submit"
-          disabled={loading || !loaded}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
         >
           {loading ? 'Sending…' : 'Send Message'}
         </button>
@@ -164,4 +164,3 @@ export default function ContactForm({ title, description, tip }: ContactFormProp
     </>
   );
 }
-
