@@ -15,7 +15,6 @@ interface BlogPost {
   slug: { current: string }
   excerpt?: string
   publishedAt: string
-  author: string
   mainImage?: {
     asset?: {
       url: string
@@ -31,7 +30,6 @@ async function getPosts(): Promise<BlogPost[]> {
       slug,
       excerpt,
       publishedAt,
-      author,
       mainImage {
         asset->{
           url
