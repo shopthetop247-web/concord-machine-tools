@@ -46,6 +46,9 @@ export default function Header() {
           <Link href="/contact" className="hover:text-blue-400">
             Contact
           </Link>
+          <Link href="/blog" className="hover:text-blue-400">
+            Blog
+          </Link>
         </nav>
 
         {/* Mobile Hamburger */}
