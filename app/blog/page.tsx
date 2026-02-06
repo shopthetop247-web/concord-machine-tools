@@ -24,7 +24,7 @@ interface BlogPost {
 }
 
 async function getPosts(): Promise<BlogPost[]> {
-  return sanityClient.fetch(`
+  return client.fetch(`
     *[_type == "post"] | order(publishedAt desc) {
       _id,
       title,
