@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { sanityClient } from '@/lib/sanity.client'
+import { client } from '@/lib/sanityClient'
 
 export const metadata: Metadata = {
   title: 'Blog | Concord Machine Tools',
