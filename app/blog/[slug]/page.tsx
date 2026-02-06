@@ -21,6 +21,36 @@ interface BlogPost {
   }
 }
 
+/**
+ * Portable Text component overrides
+ * This enables proper rendering of:
+ * - Bullet lists
+ * - Numbered lists
+ * - Clean spacing between items
+ */
+const portableTextComponents = {
+  list: {
+    bullet: ({ children }: any) => (
+      <ul className="list-disc pl-6 my-6 space-y-2">
+        {children}
+      </ul>
+    ),
+    number: ({ children }: any) => (
+      <ol className="list-decimal pl-6 my-6 space-y-2">
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }: any) => (
+      <li className="leading-relaxed">{children}</li>
+    ),
+    number: ({ children }: any) => (
+      <li className="leading-relaxed">{children}</li>
+    ),
+  },
+}
+
 // Fetch single post by slug
 async function getPost(slug: string): Promise<BlogPost | null> {
   return client.fetch(
@@ -107,7 +137,10 @@ export default async function BlogPostPage({
       )}
 
       <div className="prose prose-slate max-w-none [&>p]:my-6 [&>h2]:mt-12 [&>h2]:mb-4">
-        <PortableText value={post.body} />
+        <PortableText
+          value={post.body}
+          components={portableTextComponents}
+        />
       </div>
     </article>
   )
