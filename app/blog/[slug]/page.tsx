@@ -106,7 +106,7 @@ export default async function BlogPostPage({
         </div>
       )}
 
-      <div className="prose prose-slate max-w-none">
+      <div className="prose prose-slate max-w-none prose-p:my-5">
         <PortableText value={post.body} />
       </div>
     </article>
