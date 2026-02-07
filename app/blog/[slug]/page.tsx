@@ -10,6 +10,7 @@ interface BlogPost {
   publishedAt: string
   body: any[]
   tag?: {
+    _id: string
     title: string
     slug: { current: string }
   }[]
@@ -65,6 +66,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
       publishedAt,
       body,
       tag[]->{
+      _id,
       title,
       slug
       },
