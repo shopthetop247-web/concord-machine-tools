@@ -9,6 +9,10 @@ interface BlogPost {
   excerpt?: string
   publishedAt: string
   body: any[]
+  tags?: {
+    title: string
+    slug: { current: string }
+  }[]
   mainImage?: {
     asset: {
       url: string
@@ -60,6 +64,10 @@ async function getPost(slug: string): Promise<BlogPost | null> {
       excerpt,
       publishedAt,
       body,
+      tags[]->{
+      title,
+      slug
+      },
       seo {
         metaTitle,
         metaDescription
