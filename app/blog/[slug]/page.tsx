@@ -9,7 +9,7 @@ interface BlogPost {
   excerpt?: string
   publishedAt: string
   body: any[]
-  tag?: {
+  tags?: {
     _id: string
     title: string
     slug: { current: string }
@@ -65,7 +65,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
       excerpt,
       publishedAt,
       body,
-      tag[]->{
+      tags[]->{
       _id,
       title,
       slug
@@ -146,7 +146,7 @@ export default async function BlogPostPage({
         </div>
       )}
 
-      {post.tag && post.tag.length > 0 && (
+      {post.tags && post.tags.length > 0 && (
   <div className="flex flex-wrap gap-2 mb-10">
     {post.tag.map((tag) => (
       <span
