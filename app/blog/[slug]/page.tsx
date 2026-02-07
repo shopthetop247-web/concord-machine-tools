@@ -64,7 +64,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
       excerpt,
       publishedAt,
       body,
-      tags[]->{
+      tag[]->{
       title,
       slug
       },
