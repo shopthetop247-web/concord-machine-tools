@@ -9,7 +9,7 @@ interface BlogPost {
   excerpt?: string
   publishedAt: string
   body: any[]
-  tags?: {
+  tag?: {
     title: string
     slug: { current: string }
   }[]
