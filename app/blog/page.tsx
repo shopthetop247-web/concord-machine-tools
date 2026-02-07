@@ -30,6 +30,10 @@ async function getPosts(): Promise<BlogPost[]> {
       slug,
       excerpt,
       publishedAt,
+      tags[]->{
+        title,
+        slug
+      },
       mainImage {
         asset->{
           url
