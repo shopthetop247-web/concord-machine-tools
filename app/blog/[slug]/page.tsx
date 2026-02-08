@@ -54,7 +54,25 @@ const portableTextComponents = {
       <li className="leading-relaxed">{children}</li>
     ),
   },
-}
+  
+    marks: {
+      link: ({ value, children }: any) => {
+         const isExternal = value?.href?.startsWith('http')
+
+         return (
+             <a
+               href={value.href}
+               target={isExternal ? '_blank' : undefined}
+               rel={isExternal ? 'noopener noreferrer' : undefined}
+               className="text-brandBlue underline underline-offset-2 hover:text-brandBlue/80 transition"
+            >
+               {children}
+            </a>
+          )
+        },
+       },
+      }
+
 
 // Fetch single post by slug
 async function getPost(slug: string): Promise<BlogPost | null> {
