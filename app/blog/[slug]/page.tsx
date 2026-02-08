@@ -82,7 +82,8 @@ async function getPost(slug: string): Promise<BlogPost | null> {
       }
     }
   `,
-    { slug }
+    { slug },
+    { cache: 'no-store' }
   )
 }
 
