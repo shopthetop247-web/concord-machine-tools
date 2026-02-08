@@ -43,7 +43,10 @@ async function getPosts(): Promise<BlogPost[]> {
         }
       }
     }
-  `)
+ `,
+    {},
+    { cache: 'no-store' }
+  )
 }
 
 export default async function BlogIndexPage() {
