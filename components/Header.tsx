@@ -99,6 +99,11 @@ export default function Header() {
                 Contact
               </Link>
             </li>
+            <li>
+              <Link href="/blog" onClick={() => setMenuOpen(false)}>
+                Blog
+              </Link>
+            </li>
           </ul>
         </div>
       )}
