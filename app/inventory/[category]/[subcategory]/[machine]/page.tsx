@@ -34,6 +34,25 @@ const urlFor = (source: any) =>
   builder.image(source).auto('format').fit('max').url();
 
 /* -----------------------------------
+   YOUTUBE URL HANDLER
+----------------------------------- */
+function getYouTubeEmbedUrl(url?: string) {
+  if (!url) return null;
+
+  if (url.includes('youtu.be/')) {
+    const id = url.split('youtu.be/')[1].split('?')[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  if (url.includes('watch?v=')) {
+    const id = url.split('watch?v=')[1].split('&')[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+
+  return null;
+}
+
+/* -----------------------------------
    SEO METADATA
 ----------------------------------- */
 export async function generateMetadata(
@@ -97,6 +116,29 @@ export default async function MachinePage({ params }: PageProps) {
       })
       .filter(Boolean) ?? [];
 
+  const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
+
+  const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
+
+  /* -----------------------------------
+     VIDEO SCHEMA MARKUP
+  ----------------------------------- */
+  const videoSchema =
+    embedUrl && machine.videoUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'VideoObject',
+          name: `${machine.brand ?? ''} ${machine.name}`,
+          description:
+            machine.description ??
+            `Used ${machine.name} for sale.`,
+          thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
+          uploadDate: new Date().toISOString(),
+          embedUrl: embedUrl,
+          contentUrl: machine.videoUrl,
+        }
+      : null;
+
   /* -----------------------------------
      RELATED MACHINES
   ----------------------------------- */
@@ -124,10 +166,19 @@ export default async function MachinePage({ params }: PageProps) {
         )
       : [];
 
-  const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
-
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
+      
+      {/* Video Schema */}
+      {videoSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(videoSchema),
+          }}
+        />
+      )}
+
       {/* Breadcrumbs */}
       <nav className="mb-6 text-sm text-gray-500">
         <Link href="/inventory" className="text-blue-500 hover:underline">
@@ -152,7 +203,6 @@ export default async function MachinePage({ params }: PageProps) {
 
       <h1 className="text-3xl font-semibold mb-2">{machine.name}</h1>
 
-      {/* Stock + Inline CTA */}
       <div className="flex items-center gap-4 mb-4">
         <p className="text-gray-700">
           <strong>Stock #:</strong> {machine.stockNumber}
@@ -172,17 +222,19 @@ export default async function MachinePage({ params }: PageProps) {
 
       {images.length > 0 && <MachineImages images={images} />}
 
-      {machine.videoUrl && (
-        <div className="mt-6 aspect-video">
-        <iframe
-         src={machine.videoUrl.replace("watch?v=", "embed/")}
-         title={`${machine.name} video`}
-         className="w-full h-full rounded"
-         allowFullScreen
-         />
-      </div>
-        )}
-
+      {/* Video Section */}
+      {embedUrl && (
+        <div className="mt-8 aspect-video">
+          <iframe
+            src={embedUrl}
+            title={`${machine.name} video`}
+            className="w-full h-full rounded"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
 
       {machine.specifications && (
         <section className="mt-8">
@@ -193,7 +245,6 @@ export default async function MachinePage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Bottom CTA */}
       <section id="request-quote" className="mt-10">
         <RequestQuoteSection
           stockNumber={machine.stockNumber}
@@ -202,7 +253,6 @@ export default async function MachinePage({ params }: PageProps) {
         />
       </section>
 
-      {/* Related Machines */}
       {relatedMachines.length > 0 && (
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Related Machines</h2>
