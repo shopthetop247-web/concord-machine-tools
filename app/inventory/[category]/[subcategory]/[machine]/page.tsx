@@ -15,6 +15,7 @@ interface Machine {
   specifications?: string;
   description?: string;
   images?: { asset: { _ref: string } }[];
+  videoUrl?: string;
   stockNumber: string;
   slug?: { current: string };
   subcategory?: { _ref: string };
@@ -73,6 +74,7 @@ export default async function MachinePage({ params }: PageProps) {
       specifications,
       description,
       images[]{ asset-> },
+      videoUrl,
       stockNumber,
       slug,
       subcategory
@@ -169,6 +171,18 @@ export default async function MachinePage({ params }: PageProps) {
       )}
 
       {images.length > 0 && <MachineImages images={images} />}
+
+      {machine.videoUrl && (
+        <div className="mt-6 aspect-video">
+        <iframe
+         src={machine.videoUrl.replace("watch?v=", "embed/")}
+         title={`${machine.name} video`}
+         className="w-full h-full rounded"
+         allowFullScreen
+         />
+      </div>
+        )}
+
 
       {machine.specifications && (
         <section className="mt-8">
