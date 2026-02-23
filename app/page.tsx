@@ -102,6 +102,16 @@ export default function HomePage() {
               Sell Your Machine
             </Link>
           </div>
+
+          {/* NEW TRUST PARAGRAPH */}
+          <p className="mt-10 text-base md:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            We have been buying and selling used metalworking machinery since 2002.
+            Our experienced team understands the used machinery market and is ready to help you
+            find the right machine or maximize the value of your equipment. Whether
+            you are upgrading, liquidating, or expanding, we make the process
+            straightforward, transparent, and efficient.
+          </p>
+          
          </div>
       </section>
 
