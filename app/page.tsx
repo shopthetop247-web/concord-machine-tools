@@ -174,6 +174,12 @@ Used CNC & Metalworking Machinery for Sale </h1>
               <h3 className="text-sm font-semibold leading-snug">
                 {machine.name}
               </h3>
+                  
+              {machine.yearOfMfg && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {machine.yearOfMfg}
+                </p>
+                )}
             </div>
           </Link>
         ))}
