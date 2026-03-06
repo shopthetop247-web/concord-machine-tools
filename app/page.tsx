@@ -190,7 +190,5 @@ Used CNC & Metalworking Machinery for Sale </h1>
     </div>
   </section>
 </main>
-```
-
 );
 }
