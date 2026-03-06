@@ -55,7 +55,6 @@ return ( <main>
 {/* HERO */} <section className="bg-slate-900 text-white"> <div className="max-w-6xl mx-auto px-6 py-20 text-center"> <h1 className="text-4xl md:text-5xl font-semibold mb-6">
 Used CNC & Metalworking Machinery for Sale </h1>
 
-```
       <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
         Specializing in CNC machining centers, lathes, mills, and industrial equipment —
         wide ranging & budget friendly options.
