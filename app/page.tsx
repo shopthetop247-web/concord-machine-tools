@@ -36,7 +36,7 @@ canonical: 'https://www.concordmt.com',
 
 export default async function HomePage() {
 
-const machines = await client.fetch(`     *[_type == "machine"] | order(_createdAt desc)[0...4]{
+const machines = await client.fetch(`     *[_type == "machine"] | order(_updatedAt desc)[0...4]{
       _id,
       name,
       yearOfMfg,
