@@ -8,85 +8,84 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 interface Machine {
-  _id: string;
-  name: string;
-  brand?: string;
-  yearOfMfg?: number;
-  specifications?: string;
-  description?: string;
-  images?: { asset: { _ref: string } }[];
-  videoUrl?: string;
-  stockNumber: string;
-  slug?: { current: string };
-  subcategory?: { _ref: string };
+_id: string;
+name: string;
+brand?: string;
+yearOfMfg?: number;
+specifications?: string;
+description?: string;
+images?: { asset: { _ref: string } }[];
+videoUrl?: string;
+stockNumber: string;
+slug?: { current: string };
+subcategory?: { _ref: string };
 }
 
 interface PageProps {
-  params: {
-    category: string;
-    subcategory: string;
-    machine: string;
-  };
+params: {
+category: string;
+subcategory: string;
+machine: string;
+};
 }
 
 const builder = imageUrlBuilder(client);
 const urlFor = (source: any) =>
-  builder.image(source).auto('format').fit('max').url();
+builder.image(source).auto('format').fit('max').url();
 
 /* -----------------------------------
-   YOUTUBE URL HANDLER
+YOUTUBE URL HANDLER
 ----------------------------------- */
 function getYouTubeEmbedUrl(url?: string) {
-  if (!url) return null;
+if (!url) return null;
 
-  if (url.includes('youtu.be/')) {
-    const id = url.split('youtu.be/')[1].split('?')[0];
-    return `https://www.youtube.com/embed/${id}`;
-  }
+if (url.includes('youtu.be/')) {
+const id = url.split('youtu.be/')[1].split('?')[0];
+return `https://www.youtube.com/embed/${id}`;
+}
 
-  if (url.includes('watch?v=')) {
-    const id = url.split('watch?v=')[1].split('&')[0];
-    return `https://www.youtube.com/embed/${id}`;
-  }
+if (url.includes('watch?v=')) {
+const id = url.split('watch?v=')[1].split('&')[0];
+return `https://www.youtube.com/embed/${id}`;
+}
 
-  return null;
+return null;
 }
 
 /* -----------------------------------
-   SEO METADATA
+SEO METADATA
 ----------------------------------- */
 export async function generateMetadata(
-  { params }: PageProps
+{ params }: PageProps
 ): Promise<Metadata> {
-  const machine = await client.fetch(
-    `*[_type == "machine" && slug.current == $slug][0]{
+const machine = await client.fetch(
+`*[_type == "machine" && slug.current == $slug][0]{
       name,
       brand,
       stockNumber,
       description
     }`,
-    { slug: params.machine }
-  );
+{ slug: params.machine }
+);
 
-  if (!machine) {
-    return { title: 'Machine Not Found' };
-  }
+if (!machine) {
+return { title: 'Machine Not Found' };
+}
 
-  return {
-    title: `${machine.brand ?? ''} ${machine.name} for Sale`,
-    description:
-      machine.description ??
-      `Used ${machine.name} for sale. Stock #${machine.stockNumber}.`,
-  };
+return {
+title: `Used ${machine.brand ?? ''} ${machine.name} for Sale`,
+description:
+machine.description ??
+`Used ${machine.name} for sale. Stock #${machine.stockNumber}.`,
+};
 }
 
 /* -----------------------------------
-   PAGE
+PAGE
 ----------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
-  const machine = await client.fetch<Machine>(
-    `*[_type == "machine" && slug.current == $slug][0]{
-      _id,
+const machine = await client.fetch<Machine>(
+`*[_type == "machine" && slug.current == $slug][0]{       _id,
       name,
       brand,
       yearOfMfg,
@@ -98,182 +97,244 @@ export default async function MachinePage({ params }: PageProps) {
       slug,
       subcategory
     }`,
-    { slug: params.machine }
-  );
+{ slug: params.machine }
+);
 
-  if (!machine) {
-    return <p className="p-6">Machine not found</p>;
-  }
+if (!machine) {
+return <p className="p-6">Machine not found</p>;
+}
 
-  const images =
-    machine.images
-      ?.map((img) => {
-        try {
-          return urlFor(img);
-        } catch {
-          return null;
-        }
-      })
-      .filter(Boolean) ?? [];
+const images =
+machine.images
+?.map((img) => {
+try {
+return urlFor(img);
+} catch {
+return null;
+}
+})
+.filter(Boolean) ?? [];
 
-  const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
+const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
 
-  const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
+const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
 
-  /* -----------------------------------
-     VIDEO SCHEMA MARKUP
-  ----------------------------------- */
-  const videoSchema =
-    embedUrl && machine.videoUrl
-      ? {
-          '@context': 'https://schema.org',
-          '@type': 'VideoObject',
-          name: `${machine.brand ?? ''} ${machine.name}`,
-          description:
-            machine.description ??
-            `Used ${machine.name} for sale.`,
-          thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
-          uploadDate: new Date().toISOString(),
-          embedUrl: embedUrl,
-          contentUrl: machine.videoUrl,
-        }
-      : null;
+/* -----------------------------------
+PRODUCT SCHEMA
+----------------------------------- */
+const productSchema = {
+"@context": "https://schema.org",
+"@type": "Product",
+name: `${machine.brand ?? ''} ${machine.name}`,
+brand: machine.brand || "Concord Machine Tools",
+model: machine.yearOfMfg?.toString(),
+sku: machine.stockNumber,
+url: machineUrl,
+image: images,
+description: machine.description,
+itemCondition: "https://schema.org/UsedCondition",
+offers: {
+"@type": "Offer",
+availability: "https://schema.org/InStock",
+url: machineUrl,
+seller: {
+"@type": "Organization",
+name: "Concord Machine Tools"
+}
+}
+};
 
-  /* -----------------------------------
-     RELATED MACHINES
-  ----------------------------------- */
-  const relatedMachines =
-    machine.subcategory?._ref
-      ? await client.fetch(
-          `*[_type == "machine" &&
+/* -----------------------------------
+BREADCRUMB SCHEMA
+----------------------------------- */
+const breadcrumbSchema = {
+"@context": "https://schema.org",
+"@type": "BreadcrumbList",
+itemListElement: [
+{
+"@type": "ListItem",
+position: 1,
+name: "Inventory",
+item: "https://www.concordmt.com/inventory"
+},
+{
+"@type": "ListItem",
+position: 2,
+name: params.category.replace(/-/g, ' '),
+item: `https://www.concordmt.com/inventory/${params.category}`
+},
+{
+"@type": "ListItem",
+position: 3,
+name: params.subcategory.replace(/-/g, ' '),
+item: `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}`
+},
+{
+"@type": "ListItem",
+position: 4,
+name: machine.name,
+item: machineUrl
+}
+]
+};
+
+/* -----------------------------------
+VIDEO SCHEMA
+----------------------------------- */
+const videoSchema =
+embedUrl && machine.videoUrl
+? {
+'@context': 'https://schema.org',
+'@type': 'VideoObject',
+name: `${machine.brand ?? ''} ${machine.name}`,
+description:
+machine.description ??
+`Used ${machine.name} for sale.`,
+thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
+uploadDate: new Date().toISOString(),
+embedUrl: embedUrl,
+contentUrl: machine.videoUrl,
+}
+: null;
+
+/* -----------------------------------
+RELATED MACHINES
+----------------------------------- */
+const relatedMachines =
+machine.subcategory?._ref
+? await client.fetch(
+`*[_type == "machine" &&
             slug.current != $slug &&
             subcategory._ref == $subcategoryRef
-          ]
-          | order(
+          ]           | order(
               (brand == $brand) desc,
               yearOfMfg desc
-            )[0...4]{
-            _id,
+            )[0...4]{             _id,
             name,
             yearOfMfg,
             slug
           }`,
-          {
-            slug: params.machine,
-            subcategoryRef: machine.subcategory._ref,
-            brand: machine.brand,
-          }
-        )
-      : [];
+{
+slug: params.machine,
+subcategoryRef: machine.subcategory._ref,
+brand: machine.brand,
+}
+)
+: [];
 
-  return (
-    <main className="max-w-6xl mx-auto px-6 py-8">
-      
-      {/* Video Schema */}
-      {videoSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(videoSchema),
-          }}
-        />
-      )}
+return ( <main className="max-w-6xl mx-auto px-6 py-8">
 
-      {/* Breadcrumbs */}
-      <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/inventory" className="text-blue-500 hover:underline">
-          Inventory
-        </Link>{' '}
-        ›{' '}
-        <Link
-          href={`/inventory/${params.category}`}
-          className="text-blue-500 hover:underline"
-        >
-          {params.category.replace(/-/g, ' ')}
-        </Link>{' '}
-        ›{' '}
-        <Link
-          href={`/inventory/${params.category}/${params.subcategory}`}
-          className="text-blue-500 hover:underline"
-        >
-          {params.subcategory.replace(/-/g, ' ')}
-        </Link>{' '}
-        › <span>{machine.name}</span>
-      </nav>
+```
+  {/* SCHEMA */}
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+  {videoSchema && (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }} />
+  )}
 
-      <h1 className="text-3xl font-semibold mb-2">{machine.name}</h1>
+  {/* Breadcrumbs */}
+  <nav className="mb-6 text-sm text-gray-500">
+    <Link href="/inventory" className="text-blue-500 hover:underline">
+      Inventory
+    </Link>{' › '}
+    <Link href={`/inventory/${params.category}`} className="text-blue-500 hover:underline">
+      {params.category.replace(/-/g, ' ')}
+    </Link>{' › '}
+    <Link href={`/inventory/${params.category}/${params.subcategory}`} className="text-blue-500 hover:underline">
+      {params.subcategory.replace(/-/g, ' ')}
+    </Link>{' › '}
+    <span>{machine.name}</span>
+  </nav>
 
-      <div className="flex items-center gap-4 mb-4">
-        <p className="text-gray-700">
-          <strong>Stock #:</strong> {machine.stockNumber}
-        </p>
+  <h1 className="text-3xl font-semibold mb-2">{machine.name}</h1>
 
-        <RequestQuoteSection
-          stockNumber={machine.stockNumber}
-          machineName={machine.name}
-          machineUrl={machineUrl}
-          variant="inline"
-        />
-      </div>
+  {/* SEO BOOST */}
+  <h2 className="text-xl font-semibold mt-2 mb-4 text-gray-800">
+    Used {machine.brand} {machine.name} for Sale
+  </h2>
 
-      {machine.description && (
-        <p className="mb-6 text-gray-800">{machine.description}</p>
-      )}
+  {/* BRAND LINK */}
+  {machine.brand && (
+    <p className="mb-4 text-sm">
+      View more{' '}
+      <Link
+        href={`/brands/${machine.brand.toLowerCase()}`}
+        className="text-blue-600 underline hover:text-blue-800"
+      >
+        {machine.brand} machines
+      </Link>
+    </p>
+  )}
 
-      {images.length > 0 && <MachineImages images={images} />}
+  <div className="flex items-center gap-4 mb-4">
+    <p className="text-gray-700">
+      <strong>Stock #:</strong> {machine.stockNumber}
+    </p>
 
-      {/* Video Section */}
-      {embedUrl && (
-        <div className="mt-8 aspect-video">
-          <iframe
-            src={embedUrl}
-            title={`${machine.name} video`}
-            className="w-full h-full rounded"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      )}
+    <RequestQuoteSection
+      stockNumber={machine.stockNumber}
+      machineName={machine.name}
+      machineUrl={machineUrl}
+      variant="inline"
+    />
+  </div>
 
-      {machine.specifications && (
-        <section className="mt-8">
-          <h2 className="font-medium mb-2">Specifications</h2>
-          <pre className="bg-gray-50 p-4 border rounded text-sm">
-            {machine.specifications}
-          </pre>
-        </section>
-      )}
+  {machine.description && (
+    <p className="mb-6 text-gray-800">{machine.description}</p>
+  )}
 
-      <section id="request-quote" className="mt-10">
-        <RequestQuoteSection
-          stockNumber={machine.stockNumber}
-          machineName={machine.name}
-          machineUrl={machineUrl}
-        />
-      </section>
+  {images.length > 0 && <MachineImages images={images} />}
 
-      {relatedMachines.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Related Machines</h2>
+  {/* Video */}
+  {embedUrl && (
+    <div className="mt-8 aspect-video">
+      <iframe
+        src={embedUrl}
+        title={`${machine.name} video`}
+        className="w-full h-full rounded"
+        allowFullScreen
+      />
+    </div>
+  )}
 
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {relatedMachines.map((m: any) => (
-              <li key={m._id} className="border p-4 rounded">
-                <Link
-                  href={`/inventory/${params.category}/${params.subcategory}/${m.slug.current}`}
-                  className="font-medium text-blue-600 hover:underline"
-                >
-                  {m.name}
-                </Link>
-                {m.yearOfMfg && (
-                  <p className="text-sm text-gray-600">Year: {m.yearOfMfg}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </main>
-  );
+  {machine.specifications && (
+    <section className="mt-8">
+      <h2 className="font-medium mb-2">Specifications</h2>
+      <pre className="bg-gray-50 p-4 border rounded text-sm">
+        {machine.specifications}
+      </pre>
+    </section>
+  )}
+
+  <section id="request-quote" className="mt-10">
+    <RequestQuoteSection
+      stockNumber={machine.stockNumber}
+      machineName={machine.name}
+      machineUrl={machineUrl}
+    />
+  </section>
+
+  {relatedMachines.length > 0 && (
+    <section className="mt-12">
+      <h2 className="text-xl font-semibold mb-4">Related Machines</h2>
+
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {relatedMachines.map((m: any) => (
+          <li key={m._id} className="border p-4 rounded">
+            <Link
+              href={`/inventory/${params.category}/${params.subcategory}/${m.slug.current}`}
+              className="font-medium text-blue-600 hover:underline"
+            >
+              {m.name}
+            </Link>
+            {m.yearOfMfg && (
+              <p className="text-sm text-gray-600">Year: {m.yearOfMfg}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</main>
+);
 }
