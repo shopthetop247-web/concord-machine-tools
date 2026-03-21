@@ -1,5 +1,5 @@
 // app/inventory/[category]/page.tsx
-export const revalidate = 60;
+export const revalidate = 30;
 
 import { client } from '@/lib/sanityClient';
 import Link from 'next/link';
