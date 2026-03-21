@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 
 interface Machine {
 _id: string;
+_updatedAt?: string;
 name: string;
 brand?: string;
 yearOfMfg?: number;
@@ -113,7 +114,8 @@ const machine = await client.fetch<Machine>(
       videoUrl,
       stockNumber,
       slug,
-      subcategory,       _updatedAt
+      subcategory,
+      _updatedAt
     }`,
 { slug: params.machine }
 );
