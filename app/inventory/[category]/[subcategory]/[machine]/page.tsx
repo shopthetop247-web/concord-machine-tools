@@ -103,7 +103,7 @@ PAGE
 ----------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
 const machine = await client.fetch<Machine>(
-*[_type == "machine" && slug.current == $slug][0]{       _id,
+`*[_type == "machine" && slug.current == $slug][0]{       _id,
       name,
       brand,
       yearOfMfg,
@@ -114,7 +114,7 @@ const machine = await client.fetch<Machine>(
       stockNumber,
       slug,
       subcategory
-    },
+    }`,
 { slug: params.machine }
 );
 
@@ -243,7 +243,7 @@ brand: machine.brand,
 : [];
 
 return ( <main className="max-w-6xl mx-auto px-6 py-8">
-      
+
   {/* SCHEMA */}
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
