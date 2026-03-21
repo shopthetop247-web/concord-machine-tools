@@ -103,7 +103,7 @@ PAGE
 ----------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
 const machine = await client.fetch<Machine>(
-'*[_type == "machine" && slug.current == $slug][0]{       _id,
+*[_type == "machine" && slug.current == $slug][0]{       _id,
       name,
       brand,
       yearOfMfg,
@@ -114,7 +114,7 @@ const machine = await client.fetch<Machine>(
       stockNumber,
       slug,
       subcategory
-    }`,
+    },
 { slug: params.machine }
 );
 
