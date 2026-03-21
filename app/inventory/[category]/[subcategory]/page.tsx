@@ -1,5 +1,5 @@
 // app/inventory/[category]/[subcategory]/page.tsx
-export const revalidate = 60;
+export const revalidate = 30;
 
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
