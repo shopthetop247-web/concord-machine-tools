@@ -186,6 +186,10 @@ Used CNC & Metalworking Machinery for Sale </h1>
         ))}
       </div>
 
+      <div className="text-center mt-6 text-sm text-gray-600">
+      Recently updated CNC machines and metalworking equipment added daily.
+      </div>
+
       <div className="text-center mt-10">
         <Link
           href="/inventory"
