@@ -34,6 +34,22 @@ const urlFor = (source: any) =>
 builder.image(source).auto('format').fit('max').url();
 
 /* -----------------------------------
+HELPER: CLEAN MACHINE NAME (NO DUPES)
+----------------------------------- */
+function getFullMachineName(machine: Machine) {
+if (!machine.brand) return machine.name;
+
+const nameLower = machine.name.toLowerCase();
+const brandLower = machine.brand.toLowerCase();
+
+if (nameLower.startsWith(brandLower)) {
+return machine.name;
+}
+
+return `${machine.brand} ${machine.name}`;
+}
+
+/* -----------------------------------
 YOUTUBE URL HANDLER
 ----------------------------------- */
 function getYouTubeEmbedUrl(url?: string) {
@@ -72,11 +88,13 @@ if (!machine) {
 return { title: 'Machine Not Found' };
 }
 
+const fullName = getFullMachineName(machine);
+
 return {
-title: `Used ${machine.brand ?? ''} ${machine.name} for Sale`,
+title: `Used ${fullName} for Sale`,
 description:
 machine.description ??
-`Used ${machine.name} for sale. Stock #${machine.stockNumber}.`,
+`Used ${fullName} for sale. Stock #${machine.stockNumber}.`,
 };
 }
 
@@ -85,7 +103,7 @@ PAGE
 ----------------------------------- */
 export default async function MachinePage({ params }: PageProps) {
 const machine = await client.fetch<Machine>(
-`*[_type == "machine" && slug.current == $slug][0]{       _id,
+'*[_type == "machine" && slug.current == $slug][0]{       _id,
       name,
       brand,
       yearOfMfg,
@@ -103,6 +121,8 @@ const machine = await client.fetch<Machine>(
 if (!machine) {
 return <p className="p-6">Machine not found</p>;
 }
+
+const fullName = getFullMachineName(machine);
 
 const images =
 machine.images
@@ -125,7 +145,7 @@ PRODUCT SCHEMA
 const productSchema = {
 "@context": "https://schema.org",
 "@type": "Product",
-name: `${machine.brand ?? ''} ${machine.name}`,
+name: fullName,
 brand: machine.brand || "Concord Machine Tools",
 model: machine.yearOfMfg?.toString(),
 sku: machine.stockNumber,
@@ -186,10 +206,10 @@ embedUrl && machine.videoUrl
 ? {
 '@context': 'https://schema.org',
 '@type': 'VideoObject',
-name: `${machine.brand ?? ''} ${machine.name}`,
+name: fullName,
 description:
 machine.description ??
-`Used ${machine.name} for sale.`,
+`Used ${fullName} for sale.`,
 thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
 uploadDate: new Date().toISOString(),
 embedUrl: embedUrl,
@@ -223,7 +243,7 @@ brand: machine.brand,
 : [];
 
 return ( <main className="max-w-6xl mx-auto px-6 py-8">
-
+      
   {/* SCHEMA */}
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
@@ -249,7 +269,7 @@ return ( <main className="max-w-6xl mx-auto px-6 py-8">
 
   {/* SEO BOOST */}
   <h2 className="text-xl font-semibold mt-2 mb-4 text-gray-800">
-    Used {machine.brand} {machine.name} for Sale
+    Used {fullName} for Sale
   </h2>
 
   {/* BRAND LINK */}
