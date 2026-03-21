@@ -34,7 +34,7 @@ const urlFor = (source: any) =>
 builder.image(source).auto('format').fit('max').url();
 
 /* -----------------------------------
-HELPER: CLEAN MACHINE NAME (NO DUPES)
+HELPER: CLEAN MACHINE NAME
 ----------------------------------- */
 function getFullMachineName(machine: Machine) {
 if (!machine.brand) return machine.name;
@@ -113,7 +113,7 @@ const machine = await client.fetch<Machine>(
       videoUrl,
       stockNumber,
       slug,
-      subcategory
+      subcategory,       _updatedAt
     }`,
 { slug: params.machine }
 );
@@ -139,8 +139,12 @@ const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
 
 const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
 
+const updatedDate = machine._updatedAt
+? new Date(machine._updatedAt).toISOString()
+: new Date().toISOString();
+
 /* -----------------------------------
-PRODUCT SCHEMA
+PRODUCT SCHEMA (ENHANCED)
 ----------------------------------- */
 const productSchema = {
 "@context": "https://schema.org",
@@ -153,9 +157,11 @@ url: machineUrl,
 image: images,
 description: machine.description,
 itemCondition: "https://schema.org/UsedCondition",
+dateModified: updatedDate,
 offers: {
 "@type": "Offer",
 availability: "https://schema.org/InStock",
+availabilityStarts: updatedDate,
 url: machineUrl,
 seller: {
 "@type": "Organization",
@@ -211,7 +217,7 @@ description:
 machine.description ??
 `Used ${fullName} for sale.`,
 thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
-uploadDate: new Date().toISOString(),
+uploadDate: updatedDate,
 embedUrl: embedUrl,
 contentUrl: machine.videoUrl,
 }
@@ -274,7 +280,7 @@ return ( <main className="max-w-6xl mx-auto px-6 py-8">
 
   {/* BRAND LINK */}
   {machine.brand && (
-    <p className="mb-4 text-sm">
+    <p className="mb-2 text-sm">
       View more{' '}
       <Link
         href={`/brands/${machine.brand.toLowerCase()}`}
@@ -284,6 +290,11 @@ return ( <main className="max-w-6xl mx-auto px-6 py-8">
       </Link>
     </p>
   )}
+
+  {/* 🔥 FRESHNESS SIGNAL */}
+  <p className="text-xs text-gray-500 mb-4">
+    Listing updated: {new Date(updatedDate).toLocaleDateString()}
+  </p>
 
   <div className="flex items-center gap-4 mb-4">
     <p className="text-gray-700">
@@ -299,8 +310,15 @@ return ( <main className="max-w-6xl mx-auto px-6 py-8">
   </div>
 
   {machine.description && (
-    <p className="mb-6 text-gray-800">{machine.description}</p>
+    <p className="mb-4 text-gray-800">{machine.description}</p>
   )}
+
+  {/* 🔥 INVENTORY LANGUAGE */}
+  <p className="mb-6 text-gray-700">
+    This {fullName} is currently available for purchase. Contact us for pricing,
+    additional details, or to request a quote. Our inventory is updated regularly,
+    so availability is subject to change.
+  </p>
 
   {images.length > 0 && <MachineImages images={images} />}
 
