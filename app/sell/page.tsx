@@ -4,7 +4,7 @@ import SellYourMachineForm from '@/components/SellYourMachineForm';
 export const metadata: Metadata = {
   title: 'Sell Your Machine | Concord Machine Tools',
   description:
-    'Sell your surplus CNC and metalworking machinery with Concord Machine Tools. We buy single machines, entire shops, and offer auction solutions.',
+    'Sell your used CNC machines quickly and easily. Concord Machine Tools buys CNC mills, lathes, machining centers, and fabrication equipment with fast evaluations and fair offers.',
   openGraph: {
     title: 'Sell Your Machine | Concord Machine Tools',
     description:
