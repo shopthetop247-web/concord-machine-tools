@@ -5,7 +5,7 @@ import ContactForm from '@/components/ContactForm';
 export const metadata: Metadata = {
   title: 'Contact Us | Concord Machine Tools',
   description:
-    'Contact Concord Machine Tools for buying or selling CNC and metalworking machinery. Michigan-based dealer serving customers worldwide.',
+    'Contact Concord Machine Tools for questions about used CNC machines, equipment sales, or machinery sourcing. We're here to help your shop find the right equipment.',
   openGraph: {
     title: 'Contact Concord Machine Tools',
     description:
