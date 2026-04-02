@@ -3,8 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'About Concord Machine Tools | Used Metalworking Machinery Dealer',
   description:
-    'Learn about Concord Machine Tools, a trusted supplier of used CNC machines and industrial equipment. Decades of experience helping shops find reliable, cost‑effective machinery.
-     Concord Machine Tools is a Michigan-based dealer of used CNC and metalworking machinery, serving customers across the United States and worldwide.',
+    'Concord Machine Tools is a Michigan-based dealer of used CNC and metalworking machinery, serving customers across the United States and worldwide.',
   openGraph: {
     title: 'About Concord Machine Tools',
     description:
