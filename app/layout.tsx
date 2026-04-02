@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     title: 'Concord Machine Tools',
     description:
-      'Used CNC machines, lathes, mills, and industrial equipment for sale.',
+      'Used CNC machines, lathes, mills, and industrial machinery and equipment for sale.',
     type: 'website',
   },
 };
