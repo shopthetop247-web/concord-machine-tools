@@ -6,8 +6,6 @@ import Script from 'next/script';
 
 export const metadata = {
   title: 'Concord Machine Tools – Used CNC & Metalworking Machines',
-  description:
-    'Find high-quality used CNC machines, metalworking machines, and industrial equipment at Concord Machine Tools.',
   openGraph: {
     title: 'Concord Machine Tools',
     description:
