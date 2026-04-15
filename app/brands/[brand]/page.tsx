@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 interface Machine {
   _id: string;
   name: string;
+  model?: string;
   brand?: string;
   yearOfMfg?: number;
   stockNumber: string;
@@ -35,75 +36,57 @@ const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 /* ------------------------------------
-   FALLBACK SEO CONTENT (KEY BRANDS)
+   FALLBACK SEO CONTENT
 ------------------------------------ */
 const brandContentMap: Record<string, string> = {
   haas: `
 <h2>Used Haas CNC Machines for Sale</h2>
-<p>Haas CNC machines are among the most widely used machine tools in North America, known for their reliability, affordability, and ease of use.</p>
-
+<p>Haas CNC machines are widely used across North America for their reliability and affordability.</p>
 <h3>Popular Models</h3>
-<p>VF Series mills, ST lathes, UMC 5-axis machines, and EC horizontal machining centers are widely used in production environments.</p>
-
+<p>VF Series, ST Lathes, UMC 5-axis, EC Horizontal machining centers.</p>
 <h3>Why Buy Used Haas</h3>
-<p>Haas machines offer excellent value, strong parts availability, and widespread service support across the United States.</p>
-
-<h3>What to Look For</h3>
-<p>Check machine hours, spindle condition, and control version before purchasing.</p>
+<p>Strong support network, low cost of ownership, and wide availability of parts.</p>
 `,
 
   mazak: `
 <h2>Used Mazak CNC Machines for Sale</h2>
-<p>Mazak is a global leader in advanced CNC machining technology and multi-tasking equipment.</p>
-
+<p>Mazak is a leader in advanced CNC machining and multi-tasking systems.</p>
 <h3>Popular Models</h3>
-<p>VCN machining centers, Quick Turn lathes, and Integrex multi-tasking machines.</p>
-
-<h3>Why Buy Used Mazak</h3>
-<p>High precision, strong durability, and advanced control systems.</p>
+<p>VCN, Quick Turn, Integrex multi-tasking machines.</p>
 `,
 
   hurco: `
 <h2>Used Hurco CNC Machines for Sale</h2>
-<p>Hurco machines are known for user-friendly controls and fast programming.</p>
+<p>Hurco machines are known for intuitive controls and fast programming.</p>
 `,
 
   makino: `
 <h2>Used Makino CNC Machines for Sale</h2>
-<p>Makino delivers high-precision machining for aerospace and die/mold industries.</p>
+<p>Makino delivers high-precision machining for aerospace and mold applications.</p>
 `,
 
   doosan: `
-<h2>Used DN Solutions (Doosan) CNC Machines for Sale</h2>
-<p>Doosan (DN Solutions) offers reliable and cost-effective CNC machining solutions.</p>
+<h2>Used DN Solutions CNC Machines for Sale</h2>
+<p>Reliable and cost-effective CNC machining solutions used worldwide.</p>
 `,
 
   okuma: `
 <h2>Used Okuma CNC Machines for Sale</h2>
-<p>Okuma machines are known for reliability, integrated controls, and long-term durability.</p>
+<p>Known for durability, integrated controls, and long-term performance.</p>
 `,
 };
 
 /* ------------------------------------
-   SEO METADATA
+   METADATA
 ------------------------------------ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brandName = params.brand.replace(/-/g, ' ');
-
   const formattedBrand =
     brandName.charAt(0).toUpperCase() + brandName.slice(1);
 
   return {
     title: `Used ${formattedBrand} CNC Machines for Sale | Concord Machine Tools`,
-    description: `Browse used ${formattedBrand} CNC machines including machining centers and lathes. View inventory, pricing, and request a quote.`,
-    alternates: {
-      canonical: `/brands/${params.brand}`,
-    },
-    openGraph: {
-      title: `Used ${formattedBrand} CNC Machines`,
-      description: `View our current inventory of used ${formattedBrand} machines.`,
-      type: 'website',
-    },
+    description: `Browse used ${formattedBrand} CNC machines including machining centers and lathes.`,
   };
 }
 
@@ -113,123 +96,93 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function BrandPage({ params }: PageProps) {
   const brandSlug = params.brand;
 
-  const brand: Brand | null = await client.fetch(
+  const brand = await client.fetch(
     `*[_type == "brand" && slug.current == $slug][0]{
       name,
       description,
-      website,
-      slug
+      website
     }`,
     { slug: brandSlug }
   );
 
   const brandName = brand?.name || brandSlug.replace(/-/g, ' ');
-
   const formattedBrand =
     brandName.charAt(0).toUpperCase() + brandName.slice(1);
 
+  /* ----------------------------
+     GET MACHINES
+  ---------------------------- */
   const machines: Machine[] = await client.fetch(
     `*[
       _type == "machine" &&
-      !(_id in path("drafts.**")) &&
       lower(brand) == lower($brand)
     ]{
       _id,
       name,
+      model,
       brand,
       yearOfMfg,
       stockNumber,
-      images[] { asset-> },
+      images[]{asset->},
       slug,
-      category->{ slug },
-      subcategory->{ slug }
-    } | order(yearOfMfg desc, name asc)`,
+      category->{slug},
+      subcategory->{slug}
+    }`,
     { brand: brandName }
   );
 
-  const fallbackContent = brandContentMap[brandSlug.toLowerCase()];
-  const content = brand?.description || fallbackContent;
+  /* ----------------------------
+     FULL MODEL LIST (REAL SOURCE)
+  ---------------------------- */
+  const modelData: { model?: string }[] = await client.fetch(
+    `*[
+      _type == "machine" &&
+      lower(brand) == lower($brand) &&
+      defined(model)
+    ]{
+      model
+    }`,
+    { brand: brandName }
+  );
 
-  /* -----------------------------
-     MODEL EXTRACTION (AUTO)
-  ------------------------------ */
   const modelSet = new Set<string>();
 
-  machines.forEach((m: any) => {
-    const name = m.name || '';
-
-    const match = name.match(
-      /(VF-\d+|ST-\d+|UMC-\d+|EC-\d+|LB\d+|DNM\s?\d+|QT-\d+|i-\d+|a\d+)/i
-    );
-
-    if (match) {
-      modelSet.add(match[0].replace(/\s+/g, '-').toUpperCase());
-    }
+  modelData.forEach((m) => {
+    if (m.model) modelSet.add(m.model);
   });
 
   const models = Array.from(modelSet).sort();
 
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `Are ${brandName} CNC machines reliable?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${brandName} machines are widely used in manufacturing and are known for reliability and long service life.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `How much does a used ${brandName} machine cost?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Pricing varies depending on model, year, and condition. Contact us for current inventory and pricing.`,
-        },
-      },
-    ],
-  };
+  const content = brand?.description || brandContentMap[brandSlug.toLowerCase()];
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
-
-      {/* SEO Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
 
       {/* HEADER */}
       <h1 className="text-3xl font-semibold mb-2">
         Used {formattedBrand} CNC Machines for Sale
       </h1>
 
-      {/* OFFICIAL WEBSITE */}
+      {/* WEBSITE */}
       {brand?.website && (
         <a
           href={brand.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:underline font-medium block mb-6"
+          className="text-blue-600 hover:underline block mb-6"
         >
           Visit official {formattedBrand} website →
         </a>
       )}
 
-      {/* =========================
-          OPTION 1: BROWSE BY MODEL
-      ========================= */}
+      {/* MODELS */}
       {models.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">
-            Browse by Model
-          </h2>
+          <h2 className="text-xl font-semibold mb-3">Browse by Model</h2>
 
           <div className="flex flex-wrap gap-2">
             {models.map((model) => {
-              const slug = model.toLowerCase().replace(/-/g, '-');
+              const slug = model.toLowerCase().replace(/\s+/g, '-');
 
               return (
                 <Link
@@ -245,39 +198,7 @@ export default async function BrandPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* =========================
-          OPTION 2: POPULAR MODELS
-      ========================= */}
-      {models.length > 0 && (
-        <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-4">
-            Popular {formattedBrand} Models
-          </h2>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {models.slice(0, 9).map((model) => {
-              const slug = model.toLowerCase().replace(/-/g, '-');
-
-              return (
-                <Link
-                  key={model}
-                  href={`/models/${brandSlug}/${slug}`}
-                  className="border rounded-lg p-4 hover:shadow-md transition"
-                >
-                  <h3 className="font-medium">{model}</h3>
-                  <p className="text-sm text-gray-500">
-                    View available inventory
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* =========================
-          MACHINES GRID
-      ========================= */}
+      {/* MACHINES */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
@@ -288,23 +209,13 @@ export default async function BrandPage({ params }: PageProps) {
             <Link
               key={machine._id}
               href={`/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`}
-              className="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
             >
-              <div className="w-full h-48">
-                <img
-                  src={imageUrl}
-                  alt={`${machine.name} for sale`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-
-              <div className="p-4 bg-white">
-                <h2 className="text-lg font-medium mb-1">
-                  {machine.name}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} | </>}
-                  Stock #: {machine.stockNumber}
+              <img src={imageUrl} className="h-48 w-full object-cover" />
+              <div className="p-4">
+                <h2 className="font-medium">{machine.name}</h2>
+                <p className="text-sm text-gray-500">
+                  {machine.yearOfMfg} | {machine.stockNumber}
                 </p>
               </div>
             </Link>
@@ -312,15 +223,10 @@ export default async function BrandPage({ params }: PageProps) {
         })}
       </div>
 
-      {/* =========================
-          SEO CONTENT BELOW GRID
-      ========================= */}
+      {/* SEO CONTENT */}
       {content && (
-        <section className="max-w-4xl">
-          <div
-            className="prose max-w-none text-gray-700"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+        <section className="max-w-4xl prose text-gray-700">
+          <div dangerouslySetInnerHTML={{ __html: content }} />
         </section>
       )}
 
