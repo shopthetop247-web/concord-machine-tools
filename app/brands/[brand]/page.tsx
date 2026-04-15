@@ -267,7 +267,3 @@ export default async function BrandPage({ params }: PageProps) {
     </main>
   );
 }
-
-    </main>
-  );
-}
