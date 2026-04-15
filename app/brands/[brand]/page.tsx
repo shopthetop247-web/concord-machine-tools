@@ -40,86 +40,47 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 const brandContentMap: Record<string, string> = {
   haas: `
 <h2>Used Haas CNC Machines for Sale</h2>
-<p>Haas CNC machines are among the most widely used machine tools in North America, known for their reliability, affordability, and ease of use. Whether you are expanding your shop or replacing older equipment, used Haas machines provide excellent value.</p>
+<p>Haas CNC machines are among the most widely used machine tools in North America, known for their reliability, affordability, and ease of use.</p>
 
-<h3>Popular Haas Models</h3>
-<p>The Haas VF Series vertical machining centers—such as the VF-2 and VF-3—are industry staples. Haas ST Series CNC lathes are also highly sought after for turning applications, while UMC 5-axis machines offer advanced multi-axis capabilities. EC Series horizontal machining centers provide high-volume production efficiency.</p>
+<h3>Popular Models</h3>
+<p>VF Series mills, ST lathes, UMC 5-axis machines, and EC horizontal machining centers are widely used in production environments.</p>
 
-<h3>Why Buy Used Haas Machines</h3>
-<p>Used Haas machines are popular due to their lower cost, wide availability, and strong support network. Replacement parts and service are easy to obtain, making Haas an excellent choice for both small shops and large manufacturers.</p>
+<h3>Why Buy Used Haas</h3>
+<p>Haas machines offer excellent value, strong parts availability, and widespread service support across the United States.</p>
 
 <h3>What to Look For</h3>
-<p>When buying a used Haas CNC, consider machine hours, maintenance history, and control version. Proper inspection ensures long-term performance and reliability.</p>
+<p>Check machine hours, spindle condition, and control version before purchasing.</p>
 `,
 
   mazak: `
 <h2>Used Mazak CNC Machines for Sale</h2>
-<p>Mazak is a global leader in advanced CNC technology, known for innovation and high-performance machining solutions. Used Mazak machines are ideal for shops requiring precision and productivity.</p>
+<p>Mazak is a global leader in advanced CNC machining technology and multi-tasking equipment.</p>
 
-<h3>Popular Mazak Models</h3>
-<p>Mazak VCN vertical machining centers and Quick Turn lathes are widely used across industries. Integrex multi-tasking machines combine milling and turning for maximum efficiency.</p>
+<h3>Popular Models</h3>
+<p>VCN machining centers, Quick Turn lathes, and Integrex multi-tasking machines.</p>
 
 <h3>Why Buy Used Mazak</h3>
-<p>Used Mazak equipment offers premium capabilities at a reduced cost. These machines are known for durability, advanced controls, and long service life.</p>
-
-<h3>What to Look For</h3>
-<p>Evaluate control systems, spindle condition, and service records when purchasing used Mazak machines.</p>
+<p>High precision, strong durability, and advanced control systems.</p>
 `,
 
   hurco: `
 <h2>Used Hurco CNC Machines for Sale</h2>
-<p>Hurco CNC machines are known for their user-friendly controls and strong machining performance. They are a popular choice for job shops and prototype work.</p>
-
-<h3>Popular Hurco Models</h3>
-<p>Hurco VMX vertical machining centers and TMX lathes are widely used for their flexibility and ease of programming.</p>
-
-<h3>Why Buy Used Hurco</h3>
-<p>Hurco machines offer fast setup times and intuitive controls, making them ideal for low-volume, high-mix production environments.</p>
-
-<h3>What to Look For</h3>
-<p>Check control condition, axis movement, and maintenance history when buying used Hurco equipment.</p>
+<p>Hurco machines are known for user-friendly controls and fast programming.</p>
 `,
 
   makino: `
 <h2>Used Makino CNC Machines for Sale</h2>
-<p>Makino machines are known for precision, rigidity, and high-speed machining capabilities. They are widely used in aerospace, automotive, and die/mold industries.</p>
-
-<h3>Popular Makino Models</h3>
-<p>Makino PS and V series vertical machining centers and a-series horizontals are common in high-performance environments.</p>
-
-<h3>Why Buy Used Makino</h3>
-<p>Used Makino machines deliver exceptional accuracy and durability, making them a top choice for demanding applications.</p>
-
-<h3>What to Look For</h3>
-<p>Inspect spindle hours, accuracy, and machine calibration when evaluating used Makino equipment.</p>
+<p>Makino delivers high-precision machining for aerospace and die/mold industries.</p>
 `,
 
   doosan: `
 <h2>Used DN Solutions (Doosan) CNC Machines for Sale</h2>
-<p>DN Solutions, formerly Doosan Machine Tools, produces reliable and cost-effective CNC machines used worldwide.</p>
-
-<h3>Popular Models</h3>
-<p>Doosan Puma lathes and DNM vertical machining centers are widely used in production environments.</p>
-
-<h3>Why Buy Used Doosan</h3>
-<p>These machines offer strong performance and value, making them a popular choice for many manufacturers.</p>
-
-<h3>What to Look For</h3>
-<p>Review maintenance history, spindle condition, and tooling compatibility before purchasing.</p>
+<p>Doosan (DN Solutions) offers reliable and cost-effective CNC machining solutions.</p>
 `,
 
   okuma: `
 <h2>Used Okuma CNC Machines for Sale</h2>
-<p>Okuma is known for high-quality CNC machines with integrated controls and exceptional reliability.</p>
-
-<h3>Popular Okuma Models</h3>
-<p>Okuma LB lathes and MB vertical machining centers are widely used across industries.</p>
-
-<h3>Why Buy Used Okuma</h3>
-<p>Okuma machines offer long-term durability and precision, making them a strong investment.</p>
-
-<h3>What to Look For</h3>
-<p>Evaluate control systems, spindle performance, and maintenance records when buying used Okuma machines.</p>
+<p>Okuma machines are known for reliability, integrated controls, and long-term durability.</p>
 `,
 };
 
@@ -128,15 +89,19 @@ const brandContentMap: Record<string, string> = {
 ------------------------------------ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brandName = params.brand.replace(/-/g, ' ');
+
+  const formattedBrand =
+    brandName.charAt(0).toUpperCase() + brandName.slice(1);
+
   return {
-    title: `Used ${brandName} CNC Machines for Sale | Concord Machine Tools`,
-    description: `Browse used ${brandName} CNC machines including machining centers and lathes. View inventory, pricing, and request a quote.`,
+    title: `Used ${formattedBrand} CNC Machines for Sale | Concord Machine Tools`,
+    description: `Browse used ${formattedBrand} CNC machines including machining centers and lathes. View inventory, pricing, and request a quote.`,
     alternates: {
       canonical: `/brands/${params.brand}`,
     },
     openGraph: {
-      title: `Used ${brandName} CNC Machines`,
-      description: `View our current inventory of used ${brandName} machines.`,
+      title: `Used ${formattedBrand} CNC Machines`,
+      description: `View our current inventory of used ${formattedBrand} machines.`,
       type: 'website',
     },
   };
@@ -159,6 +124,7 @@ export default async function BrandPage({ params }: PageProps) {
   );
 
   const brandName = brand?.name || brandSlug.replace(/-/g, ' ');
+
   const machines: Machine[] = await client.fetch(
     `*[
       _type == "machine" &&
@@ -204,27 +170,39 @@ export default async function BrandPage({ params }: PageProps) {
     ],
   };
 
+  const formattedBrand =
+    brandName.charAt(0).toUpperCase() + brandName.slice(1);
+
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
+
+      {/* SEO Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <h1 className="text-3xl font-semibold mb-4">
-        Used {brandName} CNC Machines for Sale
+      {/* HEADER */}
+      <h1 className="text-3xl font-semibold mb-2">
+        Used {formattedBrand} CNC Machines for Sale
       </h1>
 
-      {content && (
-        <section className="mb-10 max-w-4xl">
-          <div
-            className="prose max-w-none text-gray-700"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        </section>
+      {/* Official Website Link */}
+      {brand?.website && (
+        <a
+          href={brand.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline font-medium block mb-6"
+        >
+          Visit official {formattedBrand} website →
+        </a>
       )}
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {/* =========================
+          MACHINES FIRST (IMPORTANT)
+      ========================= */}
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
             ? urlFor(machine.images[0])
@@ -254,6 +232,19 @@ export default async function BrandPage({ params }: PageProps) {
           );
         })}
       </div>
+
+      {/* =========================
+          SEO CONTENT BELOW GRID
+      ========================= */}
+      {content && (
+        <section className="max-w-4xl">
+          <div
+            className="prose max-w-none text-gray-700"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </section>
+      )}
+
     </main>
   );
 }
