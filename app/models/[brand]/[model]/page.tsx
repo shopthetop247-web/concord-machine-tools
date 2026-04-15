@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanityClient';
+import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
 import { Metadata } from 'next';
 
@@ -9,19 +10,28 @@ interface PageProps {
   };
 }
 
+const builder = imageUrlBuilder(client);
+const urlFor = (source: any) => builder.image(source).auto('format').url();
+
 const normalize = (str: string) =>
   str?.toLowerCase().replace(/\s+/g, '-').trim();
 
+/* -------------------------
+   SEO
+-------------------------- */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brand = params.brand.replace(/-/g, ' ');
   const model = params.model.replace(/-/g, ' ');
 
   return {
     title: `Used ${brand} ${model} CNC Machines for Sale`,
-    description: `Browse available used ${brand} ${model} CNC machines in stock.`,
+    description: `Browse available used ${brand} ${model} CNC machines in stock with photos, pricing, and details.`,
   };
 }
 
+/* -------------------------
+   PAGE
+-------------------------- */
 export default async function ModelPage({ params }: PageProps) {
   const brandName = params.brand.replace(/-/g, ' ');
   const modelSlug = params.model;
@@ -44,10 +54,9 @@ export default async function ModelPage({ params }: PageProps) {
     { brand: brandName }
   );
 
-  // DEBUG SAFE MATCHING USING MODEL FIELD
+  // FILTER BY MODEL FIELD
   const filtered = machines.filter((m: any) => {
     if (!m.model) return false;
-
     return normalize(m.model) === modelSlug;
   });
 
@@ -64,23 +73,43 @@ export default async function ModelPage({ params }: PageProps) {
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+
           {filtered.map((machine: any) => {
             const category = machine.category?.slug?.current;
             const subcategory = machine.subcategory?.slug?.current;
+
+            const imageUrl = machine.images?.[0]
+              ? urlFor(machine.images[0])
+              : '/placeholder.jpg';
 
             return (
               <Link
                 key={machine._id}
                 href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
-                className="border rounded-lg p-4 hover:shadow-md"
+                className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
               >
-                <h2 className="font-medium">{machine.name}</h2>
-                <p className="text-sm text-gray-500">
-                  {machine.yearOfMfg} | {machine.stockNumber}
-                </p>
+
+                {/* IMAGE */}
+                <div className="h-48 w-full">
+                  <img
+                    src={imageUrl}
+                    alt={machine.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* TEXT */}
+                <div className="p-4">
+                  <h2 className="font-medium">{machine.name}</h2>
+                  <p className="text-sm text-gray-500">
+                    {machine.yearOfMfg} | {machine.stockNumber}
+                  </p>
+                </div>
+
               </Link>
             );
           })}
+
         </div>
       )}
 
