@@ -9,6 +9,9 @@ interface PageProps {
   };
 }
 
+const normalize = (str: string) =>
+  str?.toLowerCase().replace(/\s+/g, '-').trim();
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brand = params.brand.replace(/-/g, ' ');
   const model = params.model.replace(/-/g, ' ');
@@ -21,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ModelPage({ params }: PageProps) {
   const brandName = params.brand.replace(/-/g, ' ');
-  const modelName = params.model.replace(/-/g, ' ');
+  const modelSlug = params.model;
 
   const machines = await client.fetch(
     `*[
@@ -30,6 +33,7 @@ export default async function ModelPage({ params }: PageProps) {
     ]{
       _id,
       name,
+      model,
       slug,
       category->{slug},
       subcategory->{slug},
@@ -40,15 +44,18 @@ export default async function ModelPage({ params }: PageProps) {
     { brand: brandName }
   );
 
-  const filtered = machines.filter((m: any) =>
-    m.name?.toLowerCase().includes(modelName.toLowerCase())
-  );
+  // DEBUG SAFE MATCHING USING MODEL FIELD
+  const filtered = machines.filter((m: any) => {
+    if (!m.model) return false;
+
+    return normalize(m.model) === modelSlug;
+  });
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
       <h1 className="text-3xl font-semibold mb-6">
-        Used {brandName} {modelName} CNC Machines for Sale
+        Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
       {filtered.length === 0 ? (
@@ -57,18 +64,23 @@ export default async function ModelPage({ params }: PageProps) {
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filtered.map((machine: any) => (
-            <Link
-              key={machine._id}
-              href={`/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`}
-              className="border rounded-lg p-4 hover:shadow-md"
-            >
-              <h2 className="font-medium">{machine.name}</h2>
-              <p className="text-sm text-gray-500">
-                {machine.yearOfMfg} | {machine.stockNumber}
-              </p>
-            </Link>
-          ))}
+          {filtered.map((machine: any) => {
+            const category = machine.category?.slug?.current;
+            const subcategory = machine.subcategory?.slug?.current;
+
+            return (
+              <Link
+                key={machine._id}
+                href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
+                className="border rounded-lg p-4 hover:shadow-md"
+              >
+                <h2 className="font-medium">{machine.name}</h2>
+                <p className="text-sm text-gray-500">
+                  {machine.yearOfMfg} | {machine.stockNumber}
+                </p>
+              </Link>
+            );
+          })}
         </div>
       )}
 
