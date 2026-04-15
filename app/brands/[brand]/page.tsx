@@ -25,15 +25,15 @@ const slugify = (str: string) =>
   str?.toLowerCase().replace(/\s+/g, '-').trim();
 
 /* ------------------------------------
-   FALLBACK SEO CONTENT
+   FALLBACK SEO CONTENT (BRAND LEVEL ONLY)
 ------------------------------------ */
 const brandContentMap: Record<string, string> = {
-  haas: `<h2>Used Haas CNC Machines for Sale</h2><p>Haas CNC machines are widely used across North America for their reliability and affordability.</p>`,
-  mazak: `<h2>Used Mazak CNC Machines for Sale</h2><p>Mazak is a leader in CNC machining technology.</p>`,
-  hurco: `<h2>Used Hurco CNC Machines for Sale</h2><p>Hurco machines are known for intuitive controls.</p>`,
-  makino: `<h2>Used Makino CNC Machines for Sale</h2><p>Makino delivers high-precision machining.</p>`,
-  doosan: `<h2>Used DN Solutions CNC Machines for Sale</h2><p>Reliable CNC machining solutions worldwide.</p>`,
-  okuma: `<h2>Used Okuma CNC Machines for Sale</h2><p>Known for durability and performance.</p>`,
+  haas: `<h2>Used Haas CNC Machines for Sale</h2><p>Browse available Haas CNC machines including vertical machining centers, lathes, and automation-ready systems.</p>`,
+  mazak: `<h2>Used Mazak CNC Machines for Sale</h2><p>Explore Mazak multi-tasking machines, turning centers, and machining solutions.</p>`,
+  hurco: `<h2>Used Hurco CNC Machines for Sale</h2><p>Hurco CNC machines known for conversational programming and ease of use.</p>`,
+  makino: `<h2>Used Makino CNC Machines for Sale</h2><p>High-precision Makino machining centers for mold and aerospace applications.</p>`,
+  doosan: `<h2>Used DN Solutions CNC Machines for Sale</h2><p>Reliable and cost-effective CNC turning and milling solutions.</p>`,
+  okuma: `<h2>Used Okuma CNC Machines for Sale</h2><p>Durable and high-performance CNC machines with integrated control systems.</p>`,
 };
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
   return {
     title: `Used ${formattedBrand} CNC Machines for Sale | Concord Machine Tools`,
-    description: `Browse used ${formattedBrand} CNC machines including machining centers and lathes.`,
+    description: `Browse used ${formattedBrand} CNC machines including machining centers, lathes, and production equipment.`,
   };
 }
 
@@ -79,7 +79,7 @@ export default async function BrandPage({ params }: any) {
   );
 
   /* ----------------------------
-     BUILD UNIQUE MODEL LIST (TEXT ONLY)
+     UNIQUE MODEL LIST (TEXT ONLY)
   ---------------------------- */
   const modelSet = new Set<string>();
 
@@ -100,7 +100,7 @@ export default async function BrandPage({ params }: any) {
         Used {formattedBrand} CNC Machines for Sale
       </h1>
 
-      {/* WEBSITE */}
+      {/* OPTIONAL BRAND WEBSITE */}
       {brand?.website && (
         <a
           href={brand.website}
@@ -112,8 +112,14 @@ export default async function BrandPage({ params }: any) {
         </a>
       )}
 
+      {/* OPTIONAL INTRO (GENERIC ONLY) */}
+      <p className="text-gray-600 mb-8 max-w-3xl">
+        Browse available used {formattedBrand} CNC machines. Select a model to
+        view current inventory and machine details.
+      </p>
+
       {/* =========================
-          BROWSE BY MODEL (TEXT ONLY)
+          MODEL LINKS (TEXT ONLY)
       ========================= */}
       {models.length > 0 && (
         <section className="mb-10">
@@ -154,7 +160,11 @@ export default async function BrandPage({ params }: any) {
               href={`/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`}
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
             >
-              <img src={imageUrl} className="h-48 w-full object-cover" />
+              <img
+                src={imageUrl}
+                className="h-48 w-full object-cover"
+                alt={machine.name}
+              />
 
               <div className="p-4">
                 <h2 className="font-medium">{machine.name}</h2>
@@ -167,7 +177,7 @@ export default async function BrandPage({ params }: any) {
         })}
       </div>
 
-      {/* SEO CONTENT */}
+      {/* SEO CONTENT (BRAND ONLY) */}
       {content && (
         <section className="max-w-4xl prose text-gray-700">
           <div dangerouslySetInnerHTML={{ __html: content }} />
