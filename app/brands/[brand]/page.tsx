@@ -148,6 +148,10 @@ export default async function BrandPage({ params }: any) {
       {/* =========================
           MACHINE GRID (WITH IMAGES)
       ========================= */}
+      {/* BRAND GRID INTRO LINE */}
+       <h2 className="text-xl font-semibold mb-3">
+         Browse all available used {formattedBrand} machines.
+       </h2>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
