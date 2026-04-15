@@ -125,6 +125,9 @@ export default async function BrandPage({ params }: PageProps) {
 
   const brandName = brand?.name || brandSlug.replace(/-/g, ' ');
 
+  const formattedBrand =
+    brandName.charAt(0).toUpperCase() + brandName.slice(1);
+
   const machines: Machine[] = await client.fetch(
     `*[
       _type == "machine" &&
@@ -146,6 +149,25 @@ export default async function BrandPage({ params }: PageProps) {
 
   const fallbackContent = brandContentMap[brandSlug.toLowerCase()];
   const content = brand?.description || fallbackContent;
+
+  /* -----------------------------
+     MODEL EXTRACTION (AUTO)
+  ------------------------------ */
+  const modelSet = new Set<string>();
+
+  machines.forEach((m: any) => {
+    const name = m.name || '';
+
+    const match = name.match(
+      /(VF-\d+|ST-\d+|UMC-\d+|EC-\d+|LB\d+|DNM\s?\d+|QT-\d+|i-\d+|a\d+)/i
+    );
+
+    if (match) {
+      modelSet.add(match[0].replace(/\s+/g, '-').toUpperCase());
+    }
+  });
+
+  const models = Array.from(modelSet).sort();
 
   const faqSchema = {
     '@context': 'https://schema.org',
@@ -170,9 +192,6 @@ export default async function BrandPage({ params }: PageProps) {
     ],
   };
 
-  const formattedBrand =
-    brandName.charAt(0).toUpperCase() + brandName.slice(1);
-
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
@@ -187,7 +206,7 @@ export default async function BrandPage({ params }: PageProps) {
         Used {formattedBrand} CNC Machines for Sale
       </h1>
 
-      {/* Official Website Link */}
+      {/* OFFICIAL WEBSITE */}
       {brand?.website && (
         <a
           href={brand.website}
@@ -200,7 +219,64 @@ export default async function BrandPage({ params }: PageProps) {
       )}
 
       {/* =========================
-          MACHINES FIRST (IMPORTANT)
+          OPTION 1: BROWSE BY MODEL
+      ========================= */}
+      {models.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-3">
+            Browse by Model
+          </h2>
+
+          <div className="flex flex-wrap gap-2">
+            {models.map((model) => {
+              const slug = model.toLowerCase().replace(/-/g, '-');
+
+              return (
+                <Link
+                  key={model}
+                  href={`/models/${brandSlug}/${slug}`}
+                  className="px-3 py-1 border rounded-full text-sm hover:bg-black hover:text-white transition"
+                >
+                  {model}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* =========================
+          OPTION 2: POPULAR MODELS
+      ========================= */}
+      {models.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">
+            Popular {formattedBrand} Models
+          </h2>
+
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {models.slice(0, 9).map((model) => {
+              const slug = model.toLowerCase().replace(/-/g, '-');
+
+              return (
+                <Link
+                  key={model}
+                  href={`/models/${brandSlug}/${slug}`}
+                  className="border rounded-lg p-4 hover:shadow-md transition"
+                >
+                  <h3 className="font-medium">{model}</h3>
+                  <p className="text-sm text-gray-500">
+                    View available inventory
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* =========================
+          MACHINES GRID
       ========================= */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
@@ -221,10 +297,13 @@ export default async function BrandPage({ params }: PageProps) {
                   className="object-cover w-full h-full"
                 />
               </div>
+
               <div className="p-4 bg-white">
-                <h2 className="text-lg font-medium mb-1">{machine.name}</h2>
+                <h2 className="text-lg font-medium mb-1">
+                  {machine.name}
+                </h2>
                 <p className="text-sm text-gray-600">
-                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} &nbsp;|&nbsp;</>}
+                  {machine.yearOfMfg && <>Year: {machine.yearOfMfg} | </>}
                   Stock #: {machine.stockNumber}
                 </p>
               </div>
