@@ -13,7 +13,7 @@ interface Machine {
   brand?: string;
   yearOfMfg?: number;
   stockNumber: string;
-  images?: { asset: { _ref: string } }[];
+  images?: any[];
   slug: { current: string };
   category: { slug: { current: string } };
   subcategory: { slug: { current: string } };
@@ -35,45 +35,24 @@ interface PageProps {
 const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
+const slugify = (str: string) =>
+  str?.toLowerCase().replace(/\s+/g, '-').trim();
+
 /* ------------------------------------
    FALLBACK SEO CONTENT
 ------------------------------------ */
 const brandContentMap: Record<string, string> = {
-  haas: `
-<h2>Used Haas CNC Machines for Sale</h2>
-<p>Haas CNC machines are widely used across North America for their reliability and affordability.</p>
-<h3>Popular Models</h3>
-<p>VF Series, ST Lathes, UMC 5-axis, EC Horizontal machining centers.</p>
-<h3>Why Buy Used Haas</h3>
-<p>Strong support network, low cost of ownership, and wide availability of parts.</p>
-`,
+  haas: `<h2>Used Haas CNC Machines for Sale</h2><p>Haas CNC machines are widely used across North America for their reliability and affordability.</p><h3>Popular Models</h3><p>VF Series, ST Lathes, UMC 5-axis, EC Horizontal machining centers.</p><h3>Why Buy Used Haas</h3><p>Strong support network, low cost of ownership, and wide availability of parts.</p>`,
 
-  mazak: `
-<h2>Used Mazak CNC Machines for Sale</h2>
-<p>Mazak is a leader in advanced CNC machining and multi-tasking systems.</p>
-<h3>Popular Models</h3>
-<p>VCN, Quick Turn, Integrex multi-tasking machines.</p>
-`,
+  mazak: `<h2>Used Mazak CNC Machines for Sale</h2><p>Mazak is a leader in advanced CNC machining and multi-tasking systems.</p><h3>Popular Models</h3><p>VCN, Quick Turn, Integrex multi-tasking machines.</p>`,
 
-  hurco: `
-<h2>Used Hurco CNC Machines for Sale</h2>
-<p>Hurco machines are known for intuitive controls and fast programming.</p>
-`,
+  hurco: `<h2>Used Hurco CNC Machines for Sale</h2><p>Hurco machines are known for intuitive controls and fast programming.</p>`,
 
-  makino: `
-<h2>Used Makino CNC Machines for Sale</h2>
-<p>Makino delivers high-precision machining for aerospace and mold applications.</p>
-`,
+  makino: `<h2>Used Makino CNC Machines for Sale</h2><p>Makino delivers high-precision machining for aerospace and mold applications.</p>`,
 
-  doosan: `
-<h2>Used DN Solutions CNC Machines for Sale</h2>
-<p>Reliable and cost-effective CNC machining solutions used worldwide.</p>
-`,
+  doosan: `<h2>Used DN Solutions CNC Machines for Sale</h2><p>Reliable and cost-effective CNC machining solutions used worldwide.</p>`,
 
-  okuma: `
-<h2>Used Okuma CNC Machines for Sale</h2>
-<p>Known for durability, integrated controls, and long-term performance.</p>
-`,
+  okuma: `<h2>Used Okuma CNC Machines for Sale</h2><p>Known for durability, integrated controls, and long-term performance.</p>`,
 };
 
 /* ------------------------------------
@@ -132,38 +111,23 @@ export default async function BrandPage({ params }: PageProps) {
   );
 
   /* ----------------------------
-     FULL MODEL LIST (REAL SOURCE)
+     MODEL LIST (DEDUPED)
   ---------------------------- */
-  const modelData: { model?: string }[] = await client.fetch(
-    `*[
-      _type == "machine" &&
-      lower(brand) == lower($brand) &&
-      defined(model)
-    ]{
-      model
-    }`,
-    { brand: brandName }
-  );
+  const modelMap = new Map<string, any>();
 
-  const modelSet = new Set<string>();
-  modelData.forEach((m) => {
-    if (m.model) modelSet.add(m.model);
+  machines.forEach((m) => {
+    if (!m.model) return;
+
+    const key = m.model;
+    if (!modelMap.has(key)) {
+      modelMap.set(key, m);
+    }
   });
 
-  const models = Array.from(modelSet).sort();
+  const modelCards = Array.from(modelMap.values());
 
-  /* ----------------------------
-     BUILD MODEL IMAGE CARDS
-  ---------------------------- */
-  const modelCards = Array.from(
-    new Map(
-      machines
-        .filter((m) => m.model)
-        .map((m) => [m.model, m])
-    ).values()
-  );
-
-  const content = brand?.description || brandContentMap[brandSlug.toLowerCase()];
+  const content =
+    brand?.description || brandContentMap[brandSlug.toLowerCase()];
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -195,9 +159,9 @@ export default async function BrandPage({ params }: PageProps) {
           </h2>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {modelCards.map((machine: any) => {
-              const model = machine.model;
-              const slug = model.toLowerCase().replace(/\s+/g, '-');
+            {modelCards.map((machine) => {
+              const model = machine.model!;
+              const slug = slugify(model);
 
               const imageUrl = machine.images?.[0]
                 ? urlFor(machine.images[0])
@@ -231,7 +195,7 @@ export default async function BrandPage({ params }: PageProps) {
       )}
 
       {/* =========================
-          MACHINES GRID
+          MACHINE GRID (ALL INVENTORY)
       ========================= */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
@@ -246,6 +210,7 @@ export default async function BrandPage({ params }: PageProps) {
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
             >
               <img src={imageUrl} className="h-48 w-full object-cover" />
+
               <div className="p-4">
                 <h2 className="font-medium">{machine.name}</h2>
                 <p className="text-sm text-gray-500">
