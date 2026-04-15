@@ -14,7 +14,11 @@ const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 const normalize = (str: string) =>
-  str?.toLowerCase().replace(/\s+/g, '-').trim();
+  str
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // handles spaces, dashes, symbols
+    .replace(/^-+|-+$/g, '')     // removes leading/trailing dashes
+    .trim();
 
 /* -------------------------
    SEO
