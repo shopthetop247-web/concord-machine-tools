@@ -1,6 +1,6 @@
 import { client } from '@/lib/sanityClient';
-import { Metadata } from 'next';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 interface PageProps {
   params: {
@@ -10,71 +10,67 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const modelName = params.model.replace(/-/g, ' ');
-  const brandName = params.brand.replace(/-/g, ' ');
+  const brand = params.brand.replace(/-/g, ' ');
+  const model = params.model.replace(/-/g, ' ');
 
   return {
-    title: `Used ${brandName} ${modelName} CNC Machines for Sale | Concord Machine Tools`,
-    description: `Browse used ${brandName} ${modelName} CNC machines for sale. View specifications, applications, and available inventory.`,
+    title: `Used ${brand} ${model} CNC Machines for Sale`,
+    description: `Browse available used ${brand} ${model} CNC machines in stock.`,
   };
 }
 
 export default async function ModelPage({ params }: PageProps) {
-  const { brand, model } = params;
+  const brandName = params.brand.replace(/-/g, ' ');
+  const modelName = params.model.replace(/-/g, ' ');
 
-  const modelData = await client.fetch(
-    `*[_type == "model" && slug.current == $model && brand->slug.current == $brand][0]{
-      title,
-      description,
-      brand->{
-        name,
-        slug
-      }
+  const machines = await client.fetch(
+    `*[
+      _type == "machine" &&
+      lower(brand) == lower($brand)
+    ]{
+      _id,
+      name,
+      slug,
+      category->{slug},
+      subcategory->{slug},
+      images[]{asset->},
+      yearOfMfg,
+      stockNumber
     }`,
-    {
-      brand,
-      model,
-    }
+    { brand: brandName }
   );
 
-  const brandName = modelData?.brand?.name || brand.replace(/-/g, ' ');
-  const modelName = modelData?.title || model.replace(/-/g, ' ');
-
-  const content = modelData?.description;
+  const filtered = machines.filter((m: any) =>
+    m.name?.toLowerCase().includes(modelName.toLowerCase())
+  );
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
-      {/* HEADER */}
-      <h1 className="text-3xl font-semibold mb-4">
+      <h1 className="text-3xl font-semibold mb-6">
         Used {brandName} {modelName} CNC Machines for Sale
       </h1>
 
-      {/* SEO CONTENT */}
-      {content && (
-        <section className="max-w-4xl mb-10">
-          <div
-            className="prose max-w-none text-gray-700"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        </section>
-      )}
-
-      {/* OPTIONAL CTA */}
-      <div className="mt-10 p-6 border rounded-lg bg-gray-50">
-        <h3 className="text-lg font-semibold mb-2">
-          Looking for a {modelName}?
-        </h3>
-        <p className="text-gray-600 mb-4">
-          We frequently stock used {brandName} {modelName} machines. Contact us for current availability.
+      {filtered.length === 0 ? (
+        <p className="text-gray-600">
+          No current inventory for this model.
         </p>
-        <Link
-          href="/contact"
-          className="inline-block bg-black text-white px-4 py-2 rounded"
-        >
-          Request Availability
-        </Link>
-      </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {filtered.map((machine: any) => (
+            <Link
+              key={machine._id}
+              href={`/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`}
+              className="border rounded-lg p-4 hover:shadow-md"
+            >
+              <h2 className="font-medium">{machine.name}</h2>
+              <p className="text-sm text-gray-500">
+                {machine.yearOfMfg} | {machine.stockNumber}
+              </p>
+            </Link>
+          ))}
+        </div>
+      )}
 
     </main>
   );
