@@ -2,4 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------
+   GLOBAL TYPOGRAPHY FIXES (SEO CONTENT)
+------------------------------------ */
+
+@layer base {
+  /* Improve default body readability */
+  body {
+    @apply text-gray-900;
+  }
+}
+
+/* ------------------------------------
+   PROSE (SANITY CONTENT RENDERING FIX)
+------------------------------------ */
+
+@layer components {
+  .prose h1 {
+    font-weight: 800;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose h2 {
+    font-weight: 700;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose h3 {
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose p {
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  .prose ul {
+    margin-left: 1.25rem;
+    list-style-type: disc;
+  }
+
+  .prose li {
+    margin-bottom: 0.25rem;
+  }
+
+  .prose a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+
+  .prose a:hover {
+    color: #1d4ed8;
+  }
+}
+
 /* Optional: add any custom global styles here */
