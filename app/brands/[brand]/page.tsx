@@ -146,12 +146,22 @@ export default async function BrandPage({ params }: PageProps) {
   );
 
   const modelSet = new Set<string>();
-
   modelData.forEach((m) => {
     if (m.model) modelSet.add(m.model);
   });
 
   const models = Array.from(modelSet).sort();
+
+  /* ----------------------------
+     BUILD MODEL IMAGE CARDS
+  ---------------------------- */
+  const modelCards = Array.from(
+    new Map(
+      machines
+        .filter((m) => m.model)
+        .map((m) => [m.model, m])
+    ).values()
+  );
 
   const content = brand?.description || brandContentMap[brandSlug.toLowerCase()];
 
@@ -175,22 +185,44 @@ export default async function BrandPage({ params }: PageProps) {
         </a>
       )}
 
-      {/* MODELS */}
-      {models.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3">Browse by Model</h2>
+      {/* =========================
+          MODEL GRID (WITH IMAGES)
+      ========================= */}
+      {modelCards.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">
+            Browse by Model
+          </h2>
 
-          <div className="flex flex-wrap gap-2">
-            {models.map((model) => {
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {modelCards.map((machine: any) => {
+              const model = machine.model;
               const slug = model.toLowerCase().replace(/\s+/g, '-');
+
+              const imageUrl = machine.images?.[0]
+                ? urlFor(machine.images[0])
+                : '/placeholder.jpg';
 
               return (
                 <Link
                   key={model}
                   href={`/models/${brandSlug}/${slug}`}
-                  className="px-3 py-1 border rounded-full text-sm hover:bg-black hover:text-white transition"
+                  className="border rounded-lg overflow-hidden hover:shadow-md transition"
                 >
-                  {model}
+                  <div className="h-40 w-full">
+                    <img
+                      src={imageUrl}
+                      className="h-full w-full object-cover"
+                      alt={model}
+                    />
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-medium">{model}</h3>
+                    <p className="text-sm text-gray-500">
+                      View available inventory
+                    </p>
+                  </div>
                 </Link>
               );
             })}
@@ -198,7 +230,9 @@ export default async function BrandPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* MACHINES */}
+      {/* =========================
+          MACHINES GRID
+      ========================= */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
@@ -229,6 +263,10 @@ export default async function BrandPage({ params }: PageProps) {
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </section>
       )}
+
+    </main>
+  );
+}
 
     </main>
   );
