@@ -98,7 +98,10 @@ Used CNC & Metalworking Machinery for Sale </h1>
       <p className="mt-10 text-base md:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
         We have been buying and selling used metalworking machinery since 2002.
         Our experienced team understands the used machinery market and is ready to help you
-        find the right machine or maximize the value of your equipment.
+        find the right machine or maximize the value of your equipment. We are located in Troy, Michigan which places us
+        in the heart of Metro Detroit, and amongst the top manufacturing facilities in the United States. Servicing customers
+        locally, as well globally, Concord Machine Tools is your one stop shop for used machinery, shop equipment, and anything
+        manufacturing related.
       </p>
     </div>
   </section>
