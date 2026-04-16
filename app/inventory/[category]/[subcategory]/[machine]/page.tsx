@@ -360,7 +360,7 @@ return ( <main className="max-w-6xl mx-auto px-6 py-8">
      </h3>
 
      <p className="text-sm text-gray-600 mb-4">
-       Stay updated with newly listed machines, shop videos, and featured inventory.
+       Stay updated with newly listed machines, machine videos, and featured inventory.
      </p>
 
      <div className="flex gap-4 text-sm">
