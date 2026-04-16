@@ -206,6 +206,55 @@ export default async function InventoryPage() {
             ))}
           </ul>
         </section>
+
+      {/* SOCIAL PROOF / FOLLOW */}
+   <section className="mt-10 border-t pt-6">
+     <h3 className="text-lg font-semibold mb-3">
+       Follow Concord Machine Tools
+     </h3>
+
+     <p className="text-sm text-gray-600 mb-4">
+       Stay updated with newly listed machines, shop videos, and featured inventory.
+     </p>
+
+     <div className="flex gap-4 text-sm">
+     <a
+      href="https://www.facebook.com/concordmachinetools/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-600 hover:underline"
+     >
+      Facebook
+     </a>
+
+     <a
+      href="https://www.instagram.com/concordmachinetools/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-pink-600 hover:underline"
+     >
+      Instagram
+     </a>
+
+     <a
+      href="https://www.youtube.com/@concordmachinetools"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-red-600 hover:underline"
+     >
+      YouTube
+     </a>
+
+     <a
+      href="https://www.linkedin.com/company/concord-machine-tools/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-800 hover:underline"
+     >
+      LinkedIn
+    </a>
+  </div>
+</section>
       )}
     </main>
   );
