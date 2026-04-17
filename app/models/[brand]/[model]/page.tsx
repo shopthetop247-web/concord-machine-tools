@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Used ${brandName} ${modelName} CNC Machines for Sale`,
-    description: `Browse available used ${brandName} ${modelName} CNC machines in stock with photos, pricing, and details.`,
+    description: `Browse available used ${brandName} ${modelName} machines in stock with photos, pricing, and details.`,
   };
 }
 
