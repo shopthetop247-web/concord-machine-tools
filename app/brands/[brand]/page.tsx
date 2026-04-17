@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     brandName.charAt(0).toUpperCase() + brandName.slice(1);
 
   return {
-    title: `Used ${formattedBrand} CNC Machines for Sale | Concord Machine Tools`,
-    description: `Browse used ${formattedBrand} CNC machines including machining centers, lathes, and production equipment.`,
+    title: `Used ${formattedBrand} Machinery for Sale | Concord Machine Tools`,
+    description: `Browse used ${formattedBrand} machines including machining centers, lathes, and production equipment.`,
   };
 }
 
@@ -97,7 +97,7 @@ export default async function BrandPage({ params }: any) {
 
       {/* HEADER */}
       <h1 className="text-3xl font-semibold mb-2">
-        Used {formattedBrand} CNC Machines for Sale
+        Used {formattedBrand} Machines for Sale
       </h1>
 
       {/* OPTIONAL BRAND WEBSITE */}
@@ -114,7 +114,7 @@ export default async function BrandPage({ params }: any) {
 
       {/* OPTIONAL INTRO (GENERIC ONLY) */}
       <p className="text-gray-600 mb-8 max-w-3xl">
-        Browse available used {formattedBrand} CNC machines. Select a model to
+        Browse available used {formattedBrand} machines. Select a model to
         view current inventory and machine details.
       </p>
 
