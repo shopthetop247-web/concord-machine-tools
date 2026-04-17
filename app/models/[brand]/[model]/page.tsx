@@ -13,23 +13,22 @@ interface PageProps {
 const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
-const normalize = (str: string) =>
-  str
-    ?.toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // handles spaces, dashes, symbols
-    .replace(/^-+|-+$/g, '')     // removes leading/trailing dashes
-    .trim();
+/* -------------------------
+   HELPERS (STANDARDIZED)
+-------------------------- */
+const formatBrand = (str: string) =>
+  str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
 /* -------------------------
    SEO
 -------------------------- */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const brand = params.brand.replace(/-/g, ' ');
-  const model = params.model.replace(/-/g, ' ');
+  const brandName = formatBrand(params.brand);
+  const modelName = params.model.replace(/-/g, ' ');
 
   return {
-    title: `Used ${brand} ${model} CNC Machines for Sale`,
-    description: `Browse available used ${brand} ${model} CNC machines in stock with photos, pricing, and details.`,
+    title: `Used ${brandName} ${modelName} CNC Machines for Sale`,
+    description: `Browse available used ${brandName} ${modelName} CNC machines in stock with photos, pricing, and details.`,
   };
 }
 
@@ -37,9 +36,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
    PAGE
 -------------------------- */
 export default async function ModelPage({ params }: PageProps) {
-  const brandName = params.brand.replace(/-/g, ' ');
+  const brandName = formatBrand(params.brand);
   const modelSlug = params.model;
 
+  // 🔥 STEP 1: Fetch ONLY by brand (no fragile filtering in GROQ or JS)
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
@@ -48,6 +48,8 @@ export default async function ModelPage({ params }: PageProps) {
       _id,
       name,
       model,
+      modelSlug,
+      modelDisplay,
       slug,
       category->{slug},
       subcategory->{slug},
@@ -58,23 +60,42 @@ export default async function ModelPage({ params }: PageProps) {
     { brand: brandName }
   );
 
-  // FILTER BY MODEL FIELD
+  // 🔥 STEP 2: STRICT MODEL MATCH (canonical-first logic)
   const filtered = machines.filter((m: any) => {
-    if (!m.model) return false;
-    return normalize(m.model) === modelSlug;
+    // PRIORITY 1: use structured slug field (BEST CASE)
+    if (m.modelSlug) {
+      return m.modelSlug === modelSlug;
+    }
+
+    // PRIORITY 2: fallback to model field if slug not migrated yet
+    if (m.model) {
+      const fallbackSlug = m.model
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      return fallbackSlug === modelSlug;
+    }
+
+    return false;
   });
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
       <h1 className="text-3xl font-semibold mb-6">
-        Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
+        Used {brandName} {params.model.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
+      {/* EMPTY STATE */}
       {filtered.length === 0 ? (
-        <p className="text-gray-600">
-          No current inventory for this model.
-        </p>
+        <div className="text-gray-600">
+          <p>No current inventory for this model.</p>
+
+          <p className="mt-2 text-sm text-gray-500">
+            This may be a sourcing-only model. Contact us and we can locate one.
+          </p>
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
@@ -105,9 +126,17 @@ export default async function ModelPage({ params }: PageProps) {
                 {/* TEXT */}
                 <div className="p-4">
                   <h2 className="font-medium">{machine.name}</h2>
+
                   <p className="text-sm text-gray-500">
                     {machine.yearOfMfg} | {machine.stockNumber}
                   </p>
+
+                  {/* MODEL DEBUG SAFETY (helps long-term consistency) */}
+                  {machine.modelDisplay && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Model: {machine.modelDisplay}
+                    </p>
+                  )}
                 </div>
 
               </Link>
