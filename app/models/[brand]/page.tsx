@@ -19,31 +19,42 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BrandModelsPage({ params }: PageProps) {
   const brandSlug = params.brand;
+  const brandName = brandSlug.replace(/-/g, ' ');
 
+  // ✅ NOW pulling model field properly
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
       lower(brand) == lower($brand)
     ]{
-      name
+      name,
+      model
     }`,
-    { brand: brandSlug.replace(/-/g, ' ') }
+    { brand: brandName }
   );
 
-  // Extract model names (VF-2, ST-20, etc.)
   const modelsSet = new Set<string>();
 
   machines.forEach((m: any) => {
+    // ✅ 1. Use structured model field FIRST
+    if (m.model) {
+      modelsSet.add(m.model.trim());
+      return;
+    }
+
+    // ❗ fallback only if model field missing
     const name = m.name || '';
-    const match = name.match(/(VF-\d+|ST-\d+|UMC-\d+|EC-\d+|LB\d+|DNM\s?\d+|a\d+|i-\d+|QT-\d+)/i);
+
+    const match = name.match(
+      /(VF-\d+|ST-\d+|UMC-\d+|EC-\d+|LB-?\d+|DNM\s?\d+|TM-\d+|DS-\d+|QT-\d+|a\d+|i-\d+)/i
+    );
+
     if (match) {
       modelsSet.add(match[0].replace(/\s+/g, ''));
     }
   });
 
   const models = Array.from(modelsSet).sort();
-
-  const brandName = brandSlug.replace(/-/g, ' ');
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -53,8 +64,15 @@ export default async function BrandModelsPage({ params }: PageProps) {
       </h1>
 
       <p className="text-gray-600 mb-8 max-w-3xl">
-        Browse available used {brandName} CNC machine models currently in inventory or recently sold.
+        Browse all available used {brandName} CNC machine models currently in inventory or recently sold.
       </p>
+
+      {/* IMPORTANT IMPROVEMENT NOTICE */}
+      {models.length === 0 && (
+        <p className="text-red-500 mb-6">
+          No models detected. Check Sanity model field configuration.
+        </p>
+      )}
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {models.map((model) => {
