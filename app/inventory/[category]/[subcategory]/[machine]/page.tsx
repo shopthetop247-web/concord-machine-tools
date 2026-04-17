@@ -225,6 +225,42 @@ contentUrl: machine.videoUrl,
 }
 : null;
 
+{/* INTERNAL SEO LINKS */}
+<section className="mt-6 border-t pt-6 text-sm text-blue-600 space-y-2">
+
+  {machine.brand && machine.modelSlug && (
+    <p>
+      <Link
+        href={`/models/${machine.brand.toLowerCase()}/${machine.modelSlug}`}
+        className="underline hover:text-blue-800"
+      >
+        View all {machine.brand} {machine.modelDisplay || machine.model} machines
+      </Link>
+    </p>
+  )}
+
+  {machine.brand && (
+    <p>
+      <Link
+        href={`/models/${machine.brand.toLowerCase()}`}
+        className="underline hover:text-blue-800"
+      >
+        Browse all {machine.brand} models
+      </Link>
+    </p>
+  )}
+
+  <p>
+    <Link
+      href="/inventory/cnc-machinery/cnc-vertical-machining-centers"
+      className="underline hover:text-blue-800"
+    >
+      View all CNC Vertical Machining Centers
+    </Link>
+  </p>
+
+</section>      
+
 /* -----------------------------------
 RELATED MACHINES
 ----------------------------------- */
