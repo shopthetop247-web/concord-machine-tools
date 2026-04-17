@@ -232,15 +232,15 @@ contentUrl: machine.videoUrl,
 <section className="mt-6 border-t pt-6 text-sm text-blue-600 space-y-2">
 
   {machine.brand && machine.modelSlug && (
-    <p>
-      <Link
-        href={`/models/${machine.brand.toLowerCase()}/${machine.modelSlug}`}
-        className="underline hover:text-blue-800"
-      >
-        View all {machine.brand} {machine.modelDisplay || machine.model} machines
-      </Link>
-    </p>
-  )}
+  <p className="mt-6 text-sm text-blue-600">
+    <Link
+      href={`/models/${machine.brand.toLowerCase().replace(/\s+/g, '-')}`}
+      className="underline hover:text-blue-800"
+    >
+      Browse all {machine.brand} models
+    </Link>
+  </p>
+)}
 
   {machine.brand && (
     <p>
