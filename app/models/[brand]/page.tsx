@@ -12,14 +12,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const brandName = params.brand.replace(/-/g, ' ');
 
   return {
-    title: `Used ${brandName} CNC Machine Models | Concord Machine Tools`,
-    description: `Browse all available used ${brandName} CNC machine models including VF series, ST lathes, and more.`,
+    title: `Used ${brandName} Machine Models | Concord Machine Tools`,
+    description: `Browse all available in stock used ${brandName} machine models.`,
   };
 }
 
 export default async function BrandModelsPage({ params }: PageProps) {
   const brandSlug = params.brand;
-  const brandName = brandSlug.replace(/-/g, ' ');
+  function formatTitleCase(str: string) {
+  return str
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+const brandName = formatTitleCase(brandSlug);
 
   // ✅ NOW pulling model field properly
   const machines = await client.fetch(
@@ -64,7 +70,7 @@ export default async function BrandModelsPage({ params }: PageProps) {
       </h1>
 
       <p className="text-gray-600 mb-8 max-w-3xl">
-        Browse all available used {brandName} CNC machine models currently in inventory or recently sold.
+        Browse all available used {brandName} machine models currently in inventory or recently sold.
       </p>
 
       {/* IMPORTANT IMPROVEMENT NOTICE */}
