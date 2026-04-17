@@ -66,7 +66,7 @@ const brandName = formatTitleCase(brandSlug);
     <main className="max-w-6xl mx-auto px-6 py-8">
 
       <h1 className="text-3xl font-semibold mb-6">
-        Used {brandName} CNC Machine Models
+        Used {brandName} Machine Models
       </h1>
 
       <p className="text-gray-600 mb-8 max-w-3xl">
