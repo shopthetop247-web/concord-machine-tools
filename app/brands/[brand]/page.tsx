@@ -59,11 +59,14 @@ export default async function BrandPage({ params }: any) {
   const formattedBrand =
     brandName.charAt(0).toUpperCase() + brandName.slice(1);
 
+  /* =========================================================
+     ✅ FIX: SORT BY MACHINE AGE (NEWEST FIRST)
+  ========================================================= */
   const machines: Machine[] = await client.fetch(
     `*[
       _type == "machine" &&
       lower(brand) == lower($brand)
-    ]{
+    ] | order(yearOfMfg desc, _updatedAt desc) {
       _id,
       name,
       model,
@@ -112,15 +115,13 @@ export default async function BrandPage({ params }: any) {
         </a>
       )}
 
-      {/* OPTIONAL INTRO (GENERIC ONLY) */}
+      {/* INTRO */}
       <p className="text-gray-600 mb-8 max-w-3xl">
         Browse available used {formattedBrand} machines. Select a model to
         view current inventory and machine details.
       </p>
 
-      {/* =========================
-          MODEL LINKS (TEXT ONLY)
-      ========================= */}
+      {/* MODEL LINKS */}
       {models.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-3">
@@ -145,13 +146,11 @@ export default async function BrandPage({ params }: any) {
         </section>
       )}
 
-      {/* =========================
-          MACHINE GRID (WITH IMAGES)
-      ========================= */}
-      {/* BRAND GRID INTRO LINE */}
-       <h2 className="text-xl font-semibold mb-3">
-         Browse all available used {formattedBrand} machines.
-       </h2>
+      {/* MACHINE GRID */}
+      <h2 className="text-xl font-semibold mb-3">
+        Browse all available used {formattedBrand} machines.
+      </h2>
+
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
         {machines.map((machine) => {
           const imageUrl = machine.images?.[0]
@@ -181,7 +180,7 @@ export default async function BrandPage({ params }: any) {
         })}
       </div>
 
-      {/* SEO CONTENT (BRAND ONLY) */}
+      {/* SEO CONTENT */}
       {content && (
         <section className="max-w-4xl prose text-gray-700">
           <div dangerouslySetInnerHTML={{ __html: content }} />
