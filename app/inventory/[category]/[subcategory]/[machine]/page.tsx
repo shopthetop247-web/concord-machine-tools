@@ -8,18 +8,21 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 interface Machine {
-_id: string;
-_updatedAt?: string;
-name: string;
-brand?: string;
-yearOfMfg?: number;
-specifications?: string;
-description?: string;
-images?: { asset: { _ref: string } }[];
-videoUrl?: string;
-stockNumber: string;
-slug?: { current: string };
-subcategory?: { _ref: string };
+  _id: string;
+  _updatedAt?: string;
+  name: string;
+  brand?: string;
+  model?: string;
+  modelSlug?: string;     // ✅ ADD THIS
+  modelDisplay?: string;  // ✅ ADD THIS
+  yearOfMfg?: number;
+  specifications?: string;
+  description?: string;
+  images?: { asset: { _ref: string } }[];
+  videoUrl?: string;
+  stockNumber: string;
+  slug?: { current: string };
+  subcategory?: { _ref: string };
 }
 
 interface PageProps {
