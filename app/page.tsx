@@ -1,6 +1,7 @@
 export const revalidate = 0;
 
 import Link from 'next/link';
+import Head from 'next/head';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { client } from '@/lib/sanityClient';
