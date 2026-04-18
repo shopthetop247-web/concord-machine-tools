@@ -56,6 +56,27 @@ const machines = await client.fetch(`     *[_type == "machine"] | order(_created
 
 return ( <main>
       <Head>
+      <title>Used Machines for Sale | Machinery | Concord Machine Tools</title>
+        <meta
+          name="description"
+          content="Buy used machinery, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory, fair pricing, and fast response nationwide."
+        />
+        <meta
+          name="keywords"
+          content="used CNC machines for sale, CNC mills for sale, used CNC lathes, used machining centers, metalworking equipment for sale, industrial machinery dealer, used Haas CNC machines, Concord Machine Tools"
+        />
+        <meta
+          property="og:title"
+          content="Used CNC Machines for Sale | Concord Machine Tools"
+        />
+        <meta
+          property="og:description"
+          content="Browse used CNC machines including mills, lathes, and machining centers. Trusted inventory, fair pricing, and fast response nationwide."
+        />
+        <meta property="og:url" content="https://www.concordmt.com" />
+        <meta property="og:site_name" content="Concord Machine Tools" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -82,7 +103,7 @@ return ( <main>
                   "latitude": "42.562089",
                   "longitude": "-83.1427033"
                 },
-                "priceRange": "$$$",
+                "priceRange": "varies",
                 "servesCuisine": "N/A",
                 "sameAs": [
                   "https://www.facebook.com/ConcordMT",
