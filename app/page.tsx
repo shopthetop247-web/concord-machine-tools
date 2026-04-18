@@ -97,7 +97,13 @@ return ( <main>
                 },
                 "telephone": "+1-248-224-3147",
                 "url": "https://www.concordmt.com",
-                "openingHours": "Mo-Fr 09:00-17:00",
+                "openingHours": [
+                             "Mo 09:00-17:00",
+                             "Tu 09:00-17:00",
+                             "We 09:00-17:00",
+                             "Th 09:00-17:00",
+                             "Fr 09:00-17:00"
+                             ],
                 "geo": {
                   "@type": "GeoCoordinates",
                   "latitude": "42.562089",
