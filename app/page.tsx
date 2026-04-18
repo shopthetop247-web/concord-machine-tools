@@ -54,6 +54,44 @@ const machines = await client.fetch(`     *[_type == "machine"] | order(_created
   `);
 
 return ( <main>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `
+              {
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                "name": "Concord Machine Tools",
+                "image": "https://www.concordmt.com/logo.jpg",
+                "@id": "https://www.concordmt.com",
+                "address": {
+                  "@type": "PostalAddress",
+                  "streetAddress": "200 East Big Beaver Rd",
+                  "addressLocality": "Troy",
+                  "addressRegion": "MI",
+                  "postalCode": "48083",
+                  "addressCountry": "USA"
+                },
+                "telephone": "+1-248-224-3147",
+                "url": "https://www.concordmt.com",
+                "openingHours": "Mo-Fr 09:00-17:00",
+                "geo": {
+                  "@type": "GeoCoordinates",
+                  "latitude": "42.562089",
+                  "longitude": "-83.1427033"
+                },
+                "priceRange": "$$$",
+                "servesCuisine": "N/A",
+                "sameAs": [
+                  "https://www.facebook.com/ConcordMT",
+                  "https://www.linkedin.com/company/concordmt"
+                ]
+              }
+            `
+          }}
+        ></script>
+      </Head>
 {/* HERO */} <section className="bg-slate-900 text-white"> <div className="max-w-6xl mx-auto px-6 py-20 text-center"> <h1 className="text-4xl md:text-5xl font-semibold mb-6">
 Used CNC & Metalworking Machinery for Sale </h1>
 
