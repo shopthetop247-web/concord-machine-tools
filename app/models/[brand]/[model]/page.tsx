@@ -14,7 +14,7 @@ const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
 /* -------------------------
-   HELPERS (STANDARDIZED)
+   HELPERS
 -------------------------- */
 const formatBrand = (str: string) =>
   str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -36,14 +36,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
    PAGE
 -------------------------- */
 export default async function ModelPage({ params }: PageProps) {
-  const brandName = formatBrand(params.brand);
+  const brandSlug = params.brand;
   const modelSlug = params.model;
 
-  // 🔥 STEP 1: Fetch ONLY by brand (no fragile filtering in GROQ or JS)
+  const brandName = formatBrand(brandSlug);
+
+  /**
+   * ✅ FULLY GROQ-BASED FILTERING
+   * No JS filtering anymore
+   */
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
-      lower(brand) == lower($brand)
+      lower(brand) match $brand &&
+      modelSlug == $modelSlug
     ]{
       _id,
       name,
@@ -56,39 +62,22 @@ export default async function ModelPage({ params }: PageProps) {
       images[]{asset->},
       yearOfMfg,
       stockNumber
-    }`,
-    { brand: brandName }
+    } | order(yearOfMfg desc)`,
+    {
+      brand: `*${brandSlug}*`,
+      modelSlug: modelSlug
+    }
   );
-
-  // 🔥 STEP 2: STRICT MODEL MATCH (canonical-first logic)
-  const filtered = machines.filter((m: any) => {
-    // PRIORITY 1: use structured slug field (BEST CASE)
-    if (m.modelSlug) {
-      return m.modelSlug === modelSlug;
-    }
-
-    // PRIORITY 2: fallback to model field if slug not migrated yet
-    if (m.model) {
-      const fallbackSlug = m.model
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      return fallbackSlug === modelSlug;
-    }
-
-    return false;
-  });
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
       <h1 className="text-3xl font-semibold mb-6">
-        Used {brandName} {params.model.replace(/-/g, ' ')} CNC Machines for Sale
+        Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
       {/* EMPTY STATE */}
-      {filtered.length === 0 ? (
+      {machines.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
 
@@ -99,7 +88,7 @@ export default async function ModelPage({ params }: PageProps) {
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-          {filtered.map((machine: any) => {
+          {machines.map((machine: any) => {
             const category = machine.category?.slug?.current;
             const subcategory = machine.subcategory?.slug?.current;
 
@@ -114,7 +103,6 @@ export default async function ModelPage({ params }: PageProps) {
                 className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
               >
 
-                {/* IMAGE */}
                 <div className="h-48 w-full">
                   <img
                     src={imageUrl}
@@ -123,7 +111,6 @@ export default async function ModelPage({ params }: PageProps) {
                   />
                 </div>
 
-                {/* TEXT */}
                 <div className="p-4">
                   <h2 className="font-medium">{machine.name}</h2>
 
@@ -131,7 +118,6 @@ export default async function ModelPage({ params }: PageProps) {
                     {machine.yearOfMfg} | {machine.stockNumber}
                   </p>
 
-                  {/* MODEL DEBUG SAFETY (helps long-term consistency) */}
                   {machine.modelDisplay && (
                     <p className="text-xs text-gray-400 mt-1">
                       Model: {machine.modelDisplay}
