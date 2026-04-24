@@ -7,9 +7,9 @@ import Image from 'next/image';
 import { client } from '@/lib/sanityClient';
 
 export const metadata: Metadata = {
-title: 'Used Machines for Sale |Machinery| Concord Machine Tools',
+title: 'Used Machines for Sale - CNC & Fabricating Machinery',
 description:
-'Buy used machinery, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory, fair pricing, and fast response nationwide.',
+'Buy & sell used machinery, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory, fair pricing, and fast response nationwide.',
 keywords: [
 'used CNC machines for sale',
 'CNC mills for sale',
