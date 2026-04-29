@@ -19,6 +19,9 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 const formatBrand = (str: string) =>
   str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
+const normalizeSlug = (str: string) =>
+  str?.toLowerCase().replace(/\s+/g, ' ').trim();
+
 /* -------------------------
    SEO
 -------------------------- */
@@ -36,33 +39,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
    PAGE
 -------------------------- */
 export default async function ModelPage({ params }: PageProps) {
-  const brandSlug = params.brand;
+  const brandSlug = params.brand;   // ✅ SOURCE OF TRUTH
   const modelSlug = params.model;
 
   const brandName = formatBrand(brandSlug);
 
-  /* -------------------------
-     🔥 CORE FIX: FULL GROQ FILTER
-     - No JS filtering
-     - No modelSlug dependency
-     - Normalizes model inline
-  -------------------------- */
+  // 🔥 FIXED: use raw slug match strategy
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
-      lower(brand) match $brand &&
-      defined(model) &&
-      lower(
-        replace(
-          replace(
-            replace(model, " ", "-"),
-          "--", "-"),
-        "--", "-")
-      ) == $model
+      lower(brand) match $brand
     ]{
       _id,
       name,
       model,
+      modelSlug,
+      modelDisplay,
       slug,
       category->{slug},
       subcategory->{slug},
@@ -71,10 +63,27 @@ export default async function ModelPage({ params }: PageProps) {
       stockNumber
     }`,
     {
-      brand: `*${brandSlug}*`,
-      model: modelSlug
+      brand: `*${brandSlug}*`
     }
   );
+
+  // 🔥 MODEL FILTER (unchanged but safe)
+  const filtered = machines.filter((m: any) => {
+    if (m.modelSlug) {
+      return m.modelSlug === modelSlug;
+    }
+
+    if (m.model) {
+      const fallbackSlug = m.model
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      return fallbackSlug === modelSlug;
+    }
+
+    return false;
+  });
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
@@ -84,7 +93,7 @@ export default async function ModelPage({ params }: PageProps) {
       </h1>
 
       {/* EMPTY STATE */}
-      {machines.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
 
@@ -95,7 +104,7 @@ export default async function ModelPage({ params }: PageProps) {
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-          {machines.map((machine: any) => {
+          {filtered.map((machine: any) => {
             const category = machine.category?.slug?.current;
             const subcategory = machine.subcategory?.slug?.current;
 
@@ -110,7 +119,6 @@ export default async function ModelPage({ params }: PageProps) {
                 className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
               >
 
-                {/* IMAGE */}
                 <div className="h-48 w-full">
                   <img
                     src={imageUrl}
@@ -119,13 +127,18 @@ export default async function ModelPage({ params }: PageProps) {
                   />
                 </div>
 
-                {/* TEXT */}
                 <div className="p-4">
                   <h2 className="font-medium">{machine.name}</h2>
 
                   <p className="text-sm text-gray-500">
                     {machine.yearOfMfg} | {machine.stockNumber}
                   </p>
+
+                  {machine.modelDisplay && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Model: {machine.modelDisplay}
+                    </p>
+                  )}
                 </div>
 
               </Link>
