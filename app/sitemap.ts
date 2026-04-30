@@ -1,4 +1,5 @@
 // app/sitemap.ts
+export const dynamic = 'force-dynamic';
 import { client } from '@/lib/sanityClient';
 
 export default async function sitemap() {
