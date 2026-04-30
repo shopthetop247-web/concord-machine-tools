@@ -129,18 +129,29 @@ export default async function HomePage() {
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <Link href="/inventory/cnc-machinery" className="block border p-6 rounded-lg">
-            CNC Machinery
-          </Link>
+        <Link href="/inventory/cnc-machinery" className="block bg-white border rounded-lg p-6 hover:shadow-lg transition">
+        <h3 className="text-lg font-semibold mb-2">CNC Machinery</h3>
+        <p className="text-sm text-gray-600">
+          CNC machining centers, turning centers, horizontal and vertical machines.
+        </p>
+      </Link>
 
-          <Link href="/inventory/fabricating-and-stamping" className="block border p-6 rounded-lg">
-            Fabricating & Stamping
-          </Link>
 
-          <Link href="/inventory/manual-machinery" className="block border p-6 rounded-lg">
-            Manual Machinery
-          </Link>
-        </div>
+        <Link href="/inventory/fabricating-and-stamping" className="block bg-white border rounded-lg p-6 hover:shadow-lg transition">
+        <h3 className="text-lg font-semibold mb-2">Fabricating & Stamping</h3>
+        <p className="text-sm text-gray-600">
+          Press brakes, stamping presses, fabrication and forming equipment.
+        </p>
+      </Link>
+
+
+          <Link href="/inventory/manual-machinery" className="block bg-white border rounded-lg p-6 hover:shadow-lg transition">
+        <h3 className="text-lg font-semibold mb-2">Manual Machinery</h3>
+        <p className="text-sm text-gray-600">
+          Manual lathes, mills, grinders, and traditional shop equipment.
+        </p>
+      </Link>
+    </div>
       
     {/* BRAND LOGOS */}
     <div className="mt-14">
