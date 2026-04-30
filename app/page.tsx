@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   title: 'Used Machines for Sale - CNC & Fabricating Machinery',
   description:
     'Buy & sell used machinery, used Haas, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory, and fair pricing.',
+
+  alternates: {
+    canonical: 'https://www.concordmt.com',
+  },
 };
 
 export default async function HomePage() {
