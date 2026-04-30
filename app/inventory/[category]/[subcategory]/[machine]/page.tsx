@@ -73,33 +73,39 @@ return null;
 }
 
 /* -----------------------------------
-SEO METADATA
+SEO METADATA (WITH CANONICAL)
 ----------------------------------- */
 export async function generateMetadata(
-{ params }: PageProps
+  { params }: PageProps
 ): Promise<Metadata> {
-const machine = await client.fetch(
-`*[_type == "machine" && slug.current == $slug][0]{
+  const machine = await client.fetch(
+    `*[_type == "machine" && slug.current == $slug][0]{
       name,
       brand,
       stockNumber,
-      description
+      description,
+      slug
     }`,
-{ slug: params.machine }
-);
+    { slug: params.machine }
+  );
 
-if (!machine) {
-return { title: 'Machine Not Found' };
-}
+  if (!machine) {
+    return { title: 'Machine Not Found' };
+  }
 
-const fullName = getFullMachineName(machine);
+  const fullName = getFullMachineName(machine);
 
-return {
-title: `Used ${fullName} for Sale`,
-description:
-machine.description ??
-`Used ${fullName} for sale. Stock #${machine.stockNumber}.`,
-};
+  const canonicalUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current || params.machine}`;
+
+  return {
+    title: `Used ${fullName} for Sale`,
+    description:
+      machine.description ??
+      `Used ${fullName} for sale. Stock #${machine.stockNumber}.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+  };
 }
 
 /* -----------------------------------
