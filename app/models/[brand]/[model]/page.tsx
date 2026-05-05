@@ -50,26 +50,26 @@ export default async function ModelPage({ params }: PageProps) {
   const brandName = formatBrand(brandSlug);
 
   const machines = await client.fetch(
-    `*[
-      _type == "machine" &&
-      lower(brand) == $brand
-    ]{
-      _id,
-      name,
-      model,
-      modelSlug,
-      modelDisplay,
-      slug,
-      category->{slug},
-      subcategory->{slug},
-      images[]{asset->},
-      yearOfMfg,
-      stockNumber
-    }`,
-    {
-      brand: `*${brandSlug}*`
-    }
-  );
+  `*[
+    _type == "machine" &&
+    brand->slug.current == $brand
+  ]{
+    _id,
+    name,
+    model,
+    modelSlug,
+    modelDisplay,
+    slug,
+    category->{slug},
+    subcategory->{slug},
+    images[]{asset->},
+    yearOfMfg,
+    stockNumber
+  }`,
+  {
+    brand: brandSlug
+  }
+);
 
   // ✅ FIXED: normalized comparison (robust + future-proof)
   const filtered = machines.filter((m: any) => {
