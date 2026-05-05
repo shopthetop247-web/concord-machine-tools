@@ -48,13 +48,14 @@ export default async function ModelPage({ params }: PageProps) {
 
   const brandName = formatBrand(brandSlug);
 
+  /* =========================================================
+     🔥 FIXED GROQ (NO REFERENCE TRAVERSAL)
+     Prevents SSR crashes from broken Sanity relationships
+  ========================================================= */
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
-      (
-        lower(brand) match $brandMatch ||
-        brand->slug.current == $brandExact
-      )
+      lower(brand) match $brandMatch
     ]{
       _id,
       name,
@@ -62,15 +63,14 @@ export default async function ModelPage({ params }: PageProps) {
       modelSlug,
       modelDisplay,
       slug,
-      category->{slug},
-      subcategory->{slug},
+      category,
+      subcategory,
       images[]{asset->},
       yearOfMfg,
       stockNumber
     }`,
     {
-      brandMatch: `*${brandSlug.toLowerCase()}*`,
-      brandExact: brandSlug
+      brandMatch: `*${brandSlug.toLowerCase()}*`
     }
   );
 
@@ -80,7 +80,7 @@ export default async function ModelPage({ params }: PageProps) {
   console.log(JSON.stringify(machines, null, 2));
 
   /* -----------------------------------------
-     MODEL FILTER (unchanged logic, safe)
+     MODEL FILTER (UNCHANGED LOGIC)
   ----------------------------------------- */
   const filtered = machines.filter((m: any) => {
     const machineSlug =
@@ -94,8 +94,7 @@ export default async function ModelPage({ params }: PageProps) {
   });
 
   /* -----------------------------------------
-     🔥 CRITICAL FIX: REMOVE INVALID RECORDS
-     (THIS IS WHAT WAS CAUSING THE CRASH)
+     SAFE RENDER FILTER (prevents runtime crash)
   ----------------------------------------- */
   const safeMachines = filtered.filter((m: any) => {
     return (
