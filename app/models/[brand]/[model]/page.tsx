@@ -46,60 +46,64 @@ export default async function ModelPage({ params }: PageProps) {
   const brandSlug = params.brand;
   const modelSlug = params.model;
 
+  const brandNorm = normalize(brandSlug);
+  const modelNorm = normalize(modelSlug);
+
   const brandName = formatBrand(brandSlug);
 
   /* =========================================================
-     SAFE GROQ (RAW DATA ONLY)
+     FETCH RAW MACHINES (NO OVER-FILTERING IN GROQ)
   ========================================================= */
   const machines = await client.fetch(
-  `*[
-    _type == "machine" &&
-    defined(brand)
-  ]{
-    _id,
-    name,
-    model,
-    modelSlug,
-    modelDisplay,
-    "slugValue": slug.current,
-    "categorySlug": category->slug.current,
-    "subcategorySlug": subcategory->slug.current,
-    images[]{asset->},
-    yearOfMfg,
-    stockNumber,
-    brand
-  }`
-);
+    `*[_type == "machine"]{
+      _id,
+      name,
+      model,
+      modelSlug,
+      modelDisplay,
+      slug,
+      category->{slug},
+      subcategory->{slug},
+      images[]{asset->},
+      yearOfMfg,
+      stockNumber,
+      brand,
+      brandRef->{name, slug}
+    }`
+  );
+
+  console.log('machines fetched:', machines?.length || 0);
 
   /* =========================================================
-     DEBUG (optional)
-  ========================================================= */
-  console.log('machines:', machines?.length || 0);
-
-  /* =========================================================
-     SAFE JS FILTERING (ALL LOGIC HERE)
+     FILTER LOGIC (ROBUST + CONSISTENT)
   ========================================================= */
   const filtered = machines.filter((m: any) => {
-  const brandValue =
-    typeof m.brand === 'string'
-      ? m.brand
-      : m.brandRef?.name || m.brandRef?._ref;
+    // -------- BRAND RESOLUTION --------
+    const brandRaw =
+      m.brandRef?.slug?.current ||
+      m.brandRef?.name ||
+      m.brand ||
+      '';
 
-  const modelValue =
-    typeof m.modelSlug === 'string'
-      ? m.modelSlug
-      : m.modelSlug?.current;
+    const brandCheck = normalize(brandRaw);
+    const targetBrand = brandNorm;
 
-  if (!brandValue || !modelValue) return false;
+    // -------- MODEL RESOLUTION --------
+    const modelRaw =
+      m.modelSlug?.current ||
+      m.modelSlug ||
+      m.model ||
+      '';
 
-  return (
-    brandValue.toLowerCase().includes(brandSlug.toLowerCase()) &&
-    normalize(modelValue) === normalize(modelSlug)
-  );
-});
+    const modelCheck = normalize(modelRaw);
+
+    if (!brandCheck || !modelCheck) return false;
+
+    return brandCheck === targetBrand && modelCheck === modelNorm;
+  });
 
   /* =========================================================
-     FINAL SAFETY FILTER (prevents SSR crashes)
+     FINAL SAFETY FILTER
   ========================================================= */
   const safeMachines = filtered.filter((m: any) => {
     return (
@@ -122,7 +126,6 @@ export default async function ModelPage({ params }: PageProps) {
       {safeMachines.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
-
           <p className="mt-2 text-sm text-gray-500">
             This may be a sourcing-only model. Contact us and we can locate one.
           </p>
@@ -131,21 +134,20 @@ export default async function ModelPage({ params }: PageProps) {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
           {safeMachines.map((machine: any) => {
-  const category = machine.categorySlug;
-  const subcategory = machine.subcategorySlug;
-  const slug = machine.slugValue;
+            const category = machine.category?.slug?.current;
+            const subcategory = machine.subcategory?.slug?.current;
+            const slug = machine.slug?.current;
 
-  const imageUrl = machine.images?.[0]
-    ? urlFor(machine.images[0])
-    : '/placeholder.jpg';
+            const imageUrl = machine.images?.[0]
+              ? urlFor(machine.images[0])
+              : '/placeholder.jpg';
 
-  return (
-    <Link
-      key={machine._id}
-      href={`/inventory/${category}/${subcategory}/${slug}`}
-      className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-    >
-
+            return (
+              <Link
+                key={machine._id}
+                href={`/inventory/${category}/${subcategory}/${slug}`}
+                className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+              >
                 <div className="h-48 w-full">
                   <img
                     src={imageUrl}
