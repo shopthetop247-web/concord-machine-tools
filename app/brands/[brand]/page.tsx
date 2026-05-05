@@ -21,8 +21,13 @@ interface Machine {
 const builder = imageUrlBuilder(client);
 const urlFor = (source: any) => builder.image(source).auto('format').url();
 
+/* ✅ FIXED: robust slug normalization (matches model page logic) */
 const slugify = (str: string) =>
-  str?.toLowerCase().replace(/\s+/g, '-').trim();
+  str
+    ?.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 /* ------------------------------------
    FALLBACK SEO CONTENT (BRAND LEVEL ONLY)
@@ -60,7 +65,7 @@ export default async function BrandPage({ params }: any) {
     brandName.charAt(0).toUpperCase() + brandName.slice(1);
 
   /* =========================================================
-     ✅ FIX: SORT BY MACHINE AGE (NEWEST FIRST)
+     FIX: SORT BY MACHINE AGE (NEWEST FIRST)
   ========================================================= */
   const machines: Machine[] = await client.fetch(
     `*[
@@ -82,7 +87,7 @@ export default async function BrandPage({ params }: any) {
   );
 
   /* ----------------------------
-     UNIQUE MODEL LIST (TEXT ONLY)
+     UNIQUE MODEL LIST (SAFE)
   ---------------------------- */
   const modelSet = new Set<string>();
 
@@ -131,6 +136,9 @@ export default async function BrandPage({ params }: any) {
           <div className="flex flex-wrap gap-2">
             {models.map((model) => {
               const slug = slugify(model);
+
+              // 🚨 SAFETY GUARD (prevents /undefined routes)
+              if (!slug) return null;
 
               return (
                 <Link
