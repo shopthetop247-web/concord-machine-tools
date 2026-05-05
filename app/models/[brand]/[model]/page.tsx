@@ -80,25 +80,23 @@ export default async function ModelPage({ params }: PageProps) {
      SAFE JS FILTERING (ALL LOGIC HERE)
   ========================================================= */
   const filtered = machines.filter((m: any) => {
-    const brandValue =
-      typeof m.brand === 'string'
-        ? m.brand
-        : m.brand?.slug?.current;
+  const brandValue =
+    typeof m.brand === 'string'
+      ? m.brand
+      : m.brandRef?.name || m.brandRef?._ref;
 
-    const machineSlug =
-      m.modelSlug
-        ? normalize(m.modelSlug)
-        : m.model
-          ? normalize(m.model)
-          : null;
+  const modelValue =
+    typeof m.modelSlug === 'string'
+      ? m.modelSlug
+      : m.modelSlug?.current;
 
-    if (!brandValue || !machineSlug) return false;
+  if (!brandValue || !modelValue) return false;
 
-    return (
-      brandValue.toLowerCase().includes(brandSlug.toLowerCase()) &&
-      machineSlug === normalize(modelSlug)
-    );
-  });
+  return (
+    brandValue.toLowerCase().includes(brandSlug.toLowerCase()) &&
+    normalize(modelValue) === normalize(modelSlug)
+  );
+});
 
   /* =========================================================
      FINAL SAFETY FILTER (prevents SSR crashes)
