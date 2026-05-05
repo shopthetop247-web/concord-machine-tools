@@ -53,26 +53,32 @@ export default async function ModelPage({ params }: PageProps) {
      Prevents SSR crashes from broken Sanity relationships
   ========================================================= */
   const machines = await client.fetch(
-    `*[
-      _type == "machine" &&
-      lower(brand) match $brandMatch
-    ]{
-      _id,
-      name,
-      model,
-      modelSlug,
-      modelDisplay,
-      slug,
-      category,
-      subcategory,
-      images[]{asset->},
-      yearOfMfg,
-      stockNumber
-    }`,
-    {
-      brandMatch: `*${brandSlug.toLowerCase()}*`
-    }
-  );
+  `*[
+    _type == "machine" &&
+    defined(brand) &&
+    (typeof(brand) == "string" || defined(brand->slug.current)) &&
+    (
+      (typeof(brand) == "string" && lower(brand) match $brandMatch) ||
+      brand->slug.current == $brandExact
+    )
+  ]{
+    _id,
+    name,
+    model,
+    modelSlug,
+    modelDisplay,
+    slug,
+    category,
+    subcategory,
+    images[]{asset->},
+    yearOfMfg,
+    stockNumber
+  }`,
+  {
+    brandMatch: brandSlug.toLowerCase(),
+    brandExact: brandSlug
+  }
+);
 
   /* -----------------------------------------
      DEBUG (safe to remove after verification)
