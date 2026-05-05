@@ -52,7 +52,7 @@ export default async function ModelPage({ params }: PageProps) {
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
-      lower(brand) match $brand
+      lower(brand) == $brand
     ]{
       _id,
       name,
