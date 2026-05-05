@@ -49,14 +49,30 @@ export default async function ModelPage({ params }: PageProps) {
 
   const brandName = formatBrand(brandSlug);
 
-  const machines = await client.fetch(
-  `*[_type == "machine"][0...50]{
+ const machines = await client.fetch(
+  `*[
+    _type == "machine" &&
+    (
+      lower(brand) match $brandMatch ||
+      brand->slug.current == $brandExact
+    )
+  ]{
+    _id,
     name,
-    brand,
-    "brandSlug": brand->slug.current,
     model,
-    modelSlug
-  }`
+    modelSlug,
+    modelDisplay,
+    slug,
+    category->{slug},
+    subcategory->{slug},
+    images[]{asset->},
+    yearOfMfg,
+    stockNumber
+  }`,
+  {
+    brandMatch: `*${brandSlug.toLowerCase()}*`,
+    brandExact: brandSlug
+  }
 );
 
 console.log(JSON.stringify(machines, null, 2));
