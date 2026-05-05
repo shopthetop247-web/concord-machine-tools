@@ -48,46 +48,35 @@ export default async function ModelPage({ params }: PageProps) {
 
   const brandName = formatBrand(brandSlug);
 
-  /* =========================================================
-     🔥 FIXED GROQ (NO REFERENCE TRAVERSAL)
-     Prevents SSR crashes from broken Sanity relationships
-  ========================================================= */
   const machines = await client.fetch(
-  `*[
-    _type == "machine" &&
-    defined(brand) &&
-    (typeof(brand) == "string" || defined(brand->slug.current)) &&
-    (
-      (typeof(brand) == "string" && lower(brand) match $brandMatch) ||
-      brand->slug.current == $brandExact
-    )
-  ]{
-    _id,
-    name,
-    model,
-    modelSlug,
-    modelDisplay,
-    slug,
-    category,
-    subcategory,
-    images[]{asset->},
-    yearOfMfg,
-    stockNumber
-  }`,
-  {
-    brandMatch: brandSlug.toLowerCase(),
-    brandExact: brandSlug
-  }
-);
+    `*[
+      _type == "machine" &&
+      defined(brand) &&
+      (
+        (typeof(brand) == "string" && lower(brand) match $brandMatch) ||
+        brand->slug.current == $brandExact
+      )
+    ]{
+      _id,
+      name,
+      model,
+      modelSlug,
+      modelDisplay,
+      slug,
+      category,
+      subcategory,
+      images[]{asset->},
+      yearOfMfg,
+      stockNumber
+    }`,
+    {
+      brandMatch: brandSlug.toLowerCase(),
+      brandExact: brandSlug
+    }
+  );
 
-  /* -----------------------------------------
-     DEBUG (safe to remove after verification)
-  ----------------------------------------- */
   console.log(JSON.stringify(machines, null, 2));
 
-  /* -----------------------------------------
-     MODEL FILTER (UNCHANGED LOGIC)
-  ----------------------------------------- */
   const filtered = machines.filter((m: any) => {
     const machineSlug =
       m.modelSlug
@@ -99,9 +88,6 @@ export default async function ModelPage({ params }: PageProps) {
     return machineSlug === normalize(modelSlug);
   });
 
-  /* -----------------------------------------
-     SAFE RENDER FILTER (prevents runtime crash)
-  ----------------------------------------- */
   const safeMachines = filtered.filter((m: any) => {
     return (
       m?._id &&
@@ -119,7 +105,6 @@ export default async function ModelPage({ params }: PageProps) {
         Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
-      {/* EMPTY STATE */}
       {safeMachines.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
@@ -132,8 +117,14 @@ export default async function ModelPage({ params }: PageProps) {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
           {safeMachines.map((machine: any) => {
-            const category = machine.category.slug.current;
-            const subcategory = machine.subcategory.slug.current;
+            // 🔴 HARD SAFETY GUARD (this is the fix that stops SSR crash)
+            const category = machine?.category?.slug?.current;
+            const subcategory = machine?.subcategory?.slug?.current;
+            const slug = machine?.slug?.current;
+
+            if (!category || !subcategory || !slug) {
+              return null;
+            }
 
             const imageUrl = machine.images?.[0]
               ? urlFor(machine.images[0])
@@ -142,7 +133,7 @@ export default async function ModelPage({ params }: PageProps) {
             return (
               <Link
                 key={machine._id}
-                href={`/inventory/${category}/${subcategory}/${machine.slug.current}`}
+                href={`/inventory/${category}/${subcategory}/${slug}`}
                 className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
               >
 
