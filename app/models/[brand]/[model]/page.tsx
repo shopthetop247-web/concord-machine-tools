@@ -19,8 +19,13 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 const formatBrand = (str: string) =>
   str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-const normalizeSlug = (str: string) =>
-  str?.toLowerCase().replace(/\s+/g, ' ').trim();
+// 🔥 NEW: strong normalization (replaces weak comparisons)
+const normalize = (str: string) =>
+  str
+    ?.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 /* -------------------------
    SEO
@@ -39,12 +44,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
    PAGE
 -------------------------- */
 export default async function ModelPage({ params }: PageProps) {
-  const brandSlug = params.brand;   // ✅ SOURCE OF TRUTH
+  const brandSlug = params.brand;
   const modelSlug = params.model;
 
   const brandName = formatBrand(brandSlug);
 
-  // 🔥 FIXED: use raw slug match strategy
   const machines = await client.fetch(
     `*[
       _type == "machine" &&
@@ -67,22 +71,16 @@ export default async function ModelPage({ params }: PageProps) {
     }
   );
 
-  // 🔥 MODEL FILTER (unchanged but safe)
+  // ✅ FIXED: normalized comparison (robust + future-proof)
   const filtered = machines.filter((m: any) => {
-    if (m.modelSlug) {
-      return m.modelSlug === modelSlug;
-    }
+    const machineSlug =
+      m.modelSlug
+        ? normalize(m.modelSlug)
+        : m.model
+          ? normalize(m.model)
+          : null;
 
-    if (m.model) {
-      const fallbackSlug = m.model
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-      return fallbackSlug === modelSlug;
-    }
-
-    return false;
+    return machineSlug === normalize(modelSlug);
   });
 
   return (
