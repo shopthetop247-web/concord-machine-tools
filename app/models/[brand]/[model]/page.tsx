@@ -52,24 +52,24 @@ export default async function ModelPage({ params }: PageProps) {
      SAFE GROQ (RAW DATA ONLY)
   ========================================================= */
   const machines = await client.fetch(
-    `*[
-      _type == "machine" &&
-      defined(brand)
-    ]{
-      _id,
-      name,
-      model,
-      modelSlug,
-      modelDisplay,
-      slug,
-      category,
-      subcategory,
-      images[]{asset->},
-      yearOfMfg,
-      stockNumber,
-      brand
-    }`
-  );
+  `*[
+    _type == "machine" &&
+    defined(brand)
+  ]{
+    _id,
+    name,
+    model,
+    modelSlug,
+    modelDisplay,
+    "slugValue": slug.current,
+    "categorySlug": category->slug.current,
+    "subcategorySlug": subcategory->slug.current,
+    images[]{asset->},
+    yearOfMfg,
+    stockNumber,
+    brand
+  }`
+);
 
   /* =========================================================
      DEBUG (optional)
@@ -133,20 +133,20 @@ export default async function ModelPage({ params }: PageProps) {
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
           {safeMachines.map((machine: any) => {
-            const category = machine.category.slug.current;
-            const subcategory = machine.subcategory.slug.current;
-            const slug = machine.slug.current;
+  const category = machine.categorySlug;
+  const subcategory = machine.subcategorySlug;
+  const slug = machine.slugValue;
 
-            const imageUrl = machine.images?.[0]
-              ? urlFor(machine.images[0])
-              : '/placeholder.jpg';
+  const imageUrl = machine.images?.[0]
+    ? urlFor(machine.images[0])
+    : '/placeholder.jpg';
 
-            return (
-              <Link
-                key={machine._id}
-                href={`/inventory/${category}/${subcategory}/${slug}`}
-                className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-              >
+  return (
+    <Link
+      key={machine._id}
+      href={`/inventory/${category}/${subcategory}/${slug}`}
+      className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+    >
 
                 <div className="h-48 w-full">
                   <img
