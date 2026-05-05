@@ -19,7 +19,6 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
 const formatBrand = (str: string) =>
   str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-// 🔥 NEW: strong normalization (replaces weak comparisons)
 const normalize = (str: string) =>
   str
     ?.toLowerCase()
@@ -49,35 +48,40 @@ export default async function ModelPage({ params }: PageProps) {
 
   const brandName = formatBrand(brandSlug);
 
- const machines = await client.fetch(
-  `*[
-    _type == "machine" &&
-    (
-      lower(brand) match $brandMatch ||
-      brand->slug.current == $brandExact
-    )
-  ]{
-    _id,
-    name,
-    model,
-    modelSlug,
-    modelDisplay,
-    slug,
-    category->{slug},
-    subcategory->{slug},
-    images[]{asset->},
-    yearOfMfg,
-    stockNumber
-  }`,
-  {
-    brandMatch: `*${brandSlug.toLowerCase()}*`,
-    brandExact: brandSlug
-  }
-);
+  const machines = await client.fetch(
+    `*[
+      _type == "machine" &&
+      (
+        lower(brand) match $brandMatch ||
+        brand->slug.current == $brandExact
+      )
+    ]{
+      _id,
+      name,
+      model,
+      modelSlug,
+      modelDisplay,
+      slug,
+      category->{slug},
+      subcategory->{slug},
+      images[]{asset->},
+      yearOfMfg,
+      stockNumber
+    }`,
+    {
+      brandMatch: `*${brandSlug.toLowerCase()}*`,
+      brandExact: brandSlug
+    }
+  );
 
-console.log(JSON.stringify(machines, null, 2));
+  /* -----------------------------------------
+     DEBUG (safe to remove after verification)
+  ----------------------------------------- */
+  console.log(JSON.stringify(machines, null, 2));
 
-  // ✅ FIXED: normalized comparison (robust + future-proof)
+  /* -----------------------------------------
+     MODEL FILTER (unchanged logic, safe)
+  ----------------------------------------- */
   const filtered = machines.filter((m: any) => {
     const machineSlug =
       m.modelSlug
@@ -89,6 +93,20 @@ console.log(JSON.stringify(machines, null, 2));
     return machineSlug === normalize(modelSlug);
   });
 
+  /* -----------------------------------------
+     🔥 CRITICAL FIX: REMOVE INVALID RECORDS
+     (THIS IS WHAT WAS CAUSING THE CRASH)
+  ----------------------------------------- */
+  const safeMachines = filtered.filter((m: any) => {
+    return (
+      m?._id &&
+      m?.name &&
+      m?.slug?.current &&
+      m?.category?.slug?.current &&
+      m?.subcategory?.slug?.current
+    );
+  });
+
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
@@ -97,7 +115,7 @@ console.log(JSON.stringify(machines, null, 2));
       </h1>
 
       {/* EMPTY STATE */}
-      {filtered.length === 0 ? (
+      {safeMachines.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
 
@@ -108,9 +126,9 @@ console.log(JSON.stringify(machines, null, 2));
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
 
-          {filtered.map((machine: any) => {
-            const category = machine.category?.slug?.current;
-            const subcategory = machine.subcategory?.slug?.current;
+          {safeMachines.map((machine: any) => {
+            const category = machine.category.slug.current;
+            const subcategory = machine.subcategory.slug.current;
 
             const imageUrl = machine.images?.[0]
               ? urlFor(machine.images[0])
