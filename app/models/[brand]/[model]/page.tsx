@@ -50,26 +50,16 @@ export default async function ModelPage({ params }: PageProps) {
   const brandName = formatBrand(brandSlug);
 
   const machines = await client.fetch(
-  `*[
-    _type == "machine" &&
-    brand->slug.current == $brand
-  ]{
-    _id,
+  `*[_type == "machine"][0...50]{
     name,
+    brand,
+    "brandSlug": brand->slug.current,
     model,
-    modelSlug,
-    modelDisplay,
-    slug,
-    category->{slug},
-    subcategory->{slug},
-    images[]{asset->},
-    yearOfMfg,
-    stockNumber
-  }`,
-  {
-    brand: brandSlug
-  }
+    modelSlug
+  }`
 );
+
+console.log(JSON.stringify(machines, null, 2));
 
   // ✅ FIXED: normalized comparison (robust + future-proof)
   const filtered = machines.filter((m: any) => {
