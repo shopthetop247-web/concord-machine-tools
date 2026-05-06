@@ -52,7 +52,7 @@ export default async function ModelPage({ params }: PageProps) {
   const brandName = formatBrand(brandSlug);
 
   /* =========================================================
-     1. FETCH MODEL DOCUMENT (NEW)
+     MODEL DATA (SEO CONTENT)
   ========================================================= */
   const modelData = await client.fetch(
     `*[_type == "model" && slug.current == $model][0]{
@@ -64,8 +64,10 @@ export default async function ModelPage({ params }: PageProps) {
     { model: modelSlug }
   );
 
+  console.log('modelData:', modelData);
+
   /* =========================================================
-     2. FETCH MACHINES
+     MACHINES
   ========================================================= */
   const machines = await client.fetch(
     `*[_type == "machine"]{
@@ -85,9 +87,6 @@ export default async function ModelPage({ params }: PageProps) {
     }`
   );
 
-  /* =========================================================
-     FILTER LOGIC
-  ========================================================= */
   const filtered = machines.filter((m: any) => {
     const brandRaw =
       m.brandRef?.slug?.current ||
@@ -119,61 +118,33 @@ export default async function ModelPage({ params }: PageProps) {
     <main className="max-w-6xl mx-auto px-6 py-8">
 
       {/* =========================
-          MODEL SEO CONTENT (NEW)
-      ========================= */}
-      {modelData && (
-        <section className="mb-10 max-w-4xl">
-
-          {modelData.seoDescription && (
-            <div className="prose mb-6">
-              <p>{modelData.seoDescription}</p>
-            </div>
-          )}
-
-          {modelData.commonApplications?.length > 0 && (
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">Common Applications</h2>
-              <ul className="list-disc pl-5">
-                {modelData.commonApplications.map((item: string) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {modelData.industries?.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold">Industries</h2>
-              <ul className="list-disc pl-5">
-                {modelData.industries.map((item: string) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-        </section>
-      )}
-
-      {/* =========================
           TITLE
       ========================= */}
-      <h1 className="text-3xl font-semibold mb-6">
+      <h1 className="text-3xl font-semibold mb-4">
         Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
       {/* =========================
-          EMPTY STATE
+          SEO DESCRIPTION (ABOVE GRID)
+      ========================= */}
+      {modelData?.seoDescription && (
+        <div className="prose max-w-4xl mb-8">
+          <p>{modelData.seoDescription}</p>
+        </div>
+      )}
+
+      {/* =========================
+          MACHINE GRID
       ========================= */}
       {safeMachines.length === 0 ? (
-        <div className="text-gray-600">
+        <div className="text-gray-600 mb-10">
           <p>No current inventory for this model.</p>
           <p className="mt-2 text-sm text-gray-500">
             This may be a sourcing-only model. Contact us and we can locate one.
           </p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
 
           {safeMachines.map((machine: any) => {
             const category = machine.category?.slug?.current;
@@ -200,23 +171,51 @@ export default async function ModelPage({ params }: PageProps) {
 
                 <div className="p-4">
                   <h2 className="font-medium">{machine.name}</h2>
-
                   <p className="text-sm text-gray-500">
                     {machine.yearOfMfg} | {machine.stockNumber}
                   </p>
-
-                  {machine.modelDisplay && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Model: {machine.modelDisplay}
-                    </p>
-                  )}
                 </div>
-
               </Link>
             );
           })}
 
         </div>
+      )}
+
+      {/* =========================
+          SUPPORT CONTENT (BELOW GRID)
+      ========================= */}
+      {(modelData?.commonApplications?.length > 0 ||
+        modelData?.industries?.length > 0) && (
+        <section className="max-w-4xl mt-10">
+
+          {modelData?.commonApplications?.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">
+                Common Applications
+              </h2>
+              <ul className="list-disc pl-5">
+                {modelData.commonApplications.map((item: string) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {modelData?.industries?.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-2">
+                Industries
+              </h2>
+              <ul className="list-disc pl-5">
+                {modelData.industries.map((item: string) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        </section>
       )}
 
     </main>
