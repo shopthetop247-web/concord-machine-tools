@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
 import Link from 'next/link';
