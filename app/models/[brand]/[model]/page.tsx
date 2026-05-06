@@ -1,5 +1,5 @@
-console.log("MODEL PAGE HIT:", Date.now());
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import { client } from '@/lib/sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
