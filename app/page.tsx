@@ -119,10 +119,25 @@ export default async function HomePage() {
         <h3 className="text-xl font-semibold mb-4">Why Choose Concord Machine Tools</h3>
 
         <p className="text-gray-700 leading-relaxed">
-          Since 2002, Concord Machine Tools has been buying and selling used machinery with a focus on transparency,
-          fair pricing, and responsive service. Located in Michigan’s manufacturing corridor, we work with companies
-          nationwide and globally. Whether you are buying or selling equipment, our experienced team provides straightforward
-          guidance and market expertise to help you make informed decisions.
+          <p>
+Since 2002, Concord Machine Tools has been a trusted source for buying and selling used CNC machines, fabrication equipment, and industrial machinery. Based in Michigan’s manufacturing corridor, we serve customers across the United States and worldwide, connecting buyers and sellers with high-quality used equipment at competitive market prices.
+</p>
+
+<p>
+We specialize in a wide range of used machinery, including CNC machining centers, CNC lathes, horizontal and vertical mills, Swiss-type lathes, grinding machines, EDM equipment, press brakes, stamping presses, and sheet metal fabrication systems. Our inventory features leading brands such as Haas, Mazak, Okuma, Doosan, Fanuc, Amada, and more.
+</p>
+
+<p>
+At Concord Machine Tools, we focus on transparency, accuracy, and responsiveness. Every machine listing is presented with detailed specifications, photos, and honest condition assessments so you can make informed purchasing decisions. Whether you are expanding your shop, replacing equipment, or sourcing a specific machine model, our team works directly with you to identify the right solution.
+</p>
+
+<p>
+We also help companies sell surplus and idle equipment by leveraging our industry network and market expertise to maximize value and reduce time to sale. From single machines to complete facility liquidations, we provide straightforward guidance and efficient transaction support.
+</p>
+
+<p>
+If you are looking to buy used CNC machines or sell industrial equipment, Concord Machine Tools offers the experience, inventory, and service to help you move forward with confidence.
+</p>
         </p>
       </section>
 
