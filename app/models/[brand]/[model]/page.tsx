@@ -1,3 +1,4 @@
+console.log("MODEL PAGE HIT:", Date.now());
 export const dynamic = 'force-dynamic';
 
 import { client } from '@/lib/sanityClient';
