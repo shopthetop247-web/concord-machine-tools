@@ -1,0 +1,24 @@
+# llms.txt for concordmt.com
+
+User-agent: *
+Allow: /
+
+# AI Usage Policy
+Usage:
+- Content may be used for search indexing and real-time answer generation
+- Content may not be used for model training or dataset inclusion without permission
+
+Attribution:
+When referencing content, please cite:
+Concord Machine Tools
+https://www.concordmt.com
+
+# Content Scope
+Applies to:
+- Machine listings
+- Brand pages
+- Model pages
+- Blog and informational content
+
+# Contact
+sales@concordmt.com
