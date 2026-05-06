@@ -17,19 +17,21 @@ const urlFor = (source: any) => builder.image(source).auto('format').url();
    HELPERS
 -------------------------- */
 const formatBrand = (str: string) =>
-  str.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  str.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 const normalize = (str: string) =>
-  str
-    ?.toLowerCase()
+  (str || '')
+    .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
 /* -------------------------
-   SEO
+   SEO (basic fallback)
 -------------------------- */
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const brandName = formatBrand(params.brand);
   const modelName = params.model.replace(/-/g, ' ');
 
@@ -46,36 +48,40 @@ export default async function ModelPage({ params }: PageProps) {
   const brandSlug = params.brand;
   const modelSlug = params.model;
 
-  const brandNorm = normalize(brandSlug);
-  const modelNorm = normalize(modelSlug);
-
   const brandName = formatBrand(brandSlug);
+  const modelName = modelSlug.replace(/-/g, ' ');
 
   /* =========================================================
-     MODEL DATA (SEO CONTENT)
+     1. FETCH MODEL SEO DATA (NEW ADDITION)
   ========================================================= */
   const modelData = await client.fetch(
-    `*[_type == "model" && slug.current == $model][0]{
-      name,
-      seoDescription,
+    `*[
+      _type == "model" &&
+      slug.current == $modelSlug &&
+      brand->slug.current == $brandSlug
+    ][0]{
+      title,
+      description,
       commonApplications,
-      industries
+      popularIndustries
     }`,
-    { model: modelSlug }
+    {
+      modelSlug,
+      brandSlug,
+    }
   );
 
-  console.log('modelData:', modelData);
-
   /* =========================================================
-     MACHINES
+     2. FETCH MACHINES
   ========================================================= */
   const machines = await client.fetch(
-    `*[_type == "machine"]{
+    `*[
+      _type == "machine"
+    ]{
       _id,
       name,
       model,
       modelSlug,
-      modelDisplay,
       slug,
       category->{slug},
       subcategory->{slug},
@@ -87,6 +93,9 @@ export default async function ModelPage({ params }: PageProps) {
     }`
   );
 
+  /* =========================================================
+     3. FILTER MACHINES (ROBUST MATCHING)
+  ========================================================= */
   const filtered = machines.filter((m: any) => {
     const brandRaw =
       m.brandRef?.slug?.current ||
@@ -101,43 +110,43 @@ export default async function ModelPage({ params }: PageProps) {
       '';
 
     return (
-      normalize(brandRaw) === brandNorm &&
-      normalize(modelRaw) === modelNorm
+      normalize(brandRaw) === normalize(brandSlug) &&
+      normalize(modelRaw) === normalize(modelSlug)
     );
   });
 
-  const safeMachines = filtered.filter((m: any) =>
-    m?._id &&
-    m?.name &&
-    m?.slug?.current &&
-    m?.category?.slug?.current &&
-    m?.subcategory?.slug?.current
+  const safeMachines = filtered.filter(
+    (m: any) =>
+      m?._id &&
+      m?.name &&
+      m?.slug?.current &&
+      m?.category?.slug?.current &&
+      m?.subcategory?.slug?.current
   );
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
-      {/* =========================
-          TITLE
-      ========================= */}
+      {/* HEADER */}
       <h1 className="text-3xl font-semibold mb-4">
-        Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
+        Used {brandName} {modelName} CNC Machines for Sale
       </h1>
 
-      {/* =========================
-          SEO DESCRIPTION (ABOVE GRID)
-      ========================= */}
-      {modelData?.seoDescription && (
-        <div className="prose max-w-4xl mb-8">
-          <p>{modelData.seoDescription}</p>
-        </div>
+      {/* =====================================================
+         SEO DESCRIPTION (ABOVE GRID)
+      ===================================================== */}
+      {modelData?.description && (
+        <section
+          className="prose max-w-4xl mb-8"
+          dangerouslySetInnerHTML={{ __html: modelData.description }}
+        />
       )}
 
-      {/* =========================
-          MACHINE GRID
-      ========================= */}
+      {/* =====================================================
+         MACHINE GRID
+      ===================================================== */}
       {safeMachines.length === 0 ? (
-        <div className="text-gray-600 mb-10">
+        <div className="text-gray-600 mb-8">
           <p>No current inventory for this model.</p>
           <p className="mt-2 text-sm text-gray-500">
             This may be a sourcing-only model. Contact us and we can locate one.
@@ -145,11 +154,10 @@ export default async function ModelPage({ params }: PageProps) {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-
           {safeMachines.map((machine: any) => {
-            const category = machine.category?.slug?.current;
-            const subcategory = machine.subcategory?.slug?.current;
-            const slug = machine.slug?.current;
+            const category = machine.category.slug.current;
+            const subcategory = machine.subcategory.slug.current;
+            const slug = machine.slug.current;
 
             const imageUrl = machine.images?.[0]
               ? urlFor(machine.images[0])
@@ -171,6 +179,7 @@ export default async function ModelPage({ params }: PageProps) {
 
                 <div className="p-4">
                   <h2 className="font-medium">{machine.name}</h2>
+
                   <p className="text-sm text-gray-500">
                     {machine.yearOfMfg} | {machine.stockNumber}
                   </p>
@@ -178,43 +187,42 @@ export default async function ModelPage({ params }: PageProps) {
               </Link>
             );
           })}
-
         </div>
       )}
 
-      {/* =========================
-          SUPPORT CONTENT (BELOW GRID)
-      ========================= */}
-      {(modelData?.commonApplications?.length > 0 ||
-        modelData?.industries?.length > 0) && (
-        <section className="max-w-4xl mt-10">
+      {/* =====================================================
+         COMMON APPLICATIONS (BELOW GRID)
+      ===================================================== */}
+      {modelData?.commonApplications?.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold mb-3">
+            Common Applications
+          </h2>
 
-          {modelData?.commonApplications?.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">
-                Common Applications
-              </h2>
-              <ul className="list-disc pl-5">
-                {modelData.commonApplications.map((item: string) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <ul className="list-disc pl-5 text-gray-700">
+            {modelData.commonApplications.map(
+              (app: string, i: number) => (
+                <li key={i}>{app}</li>
+              )
+            )}
+          </ul>
+        </section>
+      )}
 
-          {modelData?.industries?.length > 0 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-2">
-                Industries
-              </h2>
-              <ul className="list-disc pl-5">
-                {modelData.industries.map((item: string) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+      {/* INDUSTRIES (OPTIONAL EXTENSION) */}
+      {modelData?.popularIndustries?.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold mb-3">
+            Industries
+          </h2>
 
+          <ul className="list-disc pl-5 text-gray-700">
+            {modelData.popularIndustries.map(
+              (ind: string, i: number) => (
+                <li key={i}>{ind}</li>
+              )
+            )}
+          </ul>
         </section>
       )}
 
