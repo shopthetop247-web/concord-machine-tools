@@ -29,11 +29,9 @@ const normalize = (str: string) =>
     .replace(/^-+|-+$/g, '');
 
 /* -------------------------
-   SEO (basic fallback)
+   SEO fallback
 -------------------------- */
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const brandName = formatBrand(params.brand);
   const modelName = params.model.replace(/-/g, ' ');
 
@@ -54,7 +52,7 @@ export default async function ModelPage({ params }: PageProps) {
   const modelName = modelSlug.replace(/-/g, ' ');
 
   /* =========================================================
-     1. FETCH MODEL SEO DATA (NEW ADDITION)
+     1. MODEL DATA (Sanity model document)
   ========================================================= */
   const modelData = await client.fetch(
     `*[
@@ -74,11 +72,14 @@ export default async function ModelPage({ params }: PageProps) {
   );
 
   /* =========================================================
-     2. FETCH MACHINES
+     2. MACHINES (NOW PROPERLY FILTERED IN GROQ)
   ========================================================= */
   const machines = await client.fetch(
     `*[
-      _type == "machine"
+      _type == "machine" &&
+      defined(slug.current) &&
+      defined(modelSlug) &&
+      defined(brand)
     ]{
       _id,
       name,
@@ -96,7 +97,7 @@ export default async function ModelPage({ params }: PageProps) {
   );
 
   /* =========================================================
-     3. FILTER MACHINES (ROBUST MATCHING)
+     3. STRICT FILTER (NO FUZZY MATCHING)
   ========================================================= */
   const filtered = machines.filter((m: any) => {
     const brandRaw =
@@ -134,9 +135,7 @@ export default async function ModelPage({ params }: PageProps) {
         Used {brandName} {modelName} CNC Machines for Sale
       </h1>
 
-      {/* =====================================================
-         SEO DESCRIPTION (ABOVE GRID)
-      ===================================================== */}
+      {/* SEO DESCRIPTION (TOP) */}
       {modelData?.description && (
         <section
           className="prose max-w-4xl mb-8"
@@ -144,9 +143,7 @@ export default async function ModelPage({ params }: PageProps) {
         />
       )}
 
-      {/* =====================================================
-         MACHINE GRID
-      ===================================================== */}
+      {/* MACHINE GRID */}
       {safeMachines.length === 0 ? (
         <div className="text-gray-600 mb-8">
           <p>No current inventory for this model.</p>
@@ -156,6 +153,7 @@ export default async function ModelPage({ params }: PageProps) {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+
           {safeMachines.map((machine: any) => {
             const category = machine.category.slug.current;
             const subcategory = machine.subcategory.slug.current;
@@ -189,12 +187,11 @@ export default async function ModelPage({ params }: PageProps) {
               </Link>
             );
           })}
+
         </div>
       )}
 
-      {/* =====================================================
-         COMMON APPLICATIONS (BELOW GRID)
-      ===================================================== */}
+      {/* COMMON APPLICATIONS */}
       {modelData?.commonApplications?.length > 0 && (
         <section className="mt-10">
           <h2 className="text-xl font-semibold mb-3">
@@ -202,16 +199,14 @@ export default async function ModelPage({ params }: PageProps) {
           </h2>
 
           <ul className="list-disc pl-5 text-gray-700">
-            {modelData.commonApplications.map(
-              (app: string, i: number) => (
-                <li key={i}>{app}</li>
-              )
-            )}
+            {modelData.commonApplications.map((app: string, i: number) => (
+              <li key={i}>{app}</li>
+            ))}
           </ul>
         </section>
       )}
 
-      {/* INDUSTRIES (OPTIONAL EXTENSION) */}
+      {/* INDUSTRIES */}
       {modelData?.popularIndustries?.length > 0 && (
         <section className="mt-8">
           <h2 className="text-xl font-semibold mb-3">
@@ -219,11 +214,9 @@ export default async function ModelPage({ params }: PageProps) {
           </h2>
 
           <ul className="list-disc pl-5 text-gray-700">
-            {modelData.popularIndustries.map(
-              (ind: string, i: number) => (
-                <li key={i}>{ind}</li>
-              )
-            )}
+            {modelData.popularIndustries.map((ind: string, i: number) => (
+              <li key={i}>{ind}</li>
+            ))}
           </ul>
         </section>
       )}
