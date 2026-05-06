@@ -52,7 +52,20 @@ export default async function ModelPage({ params }: PageProps) {
   const brandName = formatBrand(brandSlug);
 
   /* =========================================================
-     FETCH RAW MACHINES (NO OVER-FILTERING IN GROQ)
+     1. FETCH MODEL DOCUMENT (NEW)
+  ========================================================= */
+  const modelData = await client.fetch(
+    `*[_type == "model" && slug.current == $model][0]{
+      name,
+      seoDescription,
+      commonApplications,
+      industries
+    }`,
+    { model: modelSlug }
+  );
+
+  /* =========================================================
+     2. FETCH MACHINES
   ========================================================= */
   const machines = await client.fetch(
     `*[_type == "machine"]{
@@ -72,57 +85,86 @@ export default async function ModelPage({ params }: PageProps) {
     }`
   );
 
-  console.log('machines fetched:', machines?.length || 0);
-
   /* =========================================================
-     FILTER LOGIC (ROBUST + CONSISTENT)
+     FILTER LOGIC
   ========================================================= */
   const filtered = machines.filter((m: any) => {
-    // -------- BRAND RESOLUTION --------
     const brandRaw =
       m.brandRef?.slug?.current ||
       m.brandRef?.name ||
       m.brand ||
       '';
 
-    const brandCheck = normalize(brandRaw);
-    const targetBrand = brandNorm;
-
-    // -------- MODEL RESOLUTION --------
     const modelRaw =
       m.modelSlug?.current ||
       m.modelSlug ||
       m.model ||
       '';
 
-    const modelCheck = normalize(modelRaw);
-
-    if (!brandCheck || !modelCheck) return false;
-
-    return brandCheck === targetBrand && modelCheck === modelNorm;
-  });
-
-  /* =========================================================
-     FINAL SAFETY FILTER
-  ========================================================= */
-  const safeMachines = filtered.filter((m: any) => {
     return (
-      m?._id &&
-      m?.name &&
-      m?.slug?.current &&
-      m?.category?.slug?.current &&
-      m?.subcategory?.slug?.current
+      normalize(brandRaw) === brandNorm &&
+      normalize(modelRaw) === modelNorm
     );
   });
+
+  const safeMachines = filtered.filter((m: any) =>
+    m?._id &&
+    m?.name &&
+    m?.slug?.current &&
+    m?.category?.slug?.current &&
+    m?.subcategory?.slug?.current
+  );
 
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
 
+      {/* =========================
+          MODEL SEO CONTENT (NEW)
+      ========================= */}
+      {modelData && (
+        <section className="mb-10 max-w-4xl">
+
+          {modelData.seoDescription && (
+            <div className="prose mb-6">
+              <p>{modelData.seoDescription}</p>
+            </div>
+          )}
+
+          {modelData.commonApplications?.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Common Applications</h2>
+              <ul className="list-disc pl-5">
+                {modelData.commonApplications.map((item: string) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {modelData.industries?.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">Industries</h2>
+              <ul className="list-disc pl-5">
+                {modelData.industries.map((item: string) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        </section>
+      )}
+
+      {/* =========================
+          TITLE
+      ========================= */}
       <h1 className="text-3xl font-semibold mb-6">
         Used {brandName} {modelSlug.replace(/-/g, ' ')} CNC Machines for Sale
       </h1>
 
-      {/* EMPTY STATE */}
+      {/* =========================
+          EMPTY STATE
+      ========================= */}
       {safeMachines.length === 0 ? (
         <div className="text-gray-600">
           <p>No current inventory for this model.</p>
