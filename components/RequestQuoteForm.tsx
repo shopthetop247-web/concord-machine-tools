@@ -88,6 +88,7 @@ export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuot
       <div>
         <label className="block text-sm font-medium text-gray-700">Message</label>
         <textarea
+          required
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
