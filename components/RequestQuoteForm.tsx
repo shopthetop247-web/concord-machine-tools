@@ -30,7 +30,7 @@ export default function RequestQuoteForm({ stockNumber, onSuccess }: RequestQuot
         body: JSON.stringify({ stockNumber, name, company, email, message }),
       });
 
-      if (!res.ok) throw new Error('Failed to send email. Please try again.');
+      if (!res.ok) throw new Error('Failed to send email. Make sure to fill out Name, E-Mail, and Message Fields. Please try again.');
 
       setSuccess(true);
       setName('');
