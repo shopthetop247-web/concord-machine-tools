@@ -172,17 +172,6 @@ image: images,
 description: machine.description,
 itemCondition: "https://schema.org/UsedCondition",
 dateModified: updatedDate,
-offers: {
-  "@type": "Offer",
-  url: machineUrl,
-  priceCurrency: "USD",
-  availability: "https://schema.org/InStock",
-  itemCondition: "https://schema.org/UsedCondition",
-  seller: {
-    "@type": "Organization",
-    name: "Concord Machine Tools"
-  }
-}
 };
 
 /* -----------------------------------
