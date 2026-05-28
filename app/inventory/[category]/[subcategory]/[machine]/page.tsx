@@ -57,19 +57,38 @@ return `${machine.brand} ${machine.name}`;
 YOUTUBE URL HANDLER
 ----------------------------------- */
 function getYouTubeEmbedUrl(url?: string) {
-if (!url) return null;
+  if (!url) return null;
 
-if (url.includes('youtu.be/')) {
-const id = url.split('youtu.be/')[1].split('?')[0];
-return `https://www.youtube.com/embed/${id}`;
-}
+  try {
+    const parsed = new URL(url);
 
-if (url.includes('watch?v=')) {
-const id = url.split('watch?v=')[1].split('&')[0];
-return `https://www.youtube.com/embed/${id}`;
-}
+    // youtu.be short links
+    if (parsed.hostname.includes('youtu.be')) {
+      const id = parsed.pathname.replace('/', '');
+      return `https://www.youtube.com/embed/${id}`;
+    }
 
-return null;
+    // youtube.com/watch?v=
+    if (parsed.searchParams.get('v')) {
+      return `https://www.youtube.com/embed/${parsed.searchParams.get('v')}`;
+    }
+
+    // youtube.com/shorts/
+    if (parsed.pathname.includes('/shorts/')) {
+      const id = parsed.pathname.split('/shorts/')[1];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    // youtube.com/embed/
+    if (parsed.pathname.includes('/embed/')) {
+      const id = parsed.pathname.split('/embed/')[1];
+      return `https://www.youtube.com/embed/${id}`;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 /* -----------------------------------
