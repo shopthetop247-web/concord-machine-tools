@@ -43,6 +43,9 @@ export default function Header() {
           <Link href="/sell" className="hover:text-blue-400">
             Sell Your Machine
           </Link>
+          <Link href="/consulting" className="hover:text-blue-400">
+            Consulting 
+          </Link>
           <Link href="/contact" className="hover:text-blue-400">
             Contact
           </Link>
@@ -93,6 +96,11 @@ export default function Header() {
               <Link href="/sell" onClick={() => setMenuOpen(false)}>
                 Sell Your Machine
               </Link>
+            </li>
+            <li> 
+              <Link href="/consulting" onClick={() => setMenuOpen(false)}>
+                Consulting 
+              </Link> 
             </li>
             <li>
               <Link href="/contact" onClick={() => setMenuOpen(false)}>
