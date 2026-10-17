@@ -61,6 +61,10 @@ url: baseUrl + '/sell',
 lastModified: new Date().toISOString(),
 },
 {
+url: baseUrl + '/consulting',
+lastModified: new Date().toISOString(),
+},
+{
 url: baseUrl + '/contact',
 lastModified: new Date().toISOString(),
 },
