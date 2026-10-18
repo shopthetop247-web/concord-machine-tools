@@ -68,6 +68,10 @@ lastModified: new Date().toISOString(),
 url: baseUrl + '/contact',
 lastModified: new Date().toISOString(),
 },
+{
+url: baseUrl + '/blog',
+lastModified: new Date().toISOString(),
+},
 ];
 
 /* ----------------------------
