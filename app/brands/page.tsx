@@ -12,9 +12,9 @@ interface Brand {
 }
 
 export const metadata: Metadata = {
-  title: 'Used CNC Machine Brands & Manufacturers | Concord Machine Tools',
+  title: 'Used Machine Brands & Manufacturers | Concord Machine Tools',
   description:
-    'Browse used CNC machine brands and industrial equipment manufacturers at Concord Machine Tools. Find used CNC mills, lathes, machining centers, and more.',
+    'Browse used machine brands and industrial equipment manufacturers at Concord Machine Tools. Find used CNC mills, lathes, machining centers, and more.',
 };
 
 /* ------------------------------------
