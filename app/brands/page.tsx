@@ -55,7 +55,7 @@ export default async function BrandsPage() {
         <h1 className="text-3xl font-semibold mb-4">Brands</h1>
 
         <p className="text-gray-700 mb-6">
-          Explore used CNC machine brands and industrial equipment manufacturers
+          Explore used machine brands and industrial equipment manufacturers
           at Concord Machine Tools. We specialize in used metalworking machinery,
           including CNC machining centers, CNC lathes, fabrication equipment,
           and other industrial machine tools.
