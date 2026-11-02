@@ -31,6 +31,9 @@ export default async function HomePage() {
         '@id': 'https://www.concordmt.com/#organization',
         name: 'Concord Machine Tools',
         url: 'https://www.concordmt.com',
+        telephone: '+1-248-224-3147',
+        email: 'sales@concordmt.com',
+        address: '200 E Big Beaver Rd Troy MI 48083',
         description:
           'Concord Machine Tools is a Michigan-based dealer specializing in the purchase, sale, sourcing, and valuation of used CNC machines, metalworking machinery, and industrial manufacturing equipment. Serving manufacturers throughout the United States and worldwide.',
         foundingDate: '2002',
@@ -45,6 +48,7 @@ export default async function HomePage() {
           },
         ],
         knowsAbout: [
+          'Used Machinery',
           'Used CNC Machines',
           'CNC Machining Centers',
           'CNC Lathes',
