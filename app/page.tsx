@@ -1,7 +1,6 @@
 export const revalidate = 0;
 
 import Link from 'next/link';
-import Head from 'next/head';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { client } from '@/lib/sanityClient';
@@ -13,9 +12,65 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.concordmt.com',
   },
+  openGraph: {
+    title: 'Used CNC Machines for Sale | Concord Machine Tools',
+    description:
+      'Browse used CNC machines, machining centers, lathes, mills, and industrial manufacturing equipment from Concord Machine Tools.',
+    url: 'https://www.concordmt.com',
+    siteName: 'Concord Machine Tools',
+    type: 'website',
+  },
 };
 
 export default async function HomePage() {
+    const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://www.concordmt.com/#organization',
+        name: 'Concord Machine Tools',
+        url: 'https://www.concordmt.com',
+        description:
+          'Concord Machine Tools is a Michigan-based dealer specializing in the purchase, sale, sourcing, and valuation of used CNC machines, metalworking machinery, and industrial manufacturing equipment. Serving manufacturers throughout the United States and worldwide.',
+        foundingDate: '2002',
+        areaServed: [
+          {
+            '@type': 'Country',
+            name: 'United States',
+          },
+          {
+            '@type': 'Place',
+            name: 'Worldwide',
+          },
+        ],
+        knowsAbout: [
+          'Used CNC Machines',
+          'CNC Machining Centers',
+          'CNC Lathes',
+          'CNC Milling Machines',
+          'Used Industrial Machinery',
+          'Metalworking Equipment',
+          'Fabricating and Stamping Equipment',
+          'Used Machinery Purchasing',
+          'Industrial Equipment Sales',
+          'Used Machinery Valuations',
+          'Surplus Manufacturing Equipment',
+        ],
+        industry: 'Industrial Machinery',
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.concordmt.com/#website',
+        url: 'https://www.concordmt.com',
+        name: 'Concord Machine Tools',
+        publisher: {
+          '@id': 'https://www.concordmt.com/#organization',
+        },
+        inLanguage: 'en-US',
+      },
+    ],
+  };
   const machines = await client.fetch(`
     *[_type == "machine"] | order(_createdAt desc)[0...4]{
       _id,
@@ -32,10 +87,14 @@ export default async function HomePage() {
 
   return (
     <main>
-      <Head>
-        <title>Used Machines for Sale | Machinery | Concord Machine Tools</title>
-      </Head>
-
+            {/* Organization and Website Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+        }}
+      />
+      
       {/* HERO */}
       <section className="bg-slate-900 text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
