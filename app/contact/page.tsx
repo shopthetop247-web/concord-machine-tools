@@ -3,41 +3,49 @@ import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Concord Machine Tools',
+  title: 'Contact Concord Machine Tools | Used CNC Machinery',
   description:
-    'Contact Concord Machine Tools for questions about used CNC machines, equipment sales, or machinery sourcing.',
+    'Contact Concord Machine Tools to buy or sell used CNC machines, machining centers, lathes, and industrial equipment. Call or email our Michigan-based machinery team.',
+  alternates: {
+    canonical: 'https://www.concordmt.com/contact',
+  },
   openGraph: {
-    title: 'Contact Concord Machine Tools',
+    title: 'Contact Concord Machine Tools | Used CNC Machinery',
     description:
-      'Get in touch with Concord Machine Tools for used CNC machines, surplus equipment, and metalworking solutions.',
+      'Get in touch with Concord Machine Tools for used CNC machines, surplus industrial equipment, machinery purchasing, and equipment sourcing.',
+    url: 'https://www.concordmt.com/contact',
+    siteName: 'Concord Machine Tools',
     type: 'website',
   },
 };
 
 export default function ContactPage() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    '@id': 'https://www.concordmt.com/contact#webpage',
+    url: 'https://www.concordmt.com/contact',
+    name: 'Contact Concord Machine Tools',
+    description:
+      'Contact Concord Machine Tools for used CNC machinery, industrial equipment sales, machinery purchasing, and equipment sourcing.',
+    isPartOf: {
+      '@id': 'https://www.concordmt.com/#website',
+    },
+    about: {
+      '@id': 'https://www.concordmt.com/#organization',
+    },
+    mainEntity: {
+      '@id': 'https://www.concordmt.com/#organization',
+    },
+  };
+
   return (
     <>
-      {/* Structured Data */}
+      {/* Contact Page Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'ContactPage',
-            mainEntity: {
-              '@type': 'Organization',
-              name: 'Concord Machine Tools',
-              url: 'https://www.concordmt.com',
-              contactPoint: {
-                '@type': 'ContactPoint',
-                contactType: 'sales',
-                telephone: '+1-248-224-3147',
-                email: 'sales@concordmt.com',
-                areaServed: ['US', 'Worldwide'],
-                availableLanguage: 'English',
-              },
-            },
-          }),
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
         }}
       />
 
@@ -47,10 +55,11 @@ export default function ContactPage() {
         </h1>
 
         <p className="text-slate-700 max-w-3xl mb-10 leading-relaxed">
-          Whether you’re looking to buy quality used machinery, sell surplus
-          equipment, or explore auction and liquidation solutions, our team is
-          ready to help. Reach out today and speak directly with experienced
-          metalworking professionals.
+         Whether you're looking to purchase quality used CNC machinery, sell
+          surplus manufacturing equipment, or explore machinery sourcing and
+          valuation services, Concord Machine Tools is ready to help. Contact
+          our experienced team to discuss your equipment needs and learn how
+          we can assist your business.
         </p>
 
         <div className="grid md:grid-cols-2 gap-10">
@@ -61,8 +70,9 @@ export default function ContactPage() {
                 Concord Machine Tools
               </h2>
               <p className="text-slate-700">
-                Michigan-based used metalworking machinery dealer serving
-                customers across the United States and worldwide.
+                Michigan-based used CNC and metalworking machinery dealer
+                serving manufacturers, machine shops, and industrial businesses
+                throughout the United States and worldwide.
               </p>
             </div>
 
@@ -101,8 +111,11 @@ export default function ContactPage() {
             <div>
               <h3 className="font-semibold">Business Hours</h3>
               <p className="text-slate-700">
-                Monday – Friday<br />
-                9:00 AM – 5:00 PM (EST)
+                Monday – Friday
+                <br />
+                9:00 AM – 5:00 PM Eastern Time
+                <br />
+                Saturday – Sunday: Closed
               </p>
             </div>
           </div>
@@ -116,8 +129,9 @@ export default function ContactPage() {
             <ContactForm />
 
             <p className="text-sm text-slate-600 mt-4">
-              📌 Tip: When selling a machine, include condition, tooling,
-              controls, and price idea you have in mind for the fastest response.
+              📌 Tip: When selling a machine, include its condition, tooling,
+              control information, and your anticipated asking price to help
+              us provide the fastest possible response.
             </p>
           </div>
         </div>
