@@ -538,17 +538,6 @@ export default async function MachinePage({ params }: PageProps) {
           </p>
         )}
 
-        {modelPath && (
-          <p>
-            <Link
-              href={modelPath}
-              className="underline hover:text-blue-800"
-            >
-              View more {machine.brand} {machine.modelDisplay || machine.model} machines
-            </Link>
-          </p>
-        )}
-
         <p>
           <Link
             href={`/inventory/${params.category}/${params.subcategory}`}
