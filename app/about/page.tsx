@@ -34,42 +34,32 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    '@id': 'https://www.concordmt.com/about#webpage',
+    url: 'https://www.concordmt.com/about',
+    name: 'About Concord Machine Tools',
+    description:
+      'Learn about Concord Machine Tools, a Michigan-based dealer specializing in the purchase, sale, sourcing, and valuation of used CNC machines, metalworking machinery, and industrial manufacturing equipment.',
+    isPartOf: {
+      '@id': 'https://www.concordmt.com/#website',
+    },
+    about: {
+      '@id': 'https://www.concordmt.com/#organization',
+    },
+    mainEntity: {
+      '@id': 'https://www.concordmt.com/#organization',
+    },
+  };
+
   return (
     <>
-      {/* Structured Data */}
+      {/* About Page Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Organization',
-            '@id': 'https://www.concordmt.com/#organization',
-            name: 'Concord Machine Tools',
-            url: 'https://www.concordmt.com',
-            description:
-              'Concord Machine Tools is a Michigan-based dealer specializing in the purchase, sale, sourcing, and valuation of used CNC machines, metalworking machinery, and industrial manufacturing equipment. Serving manufacturers throughout the United States and worldwide.',
-            areaServed: [
-              {
-                '@type': 'Country',
-                name: 'United States',
-              },
-              {
-                '@type': 'Place',
-                name: 'Worldwide',
-              },
-            ],
-            knowsAbout: [
-              'Used CNC Machines',
-              'CNC Machining Centers',
-              'CNC Lathes',
-              'Metalworking Machinery',
-              'Industrial Manufacturing Equipment',
-              'Used Machinery Valuations',
-              'Surplus Machinery Purchasing',
-              'Industrial Equipment Sales',
-            ],
-            industry: 'Industrial Machinery',
-          }),
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
         }}
       />
 
