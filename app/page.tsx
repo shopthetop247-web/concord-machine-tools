@@ -84,8 +84,7 @@ export default async function HomePage() {
           'Surplus Manufacturing Equipment',
           'Industrial Machinery Consulting',
         ],
-        industry: 'Industrial Machinery',
-      },
+        },
       {
         '@type': 'WebSite',
         '@id': 'https://www.concordmt.com/#website',
