@@ -13,12 +13,12 @@ interface Machine {
   name: string;
   brand?: string;
   model?: string;
-  modelSlug?: string;     // ✅ ADD THIS
-  modelDisplay?: string;  // ✅ ADD THIS
+  modelSlug?: string;
+  modelDisplay?: string;
   yearOfMfg?: number;
   specifications?: string;
   description?: string;
-  images?: { asset: { _ref: string } }[];
+  images?: any[];
   videoUrl?: string;
   stockNumber: string;
   slug?: { current: string };
@@ -26,77 +26,106 @@ interface Machine {
 }
 
 interface PageProps {
-params: {
-category: string;
-subcategory: string;
-machine: string;
-};
+  params: {
+    category: string;
+    subcategory: string;
+    machine: string;
+  };
 }
 
 const builder = imageUrlBuilder(client);
+
 const urlFor = (source: any) =>
-builder.image(source).auto('format').fit('max').url();
+  builder.image(source).auto('format').fit('max').url();
 
 /* -----------------------------------
 HELPER: CLEAN MACHINE NAME
 ----------------------------------- */
+
 function getFullMachineName(machine: Machine) {
-if (!machine.brand) return machine.name;
+  if (!machine.brand) return machine.name;
 
-const nameLower = machine.name.toLowerCase();
-const brandLower = machine.brand.toLowerCase();
+  const nameLower = machine.name.toLowerCase();
+  const brandLower = machine.brand.toLowerCase();
 
-if (nameLower.startsWith(brandLower)) {
-return machine.name;
+  if (nameLower.startsWith(brandLower)) {
+    return machine.name;
+  }
+
+  return `${machine.brand} ${machine.name}`;
 }
 
-return `${machine.brand} ${machine.name}`;
+/* -----------------------------------
+HELPER: CREATE URL SLUG
+----------------------------------- */
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 /* -----------------------------------
 YOUTUBE URL HANDLER
 ----------------------------------- */
+
 function getYouTubeEmbedUrl(url?: string) {
   if (!url) return null;
 
   try {
     const parsed = new URL(url);
 
+    const hostname = parsed.hostname.replace(/^www\./, '');
+
+    if (
+      hostname !== 'youtube.com' &&
+      hostname !== 'm.youtube.com' &&
+      hostname !== 'youtu.be'
+    ) {
+      return null;
+    }
+
+    let id: string | null = null;
+
     // youtu.be short links
-    if (parsed.hostname.includes('youtu.be')) {
-      const id = parsed.pathname.replace('/', '');
-      return `https://www.youtube.com/embed/${id}`;
+    if (hostname === 'youtu.be') {
+      id = parsed.pathname.split('/').filter(Boolean)[0] ?? null;
     }
 
     // youtube.com/watch?v=
-    if (parsed.searchParams.get('v')) {
-      return `https://www.youtube.com/embed/${parsed.searchParams.get('v')}`;
+    else if (parsed.pathname === '/watch') {
+      id = parsed.searchParams.get('v');
     }
 
     // youtube.com/shorts/
-    if (parsed.pathname.includes('/shorts/')) {
-      const id = parsed.pathname.split('/shorts/')[1];
-      return `https://www.youtube.com/embed/${id}`;
+    else if (parsed.pathname.startsWith('/shorts/')) {
+      id = parsed.pathname.split('/shorts/')[1]?.split('/')[0] ?? null;
     }
 
     // youtube.com/embed/
-    if (parsed.pathname.includes('/embed/')) {
-      const id = parsed.pathname.split('/embed/')[1];
-      return `https://www.youtube.com/embed/${id}`;
+    else if (parsed.pathname.startsWith('/embed/')) {
+      id = parsed.pathname.split('/embed/')[1]?.split('/')[0] ?? null;
     }
 
-    return null;
+    if (!id || !/^[a-zA-Z0-9_-]{11}$/.test(id)) {
+      return null;
+    }
+
+    return `https://www.youtube.com/embed/${id}`;
   } catch {
     return null;
   }
 }
 
 /* -----------------------------------
-SEO METADATA (WITH CANONICAL)
+SEO METADATA
 ----------------------------------- */
-export async function generateMetadata(
-  { params }: PageProps
-): Promise<Metadata> {
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const machine = await client.fetch(
     `*[_type == "machine" && slug.current == $slug][0]{
       name,
@@ -109,20 +138,43 @@ export async function generateMetadata(
   );
 
   if (!machine) {
-    return { title: 'Machine Not Found' };
+    return {
+      title: 'Machine Not Found | Concord Machine Tools',
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
   }
 
   const fullName = getFullMachineName(machine);
 
   const canonicalUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current || params.machine}`;
 
+  const metaDescription =
+    machine.description?.trim().slice(0, 155) ||
+    `Used ${fullName} for sale at Concord Machine Tools. Contact us for pricing, specifications, availability, and additional machine details. Stock #${machine.stockNumber}.`;
+
   return {
-    title: `Used ${fullName} for Sale`,
-    description:
-      machine.description ??
-      `Used ${fullName} for sale. Stock #${machine.stockNumber}.`,
+    title: `Used ${fullName} for Sale | Concord Machine Tools`,
+    description: metaDescription,
+
     alternates: {
       canonical: canonicalUrl,
+    },
+
+    openGraph: {
+      title: `Used ${fullName} for Sale | Concord Machine Tools`,
+      description: metaDescription,
+      url: canonicalUrl,
+      siteName: 'Concord Machine Tools',
+      type: 'website',
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title: `Used ${fullName} for Sale | Concord Machine Tools`,
+      description: metaDescription,
     },
   };
 }
@@ -130,11 +182,16 @@ export async function generateMetadata(
 /* -----------------------------------
 PAGE
 ----------------------------------- */
+
 export default async function MachinePage({ params }: PageProps) {
-const machine = await client.fetch<Machine>(
-`*[_type == "machine" && slug.current == $slug][0]{       _id,
+  const machine = await client.fetch<Machine>(
+    `*[_type == "machine" && slug.current == $slug][0]{
+      _id,
       name,
       brand,
+      model,
+      modelSlug,
+      modelDisplay,
       yearOfMfg,
       specifications,
       description,
@@ -145,341 +202,463 @@ const machine = await client.fetch<Machine>(
       subcategory,
       _updatedAt
     }`,
-{ slug: params.machine }
-);
+    { slug: params.machine }
+  );
 
-if (!machine) {
-return <p className="p-6">Machine not found</p>;
-}
+  if (!machine) {
+    return <p className="p-6">Machine not found</p>;
+  }
 
-const fullName = getFullMachineName(machine);
+  const fullName = getFullMachineName(machine);
 
-const images =
-machine.images
-?.map((img) => {
-try {
-return urlFor(img);
-} catch {
-return null;
-}
-})
-.filter(Boolean) ?? [];
+  const images =
+    machine.images
+      ?.map((img) => {
+        try {
+          return urlFor(img);
+        } catch {
+          return null;
+        }
+      })
+      .filter((image): image is string => Boolean(image)) ?? [];
 
-const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
+  const embedUrl = getYouTubeEmbedUrl(machine.videoUrl);
 
-const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current}`;
+  const machineUrl = `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}/${machine.slug?.current || params.machine}`;
 
-const updatedDate = machine._updatedAt
-? new Date(machine._updatedAt).toISOString()
-: new Date().toISOString();
+  const updatedDate = machine._updatedAt
+    ? new Date(machine._updatedAt).toISOString()
+    : undefined;
 
-/* -----------------------------------
-PRODUCT SCHEMA (ENHANCED)
------------------------------------ */
-const productSchema = {
-"@context": "https://schema.org",
-"@type": "Product",
-name: fullName,
-brand: {
-    "@type": "Brand",
-    name: machine.brand || "Concord Machine Tools",
-  },
-  model: machine.model || fullName,
-sku: machine.stockNumber,
-url: machineUrl,
-image: images,
-description: machine.description,
-itemCondition: "https://schema.org/UsedCondition",
-dateModified: updatedDate,
-};
+  const formattedUpdatedDate = updatedDate
+    ? new Date(updatedDate).toLocaleDateString()
+    : null;
 
-/* -----------------------------------
-BREADCRUMB SCHEMA
------------------------------------ */
-const breadcrumbSchema = {
-"@context": "https://schema.org",
-"@type": "BreadcrumbList",
-itemListElement: [
-{
-"@type": "ListItem",
-position: 1,
-name: "Inventory",
-item: "https://www.concordmt.com/inventory"
-},
-{
-"@type": "ListItem",
-position: 2,
-name: params.category.replace(/-/g, ' '),
-item: `https://www.concordmt.com/inventory/${params.category}`
-},
-{
-"@type": "ListItem",
-position: 3,
-name: params.subcategory.replace(/-/g, ' '),
-item: `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}`
-},
-{
-"@type": "ListItem",
-position: 4,
-name: machine.name,
-item: machineUrl
-}
-]
-};
+  const brandSlug = machine.brand ? slugify(machine.brand) : null;
 
-/* -----------------------------------
-VIDEO SCHEMA
------------------------------------ */
-const videoSchema =
-embedUrl && machine.videoUrl
-? {
-'@context': 'https://schema.org',
-'@type': 'VideoObject',
-name: fullName,
-description:
-machine.description ??
-`Used ${fullName} for sale.`,
-thumbnailUrl: `https://img.youtube.com/vi/${embedUrl.split('/embed/')[1]}/hqdefault.jpg`,
-uploadDate: updatedDate,
-embedUrl: embedUrl,
-contentUrl: machine.videoUrl,
-}
-: null;
+  const modelPath =
+    brandSlug && machine.modelSlug
+      ? `/models/${brandSlug}/${machine.modelSlug}`
+      : null;
 
-{/* INTERNAL SEO LINKS */}
-<section className="mt-6 border-t pt-6 text-sm text-blue-600 space-y-2">
+  const brandPath = brandSlug ? `/models/${brandSlug}` : null;
 
-  {machine.brand && machine.modelSlug && (
-  <p className="mt-6 text-sm text-blue-600">
-    <Link
-      href={`/models/${machine.brand.toLowerCase().replace(/\s+/g, '-')}`}
-      className="underline hover:text-blue-800"
-    >
-      Browse all {machine.brand} models
-    </Link>
-  </p>
-)}
+  /* -----------------------------------
+  PRODUCT STRUCTURED DATA
+  ----------------------------------- */
 
-  {machine.brand && (
-    <p>
-      <Link
-        href={`/models/${machine.brand.toLowerCase()}`}
-        className="underline hover:text-blue-800"
-      >
-        Browse all {machine.brand} models
-      </Link>
-    </p>
-  )}
+  const productSchema = {
+    '@type': 'Product',
+    '@id': `${machineUrl}#product`,
+    name: fullName,
 
-  <p>
-    <Link
-      href="/inventory/cnc-machinery/cnc-vertical-machining-centers"
-      className="underline hover:text-blue-800"
-    >
-      View all CNC Vertical Machining Centers
-    </Link>
-  </p>
+    ...(machine.brand && {
+      brand: {
+        '@type': 'Brand',
+        name: machine.brand,
+      },
+    }),
 
-</section>      
+    ...(machine.model && {
+      model: machine.model,
+    }),
 
-/* -----------------------------------
-RELATED MACHINES
------------------------------------ */
-const relatedMachines =
-machine.subcategory?._ref
-? await client.fetch(
-`*[_type == "machine" &&
-            slug.current != $slug &&
-            subcategory._ref == $subcategoryRef
-          ]           | order(
-              (brand == $brand) desc,
-              yearOfMfg desc
-            )[0...4]{             _id,
+    sku: machine.stockNumber,
+
+    url: machineUrl,
+
+    ...(images.length > 0 && {
+      image: images,
+    }),
+
+    description:
+      machine.description ||
+      `Used ${fullName} for sale. Contact Concord Machine Tools for pricing, specifications, and availability.`,
+
+    category: 'Used CNC and Industrial Machinery',
+  };
+
+  /* -----------------------------------
+  BREADCRUMB STRUCTURED DATA
+  ----------------------------------- */
+
+  const breadcrumbSchema = {
+    '@type': 'BreadcrumbList',
+
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Inventory',
+        item: 'https://www.concordmt.com/inventory',
+      },
+
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: params.category.replace(/-/g, ' '),
+        item: `https://www.concordmt.com/inventory/${params.category}`,
+      },
+
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: params.subcategory.replace(/-/g, ' '),
+        item: `https://www.concordmt.com/inventory/${params.category}/${params.subcategory}`,
+      },
+
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: fullName,
+        item: machineUrl,
+      },
+    ],
+  };
+
+  /* -----------------------------------
+  WEBPAGE STRUCTURED DATA
+  ----------------------------------- */
+
+  const webpageSchema = {
+    '@type': 'WebPage',
+    '@id': `${machineUrl}#webpage`,
+    url: machineUrl,
+    name: `Used ${fullName} for Sale | Concord Machine Tools`,
+
+    description:
+      machine.description ||
+      `Used ${fullName} available from Concord Machine Tools.`,
+
+    isPartOf: {
+      '@id': 'https://www.concordmt.com/#website',
+    },
+
+    about: {
+      '@id': 'https://www.concordmt.com/#organization',
+    },
+
+    mainEntity: {
+      '@id': `${machineUrl}#product`,
+    },
+
+    ...(updatedDate && {
+      dateModified: updatedDate,
+    }),
+  };
+
+  /* -----------------------------------
+  COMBINED STRUCTURED DATA
+  ----------------------------------- */
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+
+    '@graph': [
+      webpageSchema,
+      productSchema,
+      breadcrumbSchema,
+    ],
+  };
+
+  /* -----------------------------------
+  RELATED MACHINES
+  ----------------------------------- */
+
+  const relatedMachines = machine.subcategory?._ref
+    ? await client.fetch(
+        `*[_type == "machine" &&
+          slug.current != $slug &&
+          subcategory._ref == $subcategoryRef
+        ]
+        | order(
+            (brand == $brand) desc,
+            yearOfMfg desc
+          )[0...4]{
+            _id,
             name,
             yearOfMfg,
             slug
           }`,
-{
-slug: params.machine,
-subcategoryRef: machine.subcategory._ref,
-brand: machine.brand,
-}
-)
-: [];
+        {
+          slug: params.machine,
+          subcategoryRef: machine.subcategory._ref,
+          brand: machine.brand,
+        }
+      )
+    : [];
 
-return ( <main className="max-w-6xl mx-auto px-6 py-8">
+  return (
+    <main className="max-w-6xl mx-auto px-6 py-8">
 
-  {/* SCHEMA */}
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-  {videoSchema && (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }} />
-  )}
+      {/* STRUCTURED DATA */}
 
-  {/* Breadcrumbs */}
-  <nav className="mb-6 text-sm text-gray-500">
-    <Link href="/inventory" className="text-blue-500 hover:underline">
-      Inventory
-    </Link>{' › '}
-    <Link href={`/inventory/${params.category}`} className="text-blue-500 hover:underline">
-      {params.category.replace(/-/g, ' ')}
-    </Link>{' › '}
-    <Link href={`/inventory/${params.category}/${params.subcategory}`} className="text-blue-500 hover:underline">
-      {params.subcategory.replace(/-/g, ' ')}
-    </Link>{' › '}
-    <span>{machine.name}</span>
-  </nav>
-
-  <h1 className="text-3xl font-semibold mb-2">{machine.name}</h1>
-
-  {/* SEO BOOST */}
-  <h2 className="text-xl font-semibold mt-2 mb-4 text-gray-800">
-    Used {fullName} for Sale
-  </h2>
-
-  {/* BRAND LINK */}
-  {machine.brand && (
-    <p className="mb-2 text-sm">
-      View more{' '}
-      <Link
-        href={`/brands/${machine.brand.toLowerCase()}`}
-        className="text-blue-600 underline hover:text-blue-800"
-      >
-        {machine.brand} machines
-      </Link>
-    </p>
-  )}
-
-  {/* 🔥 FRESHNESS SIGNAL */}
-  <p className="text-xs text-gray-500 mb-4">
-    Listing updated: {new Date(updatedDate).toLocaleDateString()}
-  </p>
-
-  <div className="flex items-center gap-4 mb-4">
-    <p className="text-gray-700">
-      <strong>Stock #:</strong> {machine.stockNumber}
-    </p>
-
-    <RequestQuoteSection
-      stockNumber={machine.stockNumber}
-      machineName={machine.name}
-      machineUrl={machineUrl}
-      variant="inline"
-    />
-  </div>
-
-  {machine.description && (
-    <p className="mb-4 text-gray-800">{machine.description}</p>
-  )}
-
-  {/* 🔥 INVENTORY LANGUAGE */}
-  <p className="mb-6 text-gray-700">
-    This {fullName} is currently available for purchase. Contact us for pricing,
-    additional details, or to request a quote. Our inventory is updated regularly,
-    so availability is subject to change.
-  </p>
-
-  {images.length > 0 && <MachineImages images={images} />}
-
-  {/* Video */}
-  {embedUrl && (
-    <div className="mt-8 aspect-video">
-      <iframe
-        src={embedUrl}
-        title={`${machine.name} video`}
-        className="w-full h-full rounded"
-        allowFullScreen
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
+        }}
       />
-    </div>
-  )}
 
-  {machine.specifications && (
-    <section className="mt-8">
-      <h2 className="font-medium mb-2">Specifications</h2>
-      <pre className="bg-gray-50 p-4 border rounded text-sm">
-        {machine.specifications}
-      </pre>
-    </section>
-  )}
+      {/* BREADCRUMBS */}
 
-  <section id="request-quote" className="mt-10">
-    <RequestQuoteSection
-      stockNumber={machine.stockNumber}
-      machineName={machine.name}
-      machineUrl={machineUrl}
-    />
-  </section>
+      <nav className="mb-6 text-sm text-gray-500">
+        <Link
+          href="/inventory"
+          className="text-blue-500 hover:underline"
+        >
+          Inventory
+        </Link>{' › '}
 
-{/* SOCIAL PROOF / FOLLOW */}
-   <section className="mt-10 border-t pt-6">
-     <h3 className="text-lg font-semibold mb-3">
-       Follow Concord Machine Tools
-     </h3>
+        <Link
+          href={`/inventory/${params.category}`}
+          className="text-blue-500 hover:underline"
+        >
+          {params.category.replace(/-/g, ' ')}
+        </Link>{' › '}
 
-     <p className="text-sm text-gray-600 mb-4">
-       Stay updated with newly listed machines, machine videos, and featured inventory.
-     </p>
+        <Link
+          href={`/inventory/${params.category}/${params.subcategory}`}
+          className="text-blue-500 hover:underline"
+        >
+          {params.subcategory.replace(/-/g, ' ')}
+        </Link>{' › '}
 
-     <div className="flex gap-4 text-sm">
-     <a
-      href="https://www.facebook.com/concordmachinetools/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-600 hover:underline"
-     >
-      Facebook
-     </a>
+        <span>{machine.name}</span>
+      </nav>
 
-     <a
-      href="https://www.instagram.com/concordmachinetools/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-pink-600 hover:underline"
-     >
-      Instagram
-     </a>
+      {/* MACHINE TITLE */}
 
-     <a
-      href="https://www.youtube.com/@concordmachinetools"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-red-600 hover:underline"
-     >
-      YouTube
-     </a>
+      <h1 className="text-3xl font-semibold mb-2">
+        {machine.name}
+      </h1>
 
-     <a
-      href="https://www.linkedin.com/company/concord-machine-tools/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-800 hover:underline"
-     >
-      LinkedIn
-    </a>
-  </div>
-</section>
+      <h2 className="text-xl font-semibold mt-2 mb-4 text-gray-800">
+        Used {fullName} for Sale
+      </h2>
 
-  {relatedMachines.length > 0 && (
-    <section className="mt-12">
-      <h2 className="text-xl font-semibold mb-4">Related Machines</h2>
+      {/* BRAND LINK */}
 
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {relatedMachines.map((m: any) => (
-          <li key={m._id} className="border p-4 rounded">
+      {machine.brand && brandPath && (
+        <p className="mb-2 text-sm">
+          View more{' '}
+          <Link
+            href={`/brands/${brandSlug}`}
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            {machine.brand} machines
+          </Link>
+        </p>
+      )}
+
+      {/* LISTING UPDATE DATE */}
+
+      {formattedUpdatedDate && (
+        <p className="text-xs text-gray-500 mb-4">
+          Listing updated: {formattedUpdatedDate}
+        </p>
+      )}
+
+      {/* STOCK NUMBER AND QUOTE */}
+
+      <div className="flex items-center gap-4 mb-4">
+        <p className="text-gray-700">
+          <strong>Stock #:</strong> {machine.stockNumber}
+        </p>
+
+        <RequestQuoteSection
+          stockNumber={machine.stockNumber}
+          machineName={machine.name}
+          machineUrl={machineUrl}
+          variant="inline"
+        />
+      </div>
+
+      {/* MACHINE DESCRIPTION */}
+
+      {machine.description && (
+        <p className="mb-4 text-gray-800">
+          {machine.description}
+        </p>
+      )}
+
+      {/* AVAILABILITY INFORMATION */}
+
+      <p className="mb-6 text-gray-700">
+        This {fullName} is currently available for purchase. Contact us for
+        pricing, additional details, or to request a quote. Our inventory is
+        updated regularly, so availability is subject to change.
+      </p>
+
+      {/* MACHINE IMAGES */}
+
+      {images.length > 0 && (
+        <MachineImages images={images} />
+      )}
+
+      {/* MACHINE VIDEO */}
+
+      {embedUrl && (
+        <div className="mt-8 aspect-video">
+          <iframe
+            src={embedUrl}
+            title={`${fullName} video`}
+            className="w-full h-full rounded"
+            allowFullScreen
+          />
+        </div>
+      )}
+
+      {/* MACHINE SPECIFICATIONS */}
+
+      {machine.specifications && (
+        <section className="mt-8">
+          <h2 className="font-medium mb-2">
+            Specifications
+          </h2>
+
+          <pre className="bg-gray-50 p-4 border rounded text-sm whitespace-pre-wrap">
+            {machine.specifications}
+          </pre>
+        </section>
+      )}
+
+      {/* INTERNAL SEO LINKS */}
+
+      <section className="mt-6 border-t pt-6 text-sm text-blue-600 space-y-2">
+
+        {brandPath && (
+          <p>
             <Link
-              href={`/inventory/${params.category}/${params.subcategory}/${m.slug.current}`}
-              className="font-medium text-blue-600 hover:underline"
+              href={brandPath}
+              className="underline hover:text-blue-800"
             >
-              {m.name}
+              Browse all {machine.brand} models
             </Link>
-            {m.yearOfMfg && (
-              <p className="text-sm text-gray-600">Year: {m.yearOfMfg}</p>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )}
-</main>
-);
+          </p>
+        )}
+
+        {modelPath && (
+          <p>
+            <Link
+              href={modelPath}
+              className="underline hover:text-blue-800"
+            >
+              View more {machine.brand} {machine.modelDisplay || machine.model} machines
+            </Link>
+          </p>
+        )}
+
+        <p>
+          <Link
+            href={`/inventory/${params.category}/${params.subcategory}`}
+            className="underline hover:text-blue-800"
+          >
+            View all {params.subcategory.replace(/-/g, ' ')}
+          </Link>
+        </p>
+
+      </section>
+
+      {/* REQUEST A QUOTE */}
+
+      <section id="request-quote" className="mt-10">
+        <RequestQuoteSection
+          stockNumber={machine.stockNumber}
+          machineName={machine.name}
+          machineUrl={machineUrl}
+        />
+      </section>
+
+      {/* SOCIAL MEDIA */}
+
+      <section className="mt-10 border-t pt-6">
+        <h3 className="text-lg font-semibold mb-3">
+          Follow Concord Machine Tools
+        </h3>
+
+        <p className="text-sm text-gray-600 mb-4">
+          Stay updated with newly listed machines, machine videos, and
+          featured inventory.
+        </p>
+
+        <div className="flex gap-4 text-sm flex-wrap">
+
+          <a
+            href="https://www.facebook.com/concordmachinetools/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            Facebook
+          </a>
+
+          <a
+            href="https://www.instagram.com/concordmachinetools/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-pink-600 hover:underline"
+          >
+            Instagram
+          </a>
+
+          <a
+            href="https://www.youtube.com/@concordmachinetools"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-red-600 hover:underline"
+          >
+            YouTube
+          </a>
+
+          <a
+            href="https://www.linkedin.com/company/concord-machine-tools/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-800 hover:underline"
+          >
+            LinkedIn
+          </a>
+
+        </div>
+      </section>
+
+      {/* RELATED MACHINES */}
+
+      {relatedMachines.length > 0 && (
+        <section className="mt-12">
+
+          <h2 className="text-xl font-semibold mb-4">
+            Related Machines
+          </h2>
+
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            {relatedMachines.map((m: any) => (
+              <li
+                key={m._id}
+                className="border p-4 rounded"
+              >
+                <Link
+                  href={`/inventory/${params.category}/${params.subcategory}/${m.slug.current}`}
+                  className="font-medium text-blue-600 hover:underline"
+                >
+                  {m.name}
+                </Link>
+
+                {m.yearOfMfg && (
+                  <p className="text-sm text-gray-600">
+                    Year: {m.yearOfMfg}
+                  </p>
+                )}
+              </li>
+            ))}
+
+          </ul>
+
+        </section>
+      )}
+
+    </main>
+  );
 }
