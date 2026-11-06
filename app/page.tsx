@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { client } from '@/lib/sanityClient';
 
 export const metadata: Metadata = {
-  title: 'Used Machines for Sale - CNC & Fabricating Machinery',
+  title: 'Used CNC Machines for Sale | Concord Machine Tools',
   description:
     'Buy & sell used machinery, used Haas, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory and fair pricing.',
   alternates: {
@@ -125,7 +125,7 @@ export default async function HomePage() {
       <section className="bg-slate-900 text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
           <h1 className="text-4xl md:text-5xl font-semibold mb-6">
-            Used CNC & Metalworking Machinery for Sale
+            Used CNC Machines & Metalworking Machinery for Sale
           </h1>
 
           <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
