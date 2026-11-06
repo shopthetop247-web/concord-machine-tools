@@ -5,16 +5,31 @@ import Footer from '@/components/Footer';
 import Script from 'next/script';
 
 export const metadata = {
-  title: 'Concord Machine Tools – Used CNC & Metalworking Machines',
+  metadataBase: new URL('https://www.concordmt.com'),
+
+  title: {
+    default: 'Concord Machine Tools | Used CNC & Industrial Machinery',
+    template: '%s | Concord Machine Tools',
+  },
+
+  description:
+    'Buy and sell used CNC machines, metalworking machinery, and industrial manufacturing equipment with Concord Machine Tools.',
+
   openGraph: {
-    title: 'Concord Machine Tools',
+    title: 'Concord Machine Tools | Used CNC & Industrial Machinery',
     description:
-      'Used CNC machines, lathes, mills, and industrial machinery and equipment for sale.',
+      'Buy and sell used CNC machines, machining centers, lathes, and industrial manufacturing equipment.',
+    siteName: 'Concord Machine Tools',
     type: 'website',
+    locale: 'en_US',
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html lang="en">
       <head>
@@ -37,22 +52,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="bg-slate-50 text-slate-900">
         <Header />
 
-        {/* Organization Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Concord Machine Tools',
-              url: 'https://www.concordmt.com',
-              logo: 'https://www.concordmt.com/logo.png',
-              sameAs: [],
-            }),
-          }}
-        />
-
         <main>{children}</main>
+
         <Footer />
       </body>
     </html>
