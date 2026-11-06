@@ -18,6 +18,12 @@ interface Machine {
   subcategory: { slug: { current: string } };
 }
 
+interface BrandSEO {
+  productType: string;
+  description: string;
+  introduction: string;
+}
+
 const BASE_URL = 'https://www.concordmt.com';
 
 const builder = imageUrlBuilder(client);
@@ -37,27 +43,89 @@ const slugify = (str: string) =>
     .replace(/^-+|-+$/g, '');
 
 /* ------------------------------------
-   BRAND SEO DESCRIPTIONS
+   BRAND-SPECIFIC SEO CONFIGURATION
 ------------------------------------ */
 
-const brandMetaDescriptions: Record<string, string> = {
-  haas:
-    'Browse used Haas CNC machines for sale, including VF vertical machining centers, ST CNC lathes, and UMC 5-axis machines. Buy, sell, or source used Haas equipment with Concord Machine Tools.',
+const brandSEOConfig: Record<string, BrandSEO> = {
+  haas: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Haas CNC machines for sale, including VF vertical machining centers, ST CNC lathes, and UMC 5-axis machines. Buy, sell, or source used Haas equipment with Concord Machine Tools.',
+    introduction:
+      'Browse available used Haas CNC machines, including vertical machining centers, CNC lathes, and other manufacturing equipment.',
+  },
 
-  mazak:
-    'Browse used Mazak CNC machines for sale, including Quick Turn lathes, VCN vertical machining centers, HCN horizontal machining centers, and Integrex multi-tasking machines. Contact Concord Machine Tools to buy, sell, or source used Mazak equipment.',
+  mazak: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Mazak CNC machines for sale, including Quick Turn lathes, VCN vertical machining centers, HCN horizontal machining centers, and Integrex multi-tasking machines. Contact Concord Machine Tools to buy, sell, or source used Mazak equipment.',
+    introduction:
+      'Browse available used Mazak CNC machines, including Quick Turn lathes, VCN vertical machining centers, HCN horizontal machining centers, and Integrex multi-tasking machines.',
+  },
 
-  hurco:
-    'Browse used Hurco CNC machines for sale, including vertical machining centers, CNC mills, and turning centers. Contact Concord Machine Tools to buy, sell, or source used Hurco machinery.',
+  hurco: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Hurco CNC machines for sale, including vertical machining centers, CNC mills, and turning centers. Contact Concord Machine Tools to buy, sell, or source used Hurco machinery.',
+    introduction:
+      'Browse available used Hurco CNC machines, including vertical machining centers, CNC mills, and turning centers.',
+  },
 
-  makino:
-    'Browse used Makino CNC machines for sale, including vertical and horizontal machining centers and high-precision machining equipment. Contact Concord Machine Tools to buy, sell, or source used Makino machinery.',
+  makino: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Makino CNC machines for sale, including vertical and horizontal machining centers and high-precision machining equipment. Contact Concord Machine Tools to buy, sell, or source used Makino machinery.',
+    introduction:
+      'Browse available used Makino CNC machines, including vertical and horizontal machining centers and precision manufacturing equipment.',
+  },
 
-  doosan:
-    'Browse used Doosan and DN Solutions CNC machines for sale, including CNC lathes, turning centers, and machining centers. Contact Concord Machine Tools to buy, sell, or source used equipment.',
+  doosan: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Doosan and DN Solutions CNC machines for sale, including CNC lathes, turning centers, and machining centers. Contact Concord Machine Tools to buy, sell, or source used equipment.',
+    introduction:
+      'Browse available used Doosan and DN Solutions CNC machines, including turning centers, CNC lathes, and machining centers.',
+  },
 
-  okuma:
-    'Browse used Okuma CNC machines for sale, including CNC lathes, vertical machining centers, and horizontal machining centers. Contact Concord Machine Tools to buy, sell, or source used Okuma machinery.',
+  okuma: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Okuma CNC machines for sale, including CNC lathes, vertical machining centers, and horizontal machining centers. Contact Concord Machine Tools to buy, sell, or source used Okuma machinery.',
+    introduction:
+      'Browse available used Okuma CNC machines, including CNC lathes, vertical machining centers, and horizontal machining centers.',
+  },
+
+  devlieg: {
+    productType: 'Machinery',
+    description:
+      'Browse used DeVlieg machine tools and industrial machinery for sale. Contact Concord Machine Tools to buy, sell, or source DeVlieg equipment.',
+    introduction:
+      'Explore used DeVlieg machinery and machine tools. Contact Concord Machine Tools for available equipment or assistance locating specific DeVlieg models.',
+  },
+
+  bridgeport: {
+    productType: 'Milling Machines',
+    description:
+      'Browse used Bridgeport milling machines for sale, including manual and CNC milling equipment. Contact Concord Machine Tools to buy, sell, or source Bridgeport machinery.',
+    introduction:
+      'Browse used Bridgeport milling machines, including manual mills and CNC-equipped models.',
+  },
+
+  moore: {
+    productType: 'Jig Grinders',
+    description:
+      'Browse used Moore jig grinders and precision grinding equipment for sale. Contact Concord Machine Tools to buy, sell, or source Moore machinery.',
+    introduction:
+      'Explore used Moore jig grinders and precision machine tools for demanding manufacturing and toolroom applications.',
+  },
+
+  'hyd-mech': {
+    productType: 'Bandsaws',
+    description:
+      'Browse used Hyd-Mech bandsaws for sale, including industrial metal-cutting saws. Contact Concord Machine Tools to buy, sell, or source Hyd-Mech equipment.',
+    introduction:
+      'Browse used Hyd-Mech metal-cutting bandsaws and industrial sawing equipment.',
+  },
 };
 
 /* ------------------------------------
@@ -102,12 +170,18 @@ export async function generateMetadata({
     brandName.charAt(0).toUpperCase() +
     brandName.slice(1);
 
+  const seo =
+    brandSEOConfig[brandSlug.toLowerCase()];
+
+  const productType =
+    seo?.productType || 'Machinery';
+
   const title =
-    `Used ${formattedBrand} CNC Machines for Sale | Concord Machine Tools`;
+    `Used ${formattedBrand} ${productType} for Sale | Concord Machine Tools`;
 
   const description =
-    brandMetaDescriptions[brandSlug.toLowerCase()] ||
-    `Browse used ${formattedBrand} CNC machines for sale at Concord Machine Tools. Explore available equipment, find specific models, or contact us to buy, sell, and source used ${formattedBrand} machinery.`;
+    seo?.description ||
+    `Browse used ${formattedBrand} machinery and machine tools for sale at Concord Machine Tools. Explore available equipment, locate specific models, or contact us to buy, sell, and source used machinery.`;
 
   const canonicalUrl =
     `${BASE_URL}/brands/${brandSlug}`;
@@ -170,6 +244,16 @@ export default async function BrandPage({
   const formattedBrand =
     brandName.charAt(0).toUpperCase() +
     brandName.slice(1);
+
+  const seo =
+    brandSEOConfig[brandSlug.toLowerCase()];
+
+  const productType =
+    seo?.productType || 'Machinery';
+
+  const introduction =
+    seo?.introduction ||
+    `Browse available used ${formattedBrand} machinery and machine tools. Explore current inventory or contact Concord Machine Tools for assistance locating specific equipment.`;
 
   const canonicalUrl =
     `${BASE_URL}/brands/${brandSlug}`;
@@ -254,9 +338,10 @@ export default async function BrandPage({
         '@type': 'CollectionPage',
         '@id': `${canonicalUrl}#webpage`,
         url: canonicalUrl,
-        name: `Used ${formattedBrand} CNC Machines for Sale`,
+        name: `Used ${formattedBrand} ${productType} for Sale`,
         description:
-          `Browse used ${formattedBrand} CNC machines for sale at Concord Machine Tools.`,
+          seo?.description ||
+          `Browse used ${formattedBrand} machinery for sale at Concord Machine Tools.`,
         isPartOf: {
           '@type': 'WebSite',
           '@id': `${BASE_URL}/#website`,
@@ -296,7 +381,7 @@ export default async function BrandPage({
       {
         '@type': 'ItemList',
         '@id': `${canonicalUrl}#inventory`,
-        name: `Available Used ${formattedBrand} CNC Machines`,
+        name: `Available Used ${formattedBrand} ${productType}`,
         numberOfItems: machineList.length,
         itemListElement: machineList,
       },
@@ -325,7 +410,7 @@ export default async function BrandPage({
       {/* HEADER */}
 
       <h1 className="text-3xl font-semibold mb-2">
-        Used {formattedBrand} CNC Machines for Sale
+        Used {formattedBrand} {productType} for Sale
       </h1>
 
       {/* OFFICIAL BRAND WEBSITE */}
@@ -344,11 +429,9 @@ export default async function BrandPage({
       {/* INTRODUCTION */}
 
       <p className="text-gray-600 mb-8 max-w-3xl">
-        Browse available used {formattedBrand} CNC machines,
-        including machining centers, CNC lathes, and other
-        industrial machine tools. Select a machine or model
-        to explore specifications, photographs, and additional
-        equipment details.
+        {introduction}
+        {' '}Select a machine or model to explore specifications,
+        photographs, and additional equipment details.
       </p>
 
       {/* MODEL LINKS */}
@@ -385,7 +468,7 @@ export default async function BrandPage({
       {/* MACHINE INVENTORY */}
 
       <h2 className="text-xl font-semibold mb-3">
-        Available Used {formattedBrand} Machines
+        Available Used {formattedBrand} {productType}
       </h2>
 
       {machines.length > 0 ? (
@@ -432,11 +515,10 @@ export default async function BrandPage({
       ) : (
 
         <p className="text-gray-600 mb-12">
-          We do not currently have used {formattedBrand}
-          machines listed in our inventory. Contact Concord
-          Machine Tools if you are looking for a specific
-          {` ${formattedBrand}`} model or would like assistance
-          sourcing equipment.
+          We do not currently have used {formattedBrand} equipment
+          listed in our inventory. Contact Concord Machine Tools
+          if you are looking for a specific {formattedBrand} model
+          or would like assistance sourcing equipment.
         </p>
 
       )}
