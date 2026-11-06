@@ -148,9 +148,12 @@ function createSubcategoryContent(
   }
 
   if (
-    lower.includes('lathe') ||
-    lower.includes('turning center') ||
-    lower.includes('turning centres')
+    categoryLower.includes('cnc') &&
+    (
+      lower.includes('lathe') ||
+      lower.includes('turning center') ||
+      lower.includes('turning centres')
+    )
   ) {
     return {
       ...base,
@@ -307,7 +310,7 @@ export async function generateMetadata({
   const canonicalUrl = `${SITE_URL}/inventory/${category}/${subcategory}`;
 
   return {
-    title: content.title,
+    title: { absolute: content.title },
     description: content.description,
     alternates: {
       canonical: canonicalUrl,
@@ -402,7 +405,7 @@ export default async function SubcategoryPage({ params }: PageProps) {
     new Set(
       machines
         .map((machine) => machine.brand)
-        .filter((brand): brand is string => Boolean(brand.trim()))
+        .filter((brand): brand is string => Boolean(brand && brand.trim()))
     )
   ).sort();
 
