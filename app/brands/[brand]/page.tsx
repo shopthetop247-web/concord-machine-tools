@@ -47,6 +47,9 @@ const slugify = (str: string) =>
 ------------------------------------ */
 
 const brandSEOConfig: Record<string, BrandSEO> = {
+
+  /* CNC MACHINE MANUFACTURERS */
+
   haas: {
     productType: 'CNC Machines',
     description:
@@ -95,6 +98,40 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Browse available used Okuma CNC machines, including CNC lathes, vertical machining centers, and horizontal machining centers.',
   },
 
+  milltronics: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Milltronics CNC machines for sale, including vertical machining centers, CNC bed mills, and turning centers. Contact Concord Machine Tools to buy, sell, or source used Milltronics equipment.',
+    introduction:
+      'Browse used Milltronics CNC machining centers, milling machines, and turning equipment for manufacturing and job shop applications.',
+  },
+
+  'yama-seiki': {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Yama Seiki CNC machines for sale, including vertical machining centers, horizontal machining centers, and CNC turning equipment. Contact Concord Machine Tools to buy, sell, or source used Yama Seiki machinery.',
+    introduction:
+      'Explore available used Yama Seiki CNC machining centers and turning equipment for industrial manufacturing applications.',
+  },
+
+  toyoda: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Toyoda CNC machines for sale, including horizontal machining centers, vertical machining centers, and precision machining equipment. Contact Concord Machine Tools to buy, sell, or source used Toyoda machinery.',
+    introduction:
+      'Browse used Toyoda CNC machining centers and industrial machine tools, including horizontal and vertical machining equipment.',
+  },
+
+  fidia: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used Fidia CNC machining centers and high-speed milling machines for sale. Contact Concord Machine Tools to buy, sell, or source used Fidia equipment for precision manufacturing applications.',
+    introduction:
+      'Explore used Fidia CNC machining centers and high-speed milling equipment designed for precision machining and complex manufacturing applications.',
+  },
+
+  /* MANUAL MACHINERY AND GRINDING */
+
   devlieg: {
     productType: 'Machinery',
     description:
@@ -119,12 +156,70 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Explore used Moore jig grinders and precision machine tools for demanding manufacturing and toolroom applications.',
   },
 
+  acer: {
+    productType: 'Surface Grinders',
+    description:
+      'Browse used Acer surface grinders and industrial grinding machines for sale. Contact Concord Machine Tools to buy, sell, or source Acer grinding equipment.',
+    introduction:
+      'Browse used Acer surface grinders and precision grinding equipment for machine shops and industrial manufacturing facilities.',
+  },
+
+  'giddings-lewis': {
+    productType: 'Machine Tools',
+    description:
+      'Browse used Giddings & Lewis machine tools for sale, including horizontal boring mills, floor-type boring mills, and large-capacity machining equipment. Contact Concord Machine Tools to buy, sell, or source Giddings & Lewis machinery.',
+    introduction:
+      'Explore used Giddings & Lewis machine tools, including horizontal boring mills and large-capacity industrial machining equipment.',
+  },
+
+  'giddings-and-lewis': {
+    productType: 'Machine Tools',
+    description:
+      'Browse used Giddings & Lewis machine tools for sale, including horizontal boring mills, floor-type boring mills, and large-capacity machining equipment. Contact Concord Machine Tools to buy, sell, or source Giddings & Lewis machinery.',
+    introduction:
+      'Explore used Giddings & Lewis machine tools, including horizontal boring mills and large-capacity industrial machining equipment.',
+  },
+
+  /* SPECIALIZED INDUSTRIAL EQUIPMENT */
+
   'hyd-mech': {
     productType: 'Bandsaws',
     description:
       'Browse used Hyd-Mech bandsaws for sale, including industrial metal-cutting saws. Contact Concord Machine Tools to buy, sell, or source Hyd-Mech equipment.',
     introduction:
       'Browse used Hyd-Mech metal-cutting bandsaws and industrial sawing equipment.',
+  },
+
+  wenzel: {
+    productType: 'Coordinate Measuring Machines',
+    description:
+      'Browse used Wenzel coordinate measuring machines (CMMs) for sale, including precision inspection and dimensional measurement equipment. Contact Concord Machine Tools to buy, sell, or source used Wenzel CMMs.',
+    introduction:
+      'Explore used Wenzel coordinate measuring machines and precision CMM inspection equipment for industrial quality control and dimensional measurement applications.',
+  },
+
+  komo: {
+    productType: 'CNC Routers',
+    description:
+      'Browse used Komo CNC routers for sale, including industrial CNC routing and machining centers for production applications. Contact Concord Machine Tools to buy, sell, or source used Komo equipment.',
+    introduction:
+      'Browse used Komo CNC routers and industrial routing equipment for manufacturing and production applications.',
+  },
+
+  laguna: {
+    productType: 'Plasma Cutters',
+    description:
+      'Browse used Laguna plasma cutters for sale, including industrial CNC plasma cutting systems. Contact Concord Machine Tools to buy, sell, or source used Laguna plasma equipment.',
+    introduction:
+      'Explore used Laguna CNC plasma cutters and industrial metal cutting equipment for fabrication and manufacturing applications.',
+  },
+
+  smart: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used Smart CNC machining centers for sale, including industrial CNC milling and machining equipment. Contact Concord Machine Tools to buy, sell, or source used Smart machinery.',
+    introduction:
+      'Browse used Smart CNC machining centers and industrial milling equipment for manufacturing and production applications.',
   },
 };
 
