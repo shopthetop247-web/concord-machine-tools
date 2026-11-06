@@ -130,7 +130,95 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Explore used Fidia CNC machining centers and high-speed milling equipment designed for precision machining and complex manufacturing applications.',
   },
 
-  /* MANUAL MACHINERY AND GRINDING */
+  shibaura: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Shibaura CNC machines for sale, including precision machining centers and industrial CNC equipment. Contact Concord Machine Tools to buy, sell, or source used Shibaura machinery.',
+    introduction:
+      'Explore used Shibaura CNC machine tools and precision manufacturing equipment for industrial production applications.',
+  },
+
+  grob: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used GROB CNC machining centers for sale, including horizontal machining centers and advanced multi-axis machining equipment. Contact Concord Machine Tools to buy, sell, or source used GROB machinery.',
+    introduction:
+      'Explore used GROB CNC machining centers, including advanced horizontal and multi-axis machining equipment for precision manufacturing.',
+  },
+
+  mitsubishi: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Mitsubishi CNC machines and industrial machine tools for sale. Contact Concord Machine Tools to buy, sell, or source used Mitsubishi manufacturing equipment.',
+    introduction:
+      'Explore used Mitsubishi CNC equipment and industrial machine tools. Contact Concord Machine Tools for available machinery or assistance locating specific equipment.',
+  },
+
+  fanuc: {
+    productType: 'CNC Machines & Automation',
+    description:
+      'Browse used FANUC CNC equipment and industrial automation machinery for sale. Contact Concord Machine Tools to buy, sell, or source used FANUC manufacturing equipment.',
+    introduction:
+      'Explore used FANUC CNC equipment and industrial automation solutions for manufacturing applications.',
+  },
+
+  fadal: {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Fadal CNC machines for sale, including vertical machining centers and CNC milling equipment. Contact Concord Machine Tools to buy, sell, or source used Fadal machinery.',
+    introduction:
+      'Explore used Fadal CNC vertical machining centers and milling equipment for machine shops and industrial manufacturing facilities.',
+  },
+
+  visionwide: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used Vision Wide CNC machining centers for sale, including double-column bridge mills and gantry machining centers. Contact Concord Machine Tools to buy, sell, or source used Vision Wide equipment.',
+    introduction:
+      'Explore used Vision Wide CNC machining centers, including large-capacity double-column and gantry milling machines for heavy-duty manufacturing applications.',
+  },
+
+  parpas: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used Parpas CNC machining centers for sale, including large-capacity milling and precision machining equipment. Contact Concord Machine Tools to buy, sell, or source used Parpas machinery.',
+    introduction:
+      'Explore used Parpas CNC machining centers and large-format milling equipment for demanding industrial manufacturing applications.',
+  },
+
+  okk: {
+    productType: 'CNC Machining Centers',
+    description:
+      'Browse used OKK CNC machining centers for sale, including vertical and horizontal machining equipment. Contact Concord Machine Tools to buy, sell, or source used OKK machinery.',
+    introduction:
+      'Explore used OKK CNC machining centers and precision milling equipment for industrial manufacturing and production applications.',
+  },
+
+  tsugami: {
+    productType: 'CNC Lathes',
+    description:
+      'Browse used Tsugami CNC lathes and precision turning machines for sale. Contact Concord Machine Tools to buy, sell, or source used Tsugami equipment for precision manufacturing.',
+    introduction:
+      'Explore used Tsugami CNC lathes and precision turning equipment for high-accuracy production and manufacturing applications.',
+  },
+
+  eurotech: {
+    productType: 'CNC Lathes',
+    description:
+      'Browse used Eurotech CNC lathes and turning centers for sale. Contact Concord Machine Tools to buy, sell, or source used Eurotech turning equipment.',
+    introduction:
+      'Explore used Eurotech CNC lathes and turning centers for industrial production and precision machining applications.',
+  },
+
+  hardinge: {
+    productType: 'Machine Tools',
+    description:
+      'Browse used Hardinge machine tools for sale, including precision turning machines, CNC lathes, and milling equipment. Contact Concord Machine Tools to buy, sell, or source used Hardinge machinery.',
+    introduction:
+      'Explore used Hardinge machine tools and precision manufacturing equipment, including turning and milling machinery.',
+  },
+
+  /* MILLING, GRINDING AND GENERAL MACHINE TOOLS */
 
   devlieg: {
     productType: 'Machinery',
@@ -164,23 +252,137 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Browse used Acer surface grinders and precision grinding equipment for machine shops and industrial manufacturing facilities.',
   },
 
-  'giddings-lewis': {
-    productType: 'Machine Tools',
+  chevalier: {
+    productType: 'Grinding & Machine Tools',
     description:
-      'Browse used Giddings & Lewis machine tools for sale, including horizontal boring mills, floor-type boring mills, and large-capacity machining equipment. Contact Concord Machine Tools to buy, sell, or source Giddings & Lewis machinery.',
+      'Browse used Chevalier grinding machines and machine tools for sale, including precision grinding equipment. Contact Concord Machine Tools to buy, sell, or source used Chevalier machinery.',
     introduction:
-      'Explore used Giddings & Lewis machine tools, including horizontal boring mills and large-capacity industrial machining equipment.',
+      'Explore used Chevalier grinding machines and precision machine tools for industrial manufacturing and toolroom applications.',
   },
 
-  'giddings-and-lewis': {
+  clausing: {
     productType: 'Machine Tools',
     description:
-      'Browse used Giddings & Lewis machine tools for sale, including horizontal boring mills, floor-type boring mills, and large-capacity machining equipment. Contact Concord Machine Tools to buy, sell, or source Giddings & Lewis machinery.',
+      'Browse used Clausing machine tools for sale, including metalworking and machining equipment. Contact Concord Machine Tools to buy, sell, or source used Clausing machinery.',
     introduction:
-      'Explore used Giddings & Lewis machine tools, including horizontal boring mills and large-capacity industrial machining equipment.',
+      'Explore used Clausing machine tools and metalworking equipment for machine shops and industrial manufacturing facilities.',
   },
 
-  /* SPECIALIZED INDUSTRIAL EQUIPMENT */
+  cincinnati: {
+    productType: 'Machine Tools',
+    description:
+      'Browse used Cincinnati machine tools for sale, including industrial milling, machining, and metalworking equipment. Contact Concord Machine Tools to buy, sell, or source used Cincinnati machinery.',
+    introduction:
+      'Explore used Cincinnati machine tools and industrial metalworking equipment for manufacturing and production applications.',
+  },
+
+  jet: {
+    productType: 'Metalworking Machinery',
+    description:
+      'Browse used JET metalworking machinery for sale, including shop equipment and industrial metalworking machines. Contact Concord Machine Tools to buy, sell, or source used JET equipment.',
+    introduction:
+      'Explore used JET metalworking machinery and shop equipment for industrial and manufacturing applications.',
+  },
+
+  knuth: {
+    productType: 'Metalworking Machinery',
+    description:
+      'Browse used KNUTH metalworking machinery for sale, including industrial machine tools and manufacturing equipment. Contact Concord Machine Tools to buy, sell, or source used KNUTH machinery.',
+    introduction:
+      'Explore used KNUTH metalworking machinery and industrial machine tools for manufacturing and fabrication applications.',
+  },
+
+  'southwestern-industries': {
+    productType: 'CNC Machines',
+    description:
+      'Browse used Southwestern Industries CNC machines for sale, including TRAK mills, CNC lathes, and ProtoTRAK-equipped machine tools. Contact Concord Machine Tools to buy, sell, or source used Southwestern Industries equipment.',
+    introduction:
+      'Explore used Southwestern Industries and TRAK CNC machines, including milling and turning equipment for machine shops and manufacturing facilities.',
+  },
+
+  /* METAL FABRICATING AND STAMPING EQUIPMENT */
+
+  amada: {
+    productType: 'Metal Fabricating Machinery',
+    description:
+      'Browse used Amada metal fabricating machinery for sale, including press brakes, laser cutting systems, shears, and punching equipment. Contact Concord Machine Tools to buy, sell, or source used Amada machinery.',
+    introduction:
+      'Explore used Amada metal fabrication equipment, including sheet metal processing and industrial fabrication machinery.',
+  },
+
+  wysong: {
+    productType: 'Metal Fabricating Machinery',
+    description:
+      'Browse used Wysong metal fabricating machinery for sale, including shears and sheet metal processing equipment. Contact Concord Machine Tools to buy, sell, or source used Wysong machinery.',
+    introduction:
+      'Explore used Wysong metal fabricating machinery and sheet metal processing equipment for industrial fabrication applications.',
+  },
+
+  carell: {
+    productType: 'Metal Forming Equipment',
+    description:
+      'Browse used Carell metal forming equipment for sale, including plate rolls, angle rolls, and industrial profile bending machinery. Contact Concord Machine Tools to buy, sell, or source used Carell equipment.',
+    introduction:
+      'Explore used Carell metal forming equipment, including plate and angle rolls for industrial fabrication and metalworking applications.',
+  },
+
+  bliss: {
+    productType: 'Stamping Presses',
+    description:
+      'Browse used Bliss stamping presses for sale, including industrial metal stamping and press equipment. Contact Concord Machine Tools to buy, sell, or source used Bliss machinery.',
+    introduction:
+      'Explore used Bliss stamping presses and industrial metal forming equipment for manufacturing and production applications.',
+  },
+
+  'usi-clearing': {
+    productType: 'Stamping Presses',
+    description:
+      'Browse used USI Clearing stamping presses and industrial metal forming equipment for sale. Contact Concord Machine Tools to buy, sell, or source used USI Clearing machinery.',
+    introduction:
+      'Explore used USI Clearing stamping presses and metal forming equipment for industrial manufacturing applications.',
+  },
+
+  danly: {
+    productType: 'Stamping Presses',
+    description:
+      'Browse used Danly stamping presses and industrial press equipment for sale. Contact Concord Machine Tools to buy, sell, or source used Danly machinery.',
+    introduction:
+      'Explore used Danly stamping presses and industrial metal forming equipment for manufacturing and production applications.',
+  },
+
+  accurpress: {
+    productType: 'Press Brakes',
+    description:
+      'Browse used Accurpress press brakes for sale, including hydraulic press brakes and industrial sheet metal bending equipment. Contact Concord Machine Tools to buy, sell, or source used Accurpress machinery.',
+    introduction:
+      'Explore used Accurpress press brakes and sheet metal bending equipment for industrial fabrication applications.',
+  },
+
+  mubea: {
+    productType: 'Ironworkers & Punching Machines',
+    description:
+      'Browse used Mubea ironworkers and punching machines for sale, including industrial metalworking and fabrication equipment. Contact Concord Machine Tools to buy, sell, or source used Mubea machinery.',
+    introduction:
+      'Explore used Mubea ironworkers, punching machines, and metal fabrication equipment for industrial manufacturing applications.',
+  },
+
+  scotchman: {
+    productType: 'Ironworkers & Bandsaws',
+    description:
+      'Browse used Scotchman ironworkers and metal-cutting bandsaws for sale. Contact Concord Machine Tools to buy, sell, or source used Scotchman metalworking equipment.',
+    introduction:
+      'Explore used Scotchman ironworkers, bandsaws, and industrial metalworking equipment for fabrication and production applications.',
+  },
+
+  piranha: {
+    productType: 'Ironworkers',
+    description:
+      'Browse used Piranha ironworkers and metal fabrication equipment for sale. Contact Concord Machine Tools to buy, sell, or source used Piranha machinery.',
+    introduction:
+      'Explore used Piranha ironworkers and industrial metal fabrication equipment for punching, shearing, and fabrication applications.',
+  },
+
+  /* SAWING EQUIPMENT */
 
   'hyd-mech': {
     productType: 'Bandsaws',
@@ -190,13 +392,15 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Browse used Hyd-Mech metal-cutting bandsaws and industrial sawing equipment.',
   },
 
-  wenzel: {
-    productType: 'Coordinate Measuring Machines',
+  hem: {
+    productType: 'Bandsaws',
     description:
-      'Browse used Wenzel coordinate measuring machines (CMMs) for sale, including precision inspection and dimensional measurement equipment. Contact Concord Machine Tools to buy, sell, or source used Wenzel CMMs.',
+      'Browse used HEM bandsaws for sale, including industrial metal-cutting and production sawing equipment. Contact Concord Machine Tools to buy, sell, or source used HEM machinery.',
     introduction:
-      'Explore used Wenzel coordinate measuring machines and precision CMM inspection equipment for industrial quality control and dimensional measurement applications.',
+      'Explore used HEM metal-cutting bandsaws and industrial sawing equipment for manufacturing and fabrication facilities.',
   },
+
+  /* ROUTING AND PLASMA CUTTING */
 
   komo: {
     productType: 'CNC Routers',
@@ -204,6 +408,14 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Browse used Komo CNC routers for sale, including industrial CNC routing and machining centers for production applications. Contact Concord Machine Tools to buy, sell, or source used Komo equipment.',
     introduction:
       'Browse used Komo CNC routers and industrial routing equipment for manufacturing and production applications.',
+  },
+
+  multicam: {
+    productType: 'CNC Routers',
+    description:
+      'Browse used MultiCam CNC routers for sale, including industrial CNC routing and cutting systems. Contact Concord Machine Tools to buy, sell, or source used MultiCam equipment.',
+    introduction:
+      'Explore used MultiCam CNC routers and industrial CNC cutting equipment for production and manufacturing applications.',
   },
 
   laguna: {
@@ -214,12 +426,24 @@ const brandSEOConfig: Record<string, BrandSEO> = {
       'Explore used Laguna CNC plasma cutters and industrial metal cutting equipment for fabrication and manufacturing applications.',
   },
 
-  smart: {
-    productType: 'CNC Machining Centers',
+  /* PLASTIC INJECTION MOLDING */
+
+  arburg: {
+    productType: 'Plastic Injection Molding Machines',
     description:
-      'Browse used Smart CNC machining centers for sale, including industrial CNC milling and machining equipment. Contact Concord Machine Tools to buy, sell, or source used Smart machinery.',
+      'Browse used Arburg plastic injection molding machines for sale. Contact Concord Machine Tools to buy, sell, or source used Arburg injection molding equipment.',
     introduction:
-      'Browse used Smart CNC machining centers and industrial milling equipment for manufacturing and production applications.',
+      'Explore used Arburg plastic injection molding machines and industrial molding equipment for manufacturing applications.',
+  },
+
+  /* GENERAL MACHINERY AND SPECIALIZED EQUIPMENT */
+
+  unitech: {
+    productType: 'Machinery',
+    description:
+      'Explore used Unitech machinery and industrial equipment through Concord Machine Tools. Contact us for assistance locating specific Unitech equipment or discussing your machinery requirements.',
+    introduction:
+      'Explore Unitech machinery and industrial equipment. Contact Concord Machine Tools for assistance locating specific equipment or discussing your machinery requirements.',
   },
 };
 
