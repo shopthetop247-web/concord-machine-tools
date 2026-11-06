@@ -3,13 +3,15 @@ import Link from 'next/link';
 import SellYourMachineForm from '@/components/SellYourMachineForm';
 
 export const metadata: Metadata = {
-  title: 'Sell Used CNC Machines & Machinery | Concord Machine Tools',
+  title: {
+    absolute: 'Sell Used CNC Machines | CNC Machine Buyers | Concord',
+  },
   description:
-    'Sell your used CNC machine or metalworking equipment to Concord Machine Tools. We buy CNC mills, lathes, machining centers and industrial machinery nationwide.',
+    'Looking to sell used CNC machines or metalworking equipment? Concord Machine Tools buys CNC mills, lathes, machining centers and industrial machinery nationwide.',
   openGraph: {
-    title: 'Sell Used CNC Machines & Machinery | Concord Machine Tools',
+    title: 'Sell Used CNC Machines | CNC Machine Buyers | Concord',
     description:
-      'Sell your used CNC machine or metalworking equipment. Concord Machine Tools buys CNC mills, lathes, machining centers and other industrial machinery.',
+      'Looking to sell used CNC machines or metalworking equipment? Concord Machine Tools buys CNC mills, lathes, machining centers and industrial machinery nationwide.',
     type: 'website',
     url: 'https://www.concordmt.com/sell',
   },
@@ -18,27 +20,48 @@ export const metadata: Metadata = {
 export default function SellPage() {
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: 'Sell Used CNC & Metalworking Machinery',
-    description:
-      'Concord Machine Tools purchases used CNC machines, metalworking equipment, and industrial machinery from manufacturers, machine shops, and other businesses.',
-    provider: {
-      '@type': 'Organization',
-      name: 'Concord Machine Tools',
-      url: 'https://www.concordmt.com',
-    },
-    areaServed: [
+    '@graph': [
       {
-        '@type': 'Country',
-        name: 'United States',
+        '@type': 'Service',
+        name: 'Sell Used CNC & Metalworking Machinery',
+        description:
+          'Concord Machine Tools purchases used CNC machines, metalworking equipment, and industrial machinery from manufacturers, machine shops, and other businesses.',
+        provider: {
+          '@type': 'Organization',
+          name: 'Concord Machine Tools',
+          url: 'https://www.concordmt.com',
+        },
+        areaServed: [
+          {
+            '@type': 'Country',
+            name: 'United States',
+          },
+          {
+            '@type': 'Place',
+            name: 'Worldwide',
+          },
+        ],
+        serviceType: 'Used CNC and Metalworking Machinery Purchasing',
+        url: 'https://www.concordmt.com/sell',
       },
       {
-        '@type': 'Place',
-        name: 'Worldwide',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://www.concordmt.com',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Sell Your Machine',
+            item: 'https://www.concordmt.com/sell',
+          },
+        ],
       },
     ],
-    serviceType: 'Used CNC and Metalworking Machinery Purchasing',
-    url: 'https://www.concordmt.com/sell',
   };
 
   return (
@@ -51,7 +74,7 @@ export default function SellPage() {
         }}
       />
 
-      <main>
+      <div>
         {/* Hero / Introduction */}
         <section className="max-w-5xl mx-auto px-6 pt-12 pb-8 md:pt-16">
           <h1 className="text-3xl md:text-4xl font-bold mb-6">
@@ -60,12 +83,12 @@ export default function SellPage() {
 
           <div className="space-y-5 text-slate-700 leading-relaxed">
             <p>
-              Do you have a used CNC machine, surplus metalworking equipment,
-              or other industrial machinery that you no longer need?
-              <strong> Concord Machine Tools</strong> purchases used CNC
-              machines and metalworking equipment from manufacturers, machine
-              shops, fabricators, and other businesses throughout the United
-              States.
+              Looking to sell a used CNC machine or find a reliable CNC machine
+              buyer? <strong>Concord Machine Tools</strong> purchases used CNC
+              machines, surplus metalworking equipment, and industrial machinery
+              from manufacturers, machine shops, fabricators, and other businesses
+              throughout the United States. We evaluate equipment from a wide
+              range of manufacturers and machine types.
             </p>
 
             <p>
@@ -77,9 +100,11 @@ export default function SellPage() {
             </p>
 
             <p>
-              Based in Troy, Michigan, Concord Machine Tools serves sellers
-              throughout the United States and internationally. Submit your
-              machine information below to begin the evaluation process.
+              Based in Michigan, Concord Machine Tools works with equipment
+              sellers throughout the United States and internationally. Whether
+              you are upgrading production equipment, selling an idle machine,
+              or managing surplus assets, submit your machine information below
+              to begin a conversation about a potential sale.
             </p>
           </div>
         </section>
@@ -171,7 +196,11 @@ export default function SellPage() {
             >
               Makino
             </Link>
-            , and many others.
+            , and many others. If you are researching available equipment,
+            visit our{' '}
+            <Link href="/inventory" className="text-blue-700 hover:underline font-medium">
+              used machinery inventory
+            </Link>.
           </p>
         </section>
 
@@ -341,7 +370,11 @@ export default function SellPage() {
               If you are unsure what your machine is worth, you do not need to
               determine its value before contacting us. Providing accurate
               machine information allows our team to evaluate the equipment and
-              discuss its potential market value.
+              discuss its potential market value. For additional guidance on
+              machinery evaluations and equipment decisions, see our{' '}
+              <Link href="/consulting" className="text-blue-700 hover:underline font-medium">
+                machinery consulting services
+              </Link>.
             </p>
           </div>
         </section>
@@ -612,7 +645,7 @@ export default function SellPage() {
             </p>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }
