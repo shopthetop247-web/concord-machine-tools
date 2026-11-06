@@ -6,16 +6,18 @@ import Image from 'next/image';
 import { client } from '@/lib/sanityClient';
 
 export const metadata: Metadata = {
-  title: 'Used CNC Machines for Sale | Concord Machine Tools',
+  title: {
+    absolute: 'Used CNC Machines for Sale | Concord Machine Tools',
+  },
   description:
-    'Buy & sell used machinery, used Haas, used CNC machines, lathes, mills, and metalworking equipment. Trusted dealer offering a wide inventory and fair pricing.',
+    'Buy and sell used CNC machines and industrial machinery with Concord Machine Tools. Browse CNC mills, lathes, machining centers, and fabrication equipment.',
   alternates: {
     canonical: 'https://www.concordmt.com',
   },
   openGraph: {
     title: 'Used CNC Machines for Sale | Concord Machine Tools',
     description:
-      'Browse used CNC machines, machining centers, lathes, mills, and industrial manufacturing equipment from Concord Machine Tools.',
+      'Buy and sell used CNC machines, machining centers, lathes, mills, and industrial manufacturing equipment with Concord Machine Tools.',
     url: 'https://www.concordmt.com',
     siteName: 'Concord Machine Tools',
     type: 'website',
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-    const structuredData = {
+  const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -61,7 +63,7 @@ export default async function HomePage() {
           },
           'Worldwide',
         ],
-        
+
         knowsAbout: [
           'Used Machinery',
           'Used CNC Machines',
@@ -84,7 +86,7 @@ export default async function HomePage() {
           'Surplus Manufacturing Equipment',
           'Industrial Machinery Consulting',
         ],
-        },
+      },
       {
         '@type': 'WebSite',
         '@id': 'https://www.concordmt.com/#website',
@@ -97,8 +99,14 @@ export default async function HomePage() {
       },
     ],
   };
+
   const machines = await client.fetch(`
-    *[_type == "machine"] | order(_createdAt desc)[0...4]{
+    *[
+      _type == "machine" &&
+      defined(slug.current) &&
+      defined(category->slug.current) &&
+      defined(subcategory->slug.current)
+    ] | order(_createdAt desc)[0...4]{
       _id,
       name,
       yearOfMfg,
@@ -112,15 +120,15 @@ export default async function HomePage() {
   `);
 
   return (
-    <main>
-            {/* Organization and Website Structured Data */}
+    <div>
+      {/* Organization and Website Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
         }}
       />
-      
+
       {/* HERO */}
       <section className="bg-slate-900 text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
@@ -129,14 +137,16 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
-            Specializing in CNC machining centers, lathes, mills, fabrication equipment,
-            and industrial machinery from today's leading manufacturers.
+            Concord Machine Tools specializes in buying, selling, sourcing,
+            and valuing used CNC machines and industrial manufacturing
+            equipment for manufacturers throughout the United States and
+            worldwide.
           </p>
 
           <p className="mb-10 text-base md:text-lg text-slate-300 max-w-4xl mx-auto leading-relaxed">
-            Browse a continually updated inventory of used CNC machines for sale,
-            including machining centers, CNC lathes, grinders, fabrication equipment,
-            and metalworking machinery from trusted brands like{' '}
+            Browse our inventory of used CNC machining centers, CNC lathes,
+            milling machines, grinders, fabrication equipment, and other
+            metalworking machinery from leading manufacturers including{' '}
             <Link href="/brands/haas" className="underline">
               Haas
             </Link>
@@ -152,7 +162,7 @@ export default async function HomePage() {
             <Link href="/brands/doosan" className="underline">
               Doosan
             </Link>
-            , and many more.
+            , and many others.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -176,31 +186,30 @@ export default async function HomePage() {
       {/* RECENTLY ADDED MACHINES */}
       <section className="bg-slate-100 py-16">
         <div className="max-w-6xl mx-auto px-6">
-
           <h2 className="text-3xl font-semibold text-center mb-4">
             Recently Added Used CNC Machines & Industrial Equipment
           </h2>
 
           <p className="text-center text-gray-700 max-w-3xl mx-auto mb-10">
-            Explore the latest additions to our used machinery inventory. We
-            regularly acquire quality CNC machining centers, CNC lathes,
-            fabrication equipment, manual machinery, and industrial equipment
-            from leading manufacturers. Check back often as our inventory is
-            updated frequently with newly available machines.
+            Explore the latest additions to our used machinery inventory.
+            We regularly acquire quality CNC machining centers, CNC lathes,
+            fabrication equipment, manual machinery, and industrial
+            equipment from leading manufacturers. Check back often as
+            our inventory is updated with newly available machines.
           </p>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {machines.map((machine: any) => (
               <Link
                 key={machine._id}
-                href={`/inventory/${machine.category?.slug?.current}/${machine.subcategory?.slug?.current}/${machine.slug.current}`}
+                href={`/inventory/${machine.category.slug.current}/${machine.subcategory.slug.current}/${machine.slug.current}`}
                 className="block bg-white border rounded-lg overflow-hidden hover:shadow-lg transition"
               >
                 {machine.images?.[0]?.asset?.url && (
                   <div className="relative w-full h-48">
                     <Image
                       src={machine.images[0].asset.url}
-                      alt={machine.name}
+                      alt={`${machine.name} - used machine for sale`}
                       fill
                       className="object-cover"
                     />
@@ -232,50 +241,52 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-      {/* SEO CONTENT BLOCK */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
 
+      {/* HOMEPAGE SEO CONTENT */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="text-2xl font-semibold mb-6 text-center">
-          Used CNC Machines & Industrial Equipment
+          Your Source for Used CNC Machines & Industrial Machinery
         </h2>
 
         <p className="text-gray-700 mb-6 leading-relaxed">
-          Concord Machine Tools is a trusted source for used CNC machines for
-          sale, offering a wide selection of machining centers, CNC lathes,
-          grinders, fabrication equipment, and industrial machinery for
-          manufacturers, job shops, and production facilities throughout the
-          United States and worldwide. Our inventory is continually updated with
-          quality late-model equipment that is ready for immediate delivery,
-          helping businesses increase production without the long lead times
-          associated with purchasing new machinery.
+          Concord Machine Tools is a U.S. dealer of used CNC machine tools
+          and industrial manufacturing equipment, specializing in the
+          purchase, sale, sourcing, and valuation of quality used machinery.
+          We work with manufacturers, machine shops, and production
+          facilities looking to buy or sell CNC machining centers, CNC
+          lathes, milling machines, grinders, fabrication equipment, and
+          other metalworking machinery.
         </p>
 
         <p className="text-gray-700 mb-10 leading-relaxed">
-          Whether you are searching for a vertical machining center,
-          horizontal machining center, CNC turning center, Swiss machine,
-          fabrication equipment, or manual machinery, our experienced team can
-          help you locate the right equipment for your application and budget.
-          You can{' '}
+          Our inventory includes equipment from established manufacturers
+          and covers a wide range of manufacturing applications. Whether
+          you need a vertical machining center, horizontal machining center,
+          CNC turning center, Swiss-type lathe, or metal fabrication machine,
+          our team can help you identify equipment that meets your
+          requirements.{' '}
           <Link
             href="/inventory"
             className="text-blue-600 underline"
           >
-            browse our complete inventory here
+            Browse our complete used machinery inventory
           </Link>{' '}
-          or contact us directly for assistance locating a specific machine.
+          or contact us for assistance locating a specific machine.
         </p>
 
         <h3 className="text-xl font-semibold mb-4">
-          Types of Used Machinery We Offer
+          Used CNC Machines, Metalworking & Fabrication Equipment
         </h3>
 
         <p className="text-gray-700 mb-10 leading-relaxed">
-          Our inventory regularly includes CNC machining centers, CNC lathes,
-          horizontal machining centers, vertical machining centers, Swiss
-          turning centers, manual mills, manual lathes, grinders, EDM
-          equipment, fabrication machinery, press brakes, stamping presses,
-          inspection equipment, tooling, and other industrial machinery.
-          Browse our{' '}
+          Our used machinery inventory regularly includes CNC vertical and
+          horizontal machining centers, CNC turning centers, Swiss-type
+          lathes, manual mills, manual lathes, surface and cylindrical
+          grinders, EDM equipment, press brakes, stamping presses, plate
+          rolls, fabrication machinery, inspection equipment, and other
+          industrial manufacturing assets. Explore our major equipment
+          categories:
+          {' '}
           <Link
             href="/inventory/cnc-machinery"
             className="text-blue-600 underline"
@@ -295,74 +306,123 @@ export default async function HomePage() {
             className="text-blue-600 underline"
           >
             Manual Machinery
-          </Link>{' '}
-          categories to view available equipment.
+          </Link>
+          .
         </p>
 
         <h3 className="text-xl font-semibold mb-4">
-          Why Buy Used CNC Machines?
+          Buy Used CNC Machines & Industrial Equipment
         </h3>
 
         <p className="text-gray-700 mb-10 leading-relaxed">
-          Purchasing quality used CNC machinery allows manufacturers to reduce
-          capital expenditures while maintaining production capacity. Used
-          equipment often provides faster delivery, proven reliability, and
-          outstanding value compared to purchasing new machinery. Many machines
-          in our inventory are available for immediate shipment, helping
-          minimize downtime and keep your operation productive.
+          Purchasing quality used CNC machinery can help manufacturers
+          expand production capacity, reduce capital investment, and
+          acquire equipment without the lead times sometimes associated
+          with ordering new machines. From production CNC lathes and
+          machining centers to specialized fabrication and metalworking
+          equipment, used machinery offers buyers additional options when
+          planning equipment purchases. Our team can help you review
+          available machines and discuss sourcing opportunities when a
+          particular model or configuration is not listed in our inventory.
+        </p>
+
+        <h3 className="text-xl font-semibold mb-4">
+          Sell Your Used CNC Machines & Surplus Machinery
+        </h3>
+
+        <p className="text-gray-700 mb-10 leading-relaxed">
+          Concord Machine Tools also purchases used CNC machines and
+          industrial equipment from manufacturers, machine shops, and
+          businesses throughout the United States. Whether you are
+          replacing older equipment, selling surplus machinery, liquidating
+          idle assets, or transitioning manufacturing operations, we can
+          review your equipment and discuss a potential purchase.
+          We evaluate a wide range of machinery, including CNC machining
+          centers, lathes, grinders, fabrication equipment, and complete
+          manufacturing assets. Visit our{' '}
+          <Link
+            href="/sell"
+            className="text-blue-600 underline"
+          >
+            Sell Your Machinery
+          </Link>{' '}
+          page to learn more.
+        </p>
+
+        <h3 className="text-xl font-semibold mb-4">
+          Machinery Valuations, Consulting & Equipment Sourcing
+        </h3>
+
+        <p className="text-gray-700 mb-10 leading-relaxed">
+          Establishing the fair market value of used industrial machinery
+          requires an understanding of equipment specifications, age,
+          condition, configuration, demand, and current market conditions.
+          Concord Machine Tools assists manufacturers with machinery
+          evaluations, selling guidance, and equipment sourcing. We can
+          help businesses assess surplus equipment, consider selling
+          options, and identify machinery that meets their manufacturing
+          requirements. Learn more about our{' '}
+          <Link
+            href="/consulting"
+            className="text-blue-600 underline"
+          >
+            machinery consulting services
+          </Link>
+          .
         </p>
 
         <h3 className="text-xl font-semibold mb-6">
-          Why Choose Concord Machine Tools
+          Why Choose Concord Machine Tools?
         </h3>
 
         <div className="space-y-6 text-gray-700 leading-relaxed">
-
           <p>
-            Since 2002, Concord Machine Tools has been a trusted source for
-            buying and selling used CNC machines, fabrication equipment, and
-            industrial machinery. Based in Michigan's manufacturing corridor,
-            we serve customers throughout the United States and around the
-            world, connecting buyers and sellers with quality used machinery
-            at competitive market prices.
+            Since 2002, Concord Machine Tools has helped manufacturers
+            buy and sell used CNC machines, fabrication equipment, and
+            industrial machinery. Based in Michigan, we serve customers
+            throughout the United States and internationally, connecting
+            equipment buyers and sellers through our industry experience
+            and network of manufacturing contacts.
           </p>
 
           <p>
-            We specialize in CNC machining centers, CNC lathes, horizontal and
-            vertical machining centers, Swiss-type lathes, grinding machines,
-            EDM equipment, press brakes, stamping presses, sheet metal
-            fabrication equipment, and many other categories of industrial
-            machinery. Our inventory frequently features respected brands such
-            as Haas, Mazak, Okuma, Doosan, Makino, Hurco, Fanuc, Amada,
-            Mitsubishi, Mori Seiki, DMG MORI, and many others.
+            We specialize in CNC machining centers, CNC lathes, horizontal
+            and vertical machining centers, Swiss-type lathes, grinding
+            machines, EDM equipment, press brakes, stamping presses,
+            sheet metal fabrication equipment, and many other categories
+            of industrial machinery. Our inventory frequently features
+            respected manufacturers such as Haas, Mazak, Okuma, Doosan,
+            Makino, Hurco, FANUC, Amada, Mitsubishi, Mori Seiki, DMG MORI,
+            and many others.
           </p>
 
           <p>
-            Every machine listing includes detailed specifications, photographs,
-            and accurate condition information whenever available so buyers can
-            make informed purchasing decisions. Whether you are expanding your
-            facility, replacing existing equipment, or searching for a specific
-            machine model, our experienced team is committed to helping you
-            identify the right solution.
+            We provide detailed machine specifications, photographs, and
+            available condition information to help buyers evaluate
+            equipment. Whether you are expanding your facility, replacing
+            existing machinery, or searching for a specific machine model,
+            our team can assist with identifying potential equipment
+            solutions.
           </p>
 
           <p>
-            We also assist manufacturers in selling surplus machinery, idle
-            assets, and complete manufacturing facilities. Our extensive
-            industry network and market knowledge help maximize equipment value
-            while simplifying the selling process from start to finish.
+            Our business also focuses on purchasing surplus machinery and
+            helping manufacturers evaluate equipment they no longer need.
+            From individual CNC machines to larger groups of industrial
+            assets, we work with businesses to discuss practical selling
+            and equipment disposition options.
           </p>
 
           <p>
-            If you are looking to buy used CNC machines, sell industrial
-            equipment, or locate a hard-to-find machine tool, Concord Machine
-            Tools provides the experience, inventory, and responsive service to
-            help you achieve your manufacturing goals.
+            Whether you are looking to buy used CNC machines, sell
+            industrial equipment, obtain a machinery valuation, or locate
+            a hard-to-find machine tool, Concord Machine Tools provides
+            the experience and industry connections to help with your
+            equipment needs.
           </p>
-
         </div>
-
       </section>
+
       {/* CATEGORY SECTION */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <h2 className="text-2xl font-semibold mb-10 text-center">
@@ -379,8 +439,9 @@ export default async function HomePage() {
             </h3>
 
             <p className="text-sm text-gray-600">
-              Used CNC machining centers, turning centers, horizontal and
-              vertical machining centers, CNC lathes, and other CNC equipment.
+              Used CNC machining centers, turning centers, horizontal
+              and vertical machining centers, CNC lathes, and other
+              CNC equipment.
             </p>
           </Link>
 
@@ -416,7 +477,7 @@ export default async function HomePage() {
         {/* BRAND LOGOS */}
         <div className="mt-14">
           <h2 className="text-xl font-semibold text-center mb-6">
-            We Frequently Stock Used CNC Machines From Leading Manufacturers
+            Used CNC Machines From Leading Manufacturers
           </h2>
 
           <div className="flex flex-wrap justify-center items-center gap-8">
@@ -487,6 +548,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
